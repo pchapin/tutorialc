@@ -5,184 +5,159 @@ Quick-Start: Programming with curses
 Introduction
 ------------
 
-Even in this day of graphical user interfaces, there is still an
-important place for programs that use plain text interfaces. Such
-programs can run on a greater variety of systems. Most (all?) graphical
-systems also support a text oriented interface as well, and many systems
-support only a text interface. Also text mode programs are often smaller
-(and faster) than their graphical counterparts because they tend to
-consume fewer system resources.
+Even in this day of graphical user interfaces, there is still an important place for programs
+that use plain text interfaces. Such programs can run on a greater variety of systems. Most
+(all?) graphical systems also support a text oriented interface as well, and many systems
+support only a text interface. Also text mode programs are often smaller (and faster) than their
+graphical counterparts because they tend to consume fewer system resources.
 
-A traditional Unix system communicates with its users by way of "dumb"
-terminals connected to serial ports. These days the dumb terminals have
-been replaced with personal computers running terminal emulation
-software and the serial connection has been replaced with the Internet.
-Yet despite these changes, the text oriented software still believes the
-user is just operating a simple terminal.
+A traditional Unix system communicates with its users by way of "dumb" terminals connected to
+serial ports. These days the dumb terminals have been replaced with personal computers running
+terminal emulation software and the serial connection has been replaced with the Internet. Yet
+despite these changes, the text oriented software still believes the user is just operating a
+simple terminal.
 
-Terminals are normally sequential devices. Each character occupies a
-single character "cell" (text terminals almost always use a fixed width
-font) and after each character is printed the output position advances
-exactly one cell to the right. When the text reaches the end of the
-line, the next character appears at the start of the next line and the
-lines on the terminal scroll up, if necessary, to make room for it.
+Terminals are normally sequential devices. Each character occupies a single character "cell"
+(text terminals almost always use a fixed width font) and after each character is printed the
+output position advances exactly one cell to the right. When the text reaches the end of the
+line, the next character appears at the start of the next line and the lines on the terminal
+scroll up, if necessary, to make room for it.
 
-Certain "control" characters typically cause various special effects.
-The '\n' character, when printed, causes the next character to appear at
-the start of the next line regardless of where the last character was
-printed. The '\t' character causes the print position to jump over to
-the next tab stop.
+Certain "control" characters typically cause various special effects. The '\n' character, when
+printed, causes the next character to appear at the start of the next line regardless of where
+the last character was printed. The '\t' character causes the print position to jump over to the
+next tab stop.
 
-These primitive formatting features have existed in terminals since the
-dawn of time. Yet many programs want more control over the terminal than
-the simple control characters will allow. To support this, terminals
-look for special "escape sequences" in the stream of characters that is
-sent to them. When an escape sequence is seen, the terminal provides
-some sort of special effect instead of just printing the characters raw.
-For example, on most terminals you can clear the screen by printing the
-sequence of characters "\033[2J" (the '\033' is the ESC character
+These primitive formatting features have existed in terminals since the dawn of time. Yet many
+programs want more control over the terminal than the simple control characters will allow. To
+support this, terminals look for special "escape sequences" in the stream of characters that is
+sent to them. When an escape sequence is seen, the terminal provides some sort of special effect
+instead of just printing the characters raw. For example, on most terminals you can clear the
+screen by printing the sequence of characters "\033[2J" (the '\033' is the ESC character
 represented by its ASCII code in octal).
 
-Some of these escape sequences have been standardized by the American
-National Standards Institute (ANSI) and are often called "ANSI escape
-sequences". The problem is that not all terminals understand them.
-Furthermore many terminals support even more advanced features than are
-defined by the ANSI standard escape sequences.
+Some of these escape sequences have been standardized by the American National Standards
+Institute (ANSI) and are often called "ANSI escape sequences". The problem is that not all
+terminals understand them. Furthermore many terminals support even more advanced features than
+are defined by the ANSI standard escape sequences.
 
-This presents a problem to programmers who are trying to write software
-that will work properly on every terminal. Simple formatting with '\n'
-and '\t' and other similar things usually works everywhere, but that
-doesn't provide the control people want. To do things that are fancier,
-one needs to consider what type of terminal the user has; each terminal
-needs to be treated differently.
+This presents a problem to programmers who are trying to write software that will work properly
+on every terminal. Simple formatting with '\n' and '\t' and other similar things usually works
+everywhere, but that doesn't provide the control people want. To do things that are fancier, one
+needs to consider what type of terminal the user has; each terminal needs to be treated
+differently.
 
-To get around this problem, there is a library of C functions on most
-Unix systems that allows you as a programmer to work with the terminal
-in an abstract way. This library, called "curses", will automatically
-use the most optimum way of manipulating the user's terminal to get your
-job done. If your program uses curses for all terminal I/O, it should be
-able to do some fancy things with the terminal and at the same time work
-properly with any (reasonable) terminal the user might have.
+To get around this problem, there is a library of C functions on most Unix systems that allows
+you as a programmer to work with the terminal in an abstract way. This library, called "curses",
+will automatically use the most optimum way of manipulating the user's terminal to get your job
+done. If your program uses curses for all terminal I/O, it should be able to do some fancy
+things with the terminal and at the same time work properly with any (reasonable) terminal the
+user might have.
 
-Curses is a large and relatively complex library. However, you can do
-useful things with it after knowing only a few basic functions. It is
-the purpose of this note to introduce you to curses so that you can get
-started with it.
+Curses is a large and relatively complex library. However, you can do useful things with it
+after knowing only a few basic functions. It is the purpose of this note to introduce you to
+curses so that you can get started with it.
 
-It is worth noting that although curses is normally considered a Unix
-library, there is nothing that prevents curses from being implemented on
-non-Unix systems. Curses is a library for high level terminal handling.
-Any system with a text mode console could potentially benefit from
+It is worth noting that although curses is normally considered a Unix library, there is nothing
+that prevents curses from being implemented on non-Unix systems. Curses is a library for high
+level terminal handling. Any system with a text mode console could potentially benefit from
 curses.
 
 Using Curses
 ------------
 
-To uses curses, you need to #include <curses.h> so that the compiler can
-see the declarations of all the curses functions (there are quite a few
-of them). Also when you compile your program you will need to tell cc
-that it has to scan over the curses library file. It won't do that by
-default and if it doesn't you will get errors about "unresolved"
-functions. Here's how that looks
+To uses curses, you need to #include <curses.h> so that the compiler can see the declarations of
+all the curses functions (there are quite a few of them). Also when you compile your program you
+will need to tell cc that it has to scan over the curses library file. It won't do that by
+default and if it doesn't you will get errors about "unresolved" functions. Here's how that
+looks
 
-	     $ cc -o myprog myprog.c -lcurses
+    $ cc -o myprog myprog.c -lcurses
 
-Here I'm using the dash-ell option to tell cc about additional libraries
-that I want to use besides just the standard library. It is important
-that you add the -l option to the end of the command line.
+Here I'm using the dash-ell option to tell cc about additional libraries that I want to use
+besides just the standard library. It is important that you add the -l option to the end of the
+command line.
 
 Here are the basics of curses:
 
-Before you can do anything with the screen or the keyboard you should
-execute the following code:
+Before you can do anything with the screen or the keyboard you should execute the following
+code:
 
-       initscr();
-       cbreak();
-       noecho();
-       nonl();
+    initscr( );
+    cbreak( );
+    noecho( );
+    nonl( );
 
-These are four functions from the curses library that will initialize
-the screen in a sensible way. It is absolutely essential that initscr be
-called first. The other functions enable single character at a time
-input (instead of line at a time) and turn off echoing by default. The
-only characters that will appear on the terminal are the ones you
-explictly put there. This is not the only way to use curses, but it is
-the most common way. A typical curses application wants to completely
-take over the way the terminal is handled.
+These are four functions from the curses library that will initialize the screen in a sensible
+way. It is absolutely essential that initscr be called first. The other functions enable single
+character at a time input (instead of line at a time) and turn off echoing by default. The only
+characters that will appear on the terminal are the ones you explictly put there. This is not
+the only way to use curses, but it is the most common way. A typical curses application wants to
+completely take over the way the terminal is handled.
 
-IMPORTANT: Once you have called initscr, you should not use any of the
-usual C I/O functions such as printf, scanf, getchar, etc. Those
-functions operate outside of curses and will confuse curses.
+IMPORTANT: Once you have called initscr, you should not use any of the usual C I/O functions
+such as printf, scanf, getchar, etc. Those functions operate outside of curses and will confuse
+curses.
 
 Before your program terminates you should execute
 
-       endwin();
+    endwin( );
 
-To set things back to normal. If you fail to do this, the terminal may
-be left in an unusable state when your program terminates.
+To set things back to normal. If you fail to do this, the terminal may be left in an unusable
+state when your program terminates.
 
-A typical terminal is divided into 24 rows of 80 columns. The top left
-corner is row 0, column 0. The rows increase in number as you go down.
-The columns increase in number as you go across. You can move the cursor
-and print a string using the mvaddstr function
+A typical terminal is divided into 24 rows of 80 columns. The top left corner is row 0, column
+0. The rows increase in number as you go down. The columns increase in number as you go across.
+You can move the cursor and print a string using the mvaddstr function
 
-       mvaddstr(row, column, "Hello, World!");
+    mvaddstr( row, column, "Hello, World!" );
 
-You can move the cursor and print a single character using the mvaddch
-function
+You can move the cursor and print a single character using the mvaddch function
 
-       mvaddch(row, column, 'x');
+    mvaddch( row, column, 'x' );
 
-After you print anything with curses functions you need to call the
-function refresh before it will actually be displayed on the screen.
+After you print anything with curses functions you need to call the function refresh before it
+will actually be displayed on the screen.
 
-       refresh();
+    refresh( );
 
-The curses library holds all output in a special internal area and
-doesn't output anything until you refresh. This allows you to "paint"
-text all over the screen any way you want and then have it all updated
-at once. This design allows for faster (apparent) updates and less
-flickering. It also allows curses to update the screen in a maximumally
-efficient way. Back in the days when most terminals operated at 2400
-baud (or less) that was very important! It's still a good way to do
-things, but forgetting to refresh is a very common curses error. Watch
-out for it.
+The curses library holds all output in a special internal area and doesn't output anything until
+you refresh. This allows you to "paint" text all over the screen any way you want and then have
+it all updated at once. This design allows for faster (apparent) updates and less flickering. It
+also allows curses to update the screen in a maximumally efficient way. Back in the days when
+most terminals operated at 2400 baud (or less) that was very important! It's still a good way to
+do things, but forgetting to refresh is a very common curses error. Watch out for it.
 
 To get a keystroke from the user use the getch function.
 
-       int ch;
-       ch = getch();
+    int ch;
+    ch = getch( );
 
-If you activated noecho at the start of your program the character the
-user types will not be printed automatically. You can, however, print it
-yourself (if you want) using mvaddch and refresh.
+If you activated noecho at the start of your program the character the user types will not be
+printed automatically. You can, however, print it yourself (if you want) using mvaddch and
+refresh.
 
-If you want to output floating point values to the screen, you can't use
-printf (remember, once curses is initialized, you can't use any standard
-I/O functions). However, the curses library provides a function that
-offers the same features as printf. It is called mvprintw. Here is how
+If you want to output floating point values to the screen, you can't use printf (remember, once
+curses is initialized, you can't use any standard I/O functions). However, the curses library
+provides a function that offers the same features as printf. It is called mvprintw. Here is how
 it might work
 
-       mvprintw(row, column, "The answer is %6.3f", answer);
+    mvprintw( row, column, "The answer is %6.3f", answer );
 
-The parameters to mvprintw work just like printf's parameters except
-that mvprintw requires the screen coordinates of where the text is to
-appear.
+The parameters to mvprintw work just like printf's parameters except that mvprintw requires the
+screen coordinates of where the text is to appear.
 
 For More Information
 --------------------
 
-This introduction should give you enough information to get you started
-with curses. If you want to do anything fancier you will need to refer
-to a more complete reference. The on-line manual pages might be a good
-place to start. Do "man curses" at the prompt to read a more detailed
-overview of the curses system. You can also use the manual to look up
-information on specific curses functions. For example
+This introduction should give you enough information to get you started with curses. If you want
+to do anything fancier you will need to refer to a more complete reference. The on-line manual
+pages might be a good place to start. Do "man curses" at the prompt to read a more detailed
+overview of the curses system. You can also use the manual to look up information on specific
+curses functions. For example
 
-       $ man mvaddstr
+    $ man mvaddstr
 
-There are entire books written about using curses. In its full glory it
-supports, special keys (arrow keys, function keys), attributes such as
-underline and bold, color, multiple "windows" on the screen, and other
-things. I invite you to explore.
-
+There are entire books written about using curses. In its full glory it supports, special keys
+(arrow keys, function keys), attributes such as underline and bold, color, multiple "windows" on
+the screen, and other things. I invite you to explore.
