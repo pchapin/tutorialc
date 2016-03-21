@@ -1,0 +1,426 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE         : LESSON-18.htm
+     LAST REVISED : 2003-07-15
+     AUTHOR       : (C) Copyright 2003 by Peter Chapin
+     SUBJECT      : Arrays: declaring, accessing, initializing. -->
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
+  <head>
+    <meta name="generator" content="HTML Tidy for Windows (vers 24 July 2007), see www.w3.org" />
+    <title>Lesson #18</title>
+    <meta name="Author" content="Peter C. Chapin" />
+    <!-- <meta name="keywords" lang="en-US" content="..."> -->
+    <meta name="ROBOTS" content="NOARCHIVE" />
+    <link rel="stylesheet" href="c-course.css" type="text/css" />
+  </head>
+  <body>
+    <h1>Lesson #18</h1>
+    <p class="subtitle">Arrays: Declaring, Accessing, Initializing</p>
+    <h2>Overview</h2>
+    <p>In this lesson I will cover the following topics</p>
+    <ol id="overview-list">
+      <li>
+        <p>What is an array and how do you declare them and access their elements.</p>
+      </li>
+      <li>
+        <p>The importance of arrays.</p>
+      </li>
+      <li>
+        <p>How to initialize an array.</p>
+      </li>
+    </ol>
+    <h2>Body</h2>
+    <h3>What is an array?</h3>
+    <p>So far all of the variables we have talked about have been able to hold only a single
+      value. While that is fine in many cases, it is also handy to have a way of storing a
+      number of related values together. The C language provides two basic ways to create an
+      "aggregate" variable. The first, that we will talk about now, is with arrays. The second,
+      that we will talk about in <a href="LESSON-26.html">Lesson #26</a>, is with
+      structures.</p>
+    <p>Here are the important characteristics of an array.</p>
+    <ol>
+      <li>
+        <p>It contains a group of variables that are presumably related in some way. The number
+          of variables in the array is something you specify when you declare the array.</p>
+      </li>
+      <li>
+        <p>The size of an array must be a constant. It can't change while the program executes.
+          This is sometimes a significant disadvantage. There are ways of creating arrays that
+          can change in size while the program runs, but doing so involves elaborate techniques
+          that we won't discuss in this course.</p>
+      </li>
+      <li>
+        <p>Every variable in the array has the same type.</p>
+      </li>
+      <li>
+        <p>Although the array has a name, the individual variables in the array do not have
+          names of their own. Instead you refer to them using an integer index. I will show you
+          what I mean in just a moment.</p>
+      </li>
+      <li>
+        <p>The individual variables in an array are called "elements" of the array.</p>
+      </li>
+    </ol>
+    <p>Here is a simple example to illustrate.</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  int i;            // An integer variable. I will use this as an index.
+  int my_array[10]; // An array of 10 integer elements.
+
+  // Load up the array with interesting numbers.
+  for (i = 0; i &lt; 10; i++) {
+    my_array[i] = 2 * i;
+  }
+
+  // Print out every array element.
+  for (i = 0; i &lt; 10; i++) {
+    printf("Array element %d is %d\n", i, my_array[i]);
+  }
+
+  return 0;
+}
+</pre>
+    <p>The array <span class="code">my_array</span> contains 10 integers numbered from 0 to 9.
+      It is important to remember that in C array indicies <em>always</em> start at zero. Thus
+      the first element of <span class="code">my_array</span> is <span class="code"
+        >my_array[0]</span> and the last element of <span class="code">my_array</span> is <span
+        class="code">my_array[9]</span>. Despite how it might look in the declaration, there is
+      no <span class="code">my_array[10]</span>. Forgetting this is a very common error.</p>
+    <p>As you can probably guess by now, you use square brackets to access a particular array
+      element. For example, I could do</p>
+    <pre class="code">
+my_array[4] = 17;
+</pre>
+    <p>To put the value 17 into the element <span class="code">my_array[4]</span>. In this
+      example, <span class="code">my_array</span> is an array of integers so the value 17 is an
+      appropriate value to store in the array. It is possible to create arrays of any type as I
+      will show below. However the index into the array is <em>always</em> an integer.</p>
+    <p>In my example above, I wrote a loop that runs <span class="code">i</span> from 0 to 9. I
+      then use <span class="code">i</span> as the array index so that different array elements
+      are accessed during each loop pass. This is VERY common. People sometimes call this
+      "scanning down an array" or "sweeping over an array." When that first loop is done it has
+      stored the following values into the various array elements.</p>
+    <pre class="code">
+my_array[0] ==  0
+my_array[1] ==  2
+my_array[2] ==  4
+my_array[3] ==  6
+my_array[4] ==  8
+my_array[5] == 10
+my_array[6] == 12
+my_array[7] == 14
+my_array[8] == 16
+my_array[9] == 18
+</pre>
+    <p>My simple loop stores a value into each array element that is twice that element's index.
+      You can probably imagine doing much more complicated things. In fact, in general, the
+      value stored in an array element has nothing to do with the index. I just did that way
+      here so that my example would be simple to write.</p>
+    <p>The fact that I can use any integer expression to index an array is a big advantage to
+      using arrays. Suppose I wanted to create 10 separate variables to hold the values 0
+      through 18 in steps of two (like I'm doing with the array above). How would it look?</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  int var_0;
+  int var_1;
+  int var_2;
+  int var_3;
+  int var_4;
+  int var_5;
+  int var_6;
+  int var_7;
+  int var_8;
+  int var_9;
+
+  var_0 =  0;
+  var_1 =  2;
+  var_2 =  4;
+  var_3 =  6;
+  var_4 =  8;
+  var_5 = 10;
+  var_6 = 12;
+  var_7 = 14;
+  var_8 = 16;
+  var_9 = 18;
+
+  // etc...
+</pre>
+    <p>Can you say "ugly?" With arrays I was able to manipulate every element by writing a
+      single expression involving a generic "ith" element and looping <span class="code"
+        >i</span> over the entire range of the array. (If you are wondering how to pronouce
+      "ith" think of it this way... you have "forth" to talk about element number 4, "fifth" to
+      talk about element number 5, and "sixth" to talk about element number six. Thus to talk
+      about element number i you should say "ith". Make sense?)</p>
+    <p>The advantage of arrays is even more apparent when the number of elements becomes large.
+      You can create arrays with thousands (even millions) of elements. Can you just imagine
+      trying to write a program with thousands or millions of different variables! Since most
+      programs need to manipulate large quantities of data, arrays are incredibly useful and
+      essential.</p>
+    <p>Before I move on, I just want to emphasize that you can create arrays of any type. Here
+      is an example similar to the one above that loads an array with the square roots of the
+      numbers from zero to 99.</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+#include &lt;math.h&gt;   // Needed for the sqrt function.
+
+int main(void)
+{
+  double square_roots[100];
+  int    i;
+
+  // Figure out all these square roots and stash them for later.
+  for (i = 0; i &lt; 100; i++) {
+    square_roots[i] = sqrt(i);
+  }
+
+  // etc...
+</pre>
+    <p>Here I declare <span class="code">square_roots</span> to be an array of 100 doubles.
+      Don't forget: that means I have <span class="code">square_roots[0]</span> to <span
+        class="code">square_roots[99]</span> and no <span class="code">square_roots[100]</span>.
+      Next I run a loop over the range from 0 to 99 (note the <span class="code">&lt;</span> in
+      the loop condition... it's not <span class="code">&lt;=</span>). For each pass of that
+      loop I use the standard library function <span class="code">sqrt</span> to compute the
+      square root of <span class="code">i</span> and I store that value into the ith array
+      element.</p>
+    <p>My main point here is that I have an array of doubles and that I can store a double into
+      each element. Notice that the index is still just an integer. Array indicies are always
+      integers.</p>
+    <p>Actually doing things this way might be useful in real life too. Suppose that later in
+      this program I wanted to use the square root of 2. I could just look it up in the array
+      like this</p>
+    <pre class="code">
+printf("The square root of 2 is %f\n", square_roots[2]);
+</pre>
+    <p>Of course I could also do this</p>
+    <pre class="code">
+printf("The square root of 2 is %f\n", sqrt(2));
+</pre>
+    <p>However, looking up an array element is <em>very</em> fast. Computing a square root is
+      slow. If my program needed to use the square roots of the integers from 0 to 99 many, many
+      times it would be faster to precompute all the square roots, store them in an array, and
+      then fetch them out of the array later as needed. Such an approach would not be
+      appropriate for every program but in certain programs it might make a big improvement in
+      performance.</p>
+    <p>Notice in my <span class="code">printf</span>s above I used %f as a format specifier.
+      That's because I'm trying to print an element of the array <span class="code"
+        >square_roots</span> and those elements are doubles. A %d would be the wrong choice.</p>
+    <h3>Off the end!</h3>
+    <p>When you use an array you have to be very careful to never try and access an element that
+      does not exist. Traditionally C compilers do not check for such errors. To do so would
+      require, in general, that the compiler insert instructions into your program to verify
+      each index before it is used. Such instructions would make your program larger and slower.
+      C does not bother with such checks since correct programs don't need them. However as a
+      consequence if your program is incorrect it will just end up doing strange things.
+      Consider my first example where I load up the elements of <span class="code"
+        >my_array</span>. I had a loop like this</p>
+    <pre class="code">
+for (i = 0; i &lt; 10; i++) {
+  my_array[i] = 2 * i;
+}
+</pre>
+    <p>This loop runs <span class="code">i</span> from 0 to 9 which is just right since there
+      are 10 elements in <span class="code">my_array</span>. If the compiler inserted checks on
+      the array indicies it would have effectively transformed the loop above into</p>
+    <pre class="code">
+for (i = 0; i &lt; 10; i++) {
+  if (i &lt; 0 || i &gt;= 10) {
+    error_handling();
+  }
+  else {
+    my_array[i] = 2 * i;
+  }
+}
+</pre>
+    <p>Many languages do check the bounds on arrays in a manner like this regardless of what the
+      programmer wants. The problem is that in this case the extra checking is totally
+      unnecessary. It is clear enough (to us) that the value of <span class="code">i</span> will
+      always be in bounds. The check is a waste of time. C does not bother with it because C was
+      designed for high performance.</p>
+    <p>The bad news is that if the programmer gets it wrong, bad things happen without warning.
+      Take a look at this version of the loop.</p>
+    <pre class="code">
+for (i = 0; i &lt;= 10; i++) {
+  my_array[i] = 2 * i;
+}
+</pre>
+    <p>Everything is fine until i is incremented to 10. The loop condition is still true and
+      thus we end up trying to do</p>
+    <pre class="code">
+my_array[10] = 2 * 10;
+</pre>
+    <p>The problem is that there is no <span class="code">my_array[10]</span>. The statement
+      above will store the value 20 into a "random" place in memory---a place that is probably
+      being used by something else. When the program tries to access that something else it will
+      have an unexpected value and the program will do something unpredictable. AVOID THIS AT
+      ALL COST!</p>
+    <p>Most of the time when this happens the program will try to do something illegal such as
+      access a memory location that has not been given to the program by the operating system.
+      In that case, the operating system will catch the error and abort the program at once so
+      as to prevent system wide damage. Under Unix you will see the message "core dumped" on the
+      terminal. The program will be killed and a copy of its memory space will be written to a
+      file named "core" in the working directory. This "core file" is sort of like the program's
+      dead body. Using the debugger you can examine the file (like doing an autopsy) and find
+      out what went wrong.</p>
+    <p>Under Windows instead of seeing "core dumped" you will get a message box with a red X
+      icon that says "This program has performed an illegal operation and must be shut down." If
+      you've used Windows much you have probably seen this message before. It is due to an error
+      in the program (not necessarily an error in Windows as some people think).</p>
+    <p>If you are very unlucky the "unpredictable" thing your program does after you go off the
+      end of an array will not be strictly illegal in the eyes of the operating system, but will
+      still be highly undesirable to you. For example, the program might go crazy and delete all
+      of your files. This is highly unlikely, but it is possible. The bottom line: do not ever
+      try to access an array element that doesn't exist. In the interests of speed C does not
+      check for this; yet if you do it bad things will happen.</p>
+    <h3>Initializing arrays.</h3>
+    <p>You can initialize an individual variable when you declare it using a syntax like
+      this</p>
+    <pre class="code">
+int max = 100;
+</pre>
+    <p>You can also initialize an array when you declare it. If you do not initialize an array,
+      the elements are all initialized according to the usual rules. Static duration arrays
+      (global arrays and local arrays with declared with the "static" keyword) have all their
+      elements initialized to zero. Automatic duration arrays (ordinary local arrays) come to
+      life with unpredictable values in their elements. To explicitly initialize an array you
+      can write</p>
+    <pre class="code">
+int table[5] = { 45, -2, 37, 101, 6 };
+</pre>
+    <p>In this example, <span class="code">table[0]</span> is being initialized to 45, <span
+        class="code">table[1]</span> is being initialized to -2, etc. Notice that the
+      initializers are integers here because Table is an array of integers. Here is another
+      example using an array of characters.</p>
+    <pre class="code">
+char hex_digits[16] =
+  { '0', '1', '2', '3', 
+    '4', '5', '6', '7', 
+    '8', '9', 'A', 'B', 
+    'C', 'D', 'E', 'F' };
+</pre>
+    <p>Each element of the array is a character and is being intialized with a character
+      constant. I put the initializers on separate lines to make them look nicer. As always, the
+      spacing doesn't matter. What matters is that there is a comma between each initializer and
+      braces around the entire list. Notice the semicolon at the end of the statement. The
+      braces that are used in if statements, loops, etc, do not have a semicolon after them. But
+      these braces are different and the semicolon is required here.</p>
+    <p>In my examples so far I've created an array with exactly the same size as the number of
+      initializers. This is not actually necessary. If you specify a larger array the extra
+      elements are all initialized to zero. For example</p>
+    <pre class="code">
+int table[100] = { 1 };
+</pre>
+    <p>causes <span class="code">table[0]</span> to be initialized to 1 and all the other
+      elements to be initialized to zero. There is no way to specify initializers that are just
+      "in the middle" of the array. The initializers always start with element zero.</p>
+    <p>If you have more initializers than you have space in the array, the compiler will call it
+      an error. For example</p>
+    <pre class="code">
+int table[3] = { 1, 2, 3, 4, 5};
+</pre>
+    <p>is an error. This only makes sense. How can you fit five initializers into an array of
+      three elements? However, as a special case, if you don't specify the size of the array at
+      all, the compiler will count the initializers and use that for the size. This is very
+      handy and commonly done.</p>
+    <pre class="code">
+int table[] = { 1, 2, 3, 4, 5 };
+</pre>
+    <p>In this case the compiler gives the array five elements so that it can exactly hold the
+      initializers. A common thing to do is something like this</p>
+    <pre class="code">
+int table[] = { 1, 2, 3, 4, 5 };
+int table_size = sizeof(table)/sizeof(int);
+</pre>
+    <p>The <span class="code">sizeof</span> operator gives the amount of memory (in bytes) used
+      by whatever it is applied to. Thus <span class="code">sizeof(table)</span> is the total
+      number of bytes used by the <span class="code">table</span> array. Similary, <span
+        class="code">sizeof(int)</span> is the number of bytes used by an integer. By dividing
+      those two quantities you can compute the number of elements in the table. This approach is
+      very handy if you create a large, initialized array. You probably don't want to count all
+      the elements yourself (imagine that there might be hundreds). Instead you just let the
+      compiler do it. However, you probably do need to know how many elements there are so that
+      you can write proper loops:</p>
+    <pre class="code">
+for (i = 0; i &lt; table_size; i++) {
+  // Expression involving table[i].
+}
+</pre>
+    <p>One last rule you should know with regards to array initialization is this: you can only
+      initialize an array with constants. This is true even for automatic arrays. For example,
+      you can't do this</p>
+    <pre class="code">
+void f(int start)
+{
+  int table[3] = { start + 1, start + 2, start + 3 };
+  // etc...
+</pre>
+    <p>Instead you would have to do this</p>
+    <pre class="code">
+void f(int start)
+{
+  int table[3] = { 1, 2, 3 };
+  int i;
+
+  for (i = 0; i &lt; 3; i++) {
+    table[i] += start;
+  }
+  // etc...
+</pre>
+    <p>In other words you have to make your run-time calculations explicitly part of your
+      function. You can't have the compiler set them up for you as part of an array
+      initialization. C++ lifts this restriction.</p>
+    <h2>Summary</h2>
+    <ol id="summary-list">
+      <li>
+        <p>An array is a collection of variables that all go together under the same name. Each
+          variable in an array is called an "element" and must be accessed by specifying it's
+          numeric place in the array. If you declare an array named <span class="code"
+            >my_array</span> to have 100 elements, then you can refer to the first element by
+          writing <span class="code">my_array[0]</span>, the second element by writing <span
+            class="code">my_array[1]</span>, and so on. Array elements are always numbered
+          starting at zero.</p>
+        <p>Each array element acts like a totally independent variable. You are free to put
+          whatever value you like in an element. It doesn't matter what value might be in any
+          other element. Typically array elements are being used for some related purpose so
+          that they can be operated on "generically" inside of a loop. This is the way it
+          typically looks:</p>
+        <pre class="code">
+double my_array[100];
+  // Declares my_array to have 100 doubles. You can create arrays of
+  // any type.
+
+int index;
+  // Array indicies must be integers.
+
+for (index = 0; index &lt; 100; index++) {
+  // Some operation on my_array[index].
+}
+</pre>
+        <p>This allows you to perform a related operation on a large number of variables
+          easily.</p>
+      </li>
+      <li>
+        <p>Arrays are essential. Almost every program uses them. Programs often need to
+          manipulate large quantities of data and that data is often stored in an array.</p>
+      </li>
+      <li>
+        <p>You can initialize an array when you declare it by using curly braces around a list
+          of initializers. It looks like this:</p>
+        <pre class="code">
+int my_array[] = { 10, 12, -34, 9823, 1 };
+  /* my_array has 5 elements. my_array[0] is given the value 10,
+     my_array[1] is given the value 12, and so forth. */
+</pre>
+        <p>Initializing an array is commonly done, but it is not always necessary.</p>
+      </li>
+    </ol>
+    <address>&copy; Copyright 2003 by Peter C. Chapin.<br />
+Last Revised: <b>July 15, 2003</b></address>
+  </body>
+</html>

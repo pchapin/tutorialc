@@ -1,0 +1,328 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE         : LESSON-19.htm
+     LAST REVISED : 2003-07-15
+     AUTHOR       : (C) Copyright 2003 by Peter Chapin
+     SUBJECT      : Pointers: declaring, initializing, dereferencing. -->
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
+  <head>
+    <meta name="generator" content="HTML Tidy for Windows (vers 24 July 2007), see www.w3.org" />
+    <title>Lesson #19</title>
+    <meta name="Author" content="Peter C. Chapin" />
+    <!-- <meta name="keywords" lang="en-US" content="..."> -->
+    <meta name="ROBOTS" content="NOARCHIVE" />
+    <link rel="stylesheet" href="c-course.css" type="text/css" />
+  </head>
+  <body>
+    <h1>Lesson #19</h1>
+    <p class="subtitle">Pointers: Declaring, Initializing, Dereferencing</p>
+    <h2>Overview</h2>
+    <p>In this lesson I will cover the following topics</p>
+    <ol id="overview-list">
+      <li>
+        <p>What is a pointer?</p>
+      </li>
+      <li>
+        <p>How to declare a pointer and use the "address-of" operator and the "indirection"
+          operator.</p>
+      </li>
+      <li>
+        <p>Some common errors students make with pointers.</p>
+      </li>
+    </ol>
+    <h2>Body</h2>
+    <h3>What is a pointer?</h3>
+    <p>A pointer is an address.</p>
+    <p>Everything else in this lesson explains exactly what that means and what you can do with
+      it. Pointers are traditionally considered one of the more difficult topics in learning C.
+      Students are often confused by pointers so if you find this material confusing, don't
+      worry: you are not alone. Yet once you have a clear understanding of what pointers are you
+      will see that they are really quite straightforward. The purpose of this lesson is to give
+      you that understanding.</p>
+    <p>Unlike many languages C makes very heavy use of pointers. In contrast some languages,
+      such as Java, don't have pointers (in the sense that C means) at all. Advocates of such
+      languages regard that as a feature since pointers tend to be confusing and error prone.
+      Yet to get certain things done pointers are necessary. Languages that don't have them have
+      other features instead that give the same effects in a more controlled and limited way. No
+      matter what language you program in, the concepts of "reference" and "indirection" are
+      important. In C these things are explicit; you, the programmer, control the pointers
+      directly. In other languages these things are implicit; the compiler controls the pointers
+      for you. In both cases, you still need to understand what is going on.</p>
+    <p>Before I can describe precisely what a pointer is, I need to talk a little about how the
+      computer's memory is organized. On many machines the smallest unit of information the
+      memory deals with is the "byte". When you buy memory for your computer you buy it by the
+      byte. For example, 16 "meg" of memory is 16 megabytes.</p>
+    <p>Keep in mind that in the computer world 1 K is 1024, not 1000 like it is for everyone
+      else. This is because it just so happens that 1024 is both close to 1000 *and* a round
+      power of 2 (2<sup>10</sup>). Similarly 1 M is 1024*1024 (2<sup>20</sup>) which comes out
+      to 1,048,576 and not 1,000,000 like you might expect. Consequently 16 MBytes of memory is
+      actually 16,777,216 bytes.</p>
+    <p>Each byte of memory can hold a number between 0 and 255 (or from -128 to +127 depending
+      on how you interpret the information in that byte). A byte contains eight bits of
+      information and each bit is just a switch that can be either ON or OFF. With eight
+      switches you can have 2<sup>8</sup> different ways of arranging them and 2<sup>8</sup>
+      happens to be 256. The range from 0 to 255 contains 256 different numbers so that is where
+      that range comes from.</p>
+    <p>The bytes are stored in the memory in a large array. If you have 16 MBytes of memory in
+      your computer, then that array has 16,777,216 elements. Each byte has an address that
+      identifies it. The first byte in memory has the address 0. The next byte is at address 1.
+      The next is at address 2 and so forth. The last byte in your 16 MBytes is at address
+      16,777,215. Here is a picture.</p>
+    <pre class="figure">
+        Memory    Addresses
+
+        +-----+
+        | 25  |   0
+        +-----+
+        | 187 |   1
+        +-----+
+        | 0   |   2
+        +-----+
+        | 59  |   3
+        +-----+
+        |     |
+
+          ...
+
+        |     |
+        +-----+
+        | 88  |   16,777,215
+        +-----+
+</pre>
+    <p>Notice that the contents of each byte (or "memory location") is a number between 0 and
+      255. That's all that can be stored in a byte. Nothing more. The address of a memory
+      location is not directly related to the number stored in that location. For example when
+      you look at location 3 the number you find there does not need to be 3 or anything like a
+      3. This is exactly the same way an array works: the index (address) into an array is
+      unrelated to the value of the element stored at that position.</p>
+    <p>Students are sometimes surprised to learn that the computer's memory is just a huge array
+      of small numbers. It's hard to believe that all the varied kinds of information computers
+      manipulate---text, graphics, programs, and so forth&mdash;ultimately boil down to a bunch
+      of numbers between 0 and 255. But it is true. The trick is in how these numbers are
+      interpreted. For example, the ASCII code assigns letters to numbers so that we can store
+      text in memory by just storing appropriate numbers.</p>
+    <p>On many systems integers are 32 bits. Thus to store an integer in memory, the contents of
+      four adjacent bytes are used together to hold the value of an integer. Each byte has only
+      8 bits, but all four together give the 32 bits needed to store a much larger value. A
+      variable of type double requires 8 bytes (64 bits) to hold its value. The format of those
+      bits is complicated; floating point numbers are difficult to manage. Yet in the end it
+      just comes down to a bunch of bytes.</p>
+    <p>Even your programs are nothing more than a bunch of numbers between 0 and 255. The
+      processor interpretes those numbers as simple instructions. It reads them out of memory
+      and executes them as quickly as it can. Since writing a program as a bunch of numbers is
+      exceedingly tedious and difficult, languages like C were created and compilers were made
+      to convert such languages into the raw "machine language" that the processor
+      understands.</p>
+    <p>Notice that although the bytes stored in memory are just 8 bits, the addresses have to be
+      much larger numbers. This is because you can have a lot more than 256 bytes of memory in
+      your computer! On many machines, addresses are 32 bits (4 bytes), but some newer systems
+      use 64 bit (8 bytes) addresses.</p>
+    <p>So what is a pointer again? A pointer is a variable that holds the address of something
+      else. A pointer is an address. Do not forget that!</p>
+    <h3>So how does this all look in C?</h3>
+    <p>You can declare that a variable is a pointer using a special syntax. Here is an
+      example</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  int  number = 25;
+  int *p;
+
+  p = &amp;number;
+
+  printf("The thing pointed at by p is %d\n", *p);
+  return 0;
+}
+</pre>
+    <p>Please study this example carefully! First I declared a variable named <span class="code"
+        >number</span> and initialized it so that it contains the value 25. Next I declare <span
+        class="code">p</span> to be a "pointer to integer". This means that <span class="code"
+        >p</span> holds the address in memory of where an integer is stored. The computer treats
+      all addresses as the same, but C does not. When you declare a pointer you must tell the
+      compiler the type of thing it points at. Notice the way the astrick is used in the
+      declaration of <span class="code">p</span>. This tells the compiler that you are declaring
+      a pointer to integer and not just another integer. There is a difference! A pointer is the
+      address of something else.</p>
+    <p>When I declared <span class="code">p</span> I did not initialize it. Thus, as with all
+      uninitialized automatic data, <span class="code">p</span> first has an undefined value. It
+      points to a random place in memory. The next thing I do, however, is give it a new value.
+      In particular, I give it the address of <span class="code">number</span>. That's what the
+      ampersand means. After</p>
+    <pre class="code">
+p = &amp;number;
+</pre>
+    <p>the pointer <span class="code">p</span> now contains the address in memory where the
+      variable number is being stored. We say that it "points at" number. Finally I print out
+      the thing <span class="code">p</span> is pointing at by using <span class="code">*p</span>
+      in the printf statement. I print <span class="code">*p</span> into a %d format specifier
+      because the thing <span class="code">p</span> points at is an integer.</p>
+    <p>Are you confused yet?</p>
+    <p>Let me summarize how this works.</p>
+    <pre class="code">
+int *p;
+</pre>
+    <p>Use an asterick like this to declare a pointer. You must specify the type of thing the
+      pointer will point at.</p>
+    <pre class="code">
+p = &amp;number;
+</pre>
+    <p>The <span class="code">&amp;</span> operator is called the "address of" operator. When
+      you see something like <span class="code">&amp;number</span> say "the address of number."
+      After assigning the address of number to <span class="code">p</span> you would say, "p now
+      points at number."</p>
+    <pre class="code">
+*p
+</pre>
+    <p>The <span class="code">*</span> operator is called the "indirection" operator. When you
+      see something like <span class="code">*p</span> say "the thing pointed at by p." The
+      expression <span class="code">*p</span> represents not the pointer, but instead the thing
+      it points at. In this case <span class="code">*p</span> is an integer since <span
+        class="code">p</span> is a pointer to integer.</p>
+    <p>I can't emphasize too much the importance of saying "the address of ..." and "the thing
+      pointed at by ..." when you read these expressions. It really helps in keeping things
+      clear. Some students seem to resist saying "the thing pointed at by ..." and try to
+      abbreviate what <span class="code">*p</span> is doing by saying something like "pointer p"
+      or "star p". But those phrases are vague, imprecise, and inaccurate. It's no wonder to me
+      that those students are confused! Sure "the thing pointed at by p" is long winded, but
+      bite the bullet and say it that way anyway. In the long run you will have a much clearer
+      idea of what you are talking about (and so will whoever is listening to you).</p>
+    <p>Okay... let's look at some common errors that people make. First let me repeat my sample
+      program again.</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  int  number = 25;
+  int *p;
+
+  p = &amp;number;
+
+  printf("The thing pointed at by p is %d\n", *p);
+  return 0;
+}
+</pre>
+    <p>Here are some things that people do</p>
+    <pre class="code">
+int &amp;p;
+</pre>
+    <p>Don't try to declare a pointer using an ampersand. The compiler won't know what you are
+      talking about.</p>
+    <pre class="code">
+int *p1, p2;
+</pre>
+    <p>In this case, <span class="code">p1</span> is a pointer to integer and <span class="code"
+        >p2</span> is just a plain integer. If you wanted both <span class="code">p1</span> and
+        <span class="code">p2</span> to be pointers you need to do</p>
+    <pre class="code">
+int *p1, *p2;
+</pre>
+    <p>Probably the best thing is to just avoid declaring more than one variable at a time.</p>
+    <pre class="code">
+p = number;
+</pre>
+    <p>This is an error. You are trying to assign an integer to a pointer to integer. The
+      compiler won't like that. Pointers hold addresses, not integers.</p>
+    <pre class="code">
+*p = number;
+</pre>
+    <p>This will compile, but it will do bad things in this case. Here you are storing the value
+      of <span class="code">number</span> into the place pointed at by <span class="code"
+        >p</span>. However, in my sample program <span class="code">p</span> is uninitialized at
+      this time. Thus the value in <span class="code">number</span> will be copied to a random
+      place in memory causing unpredictable things to happen (most likely a core dump). Keep in
+      mind, though, that if <span class="code">p</span> did contain a valid address at this time
+      the statement above would make perfectly good sense and might even be a reasonable thing
+      to do.</p>
+    <pre class="code">
+*p = &amp;number;
+</pre>
+    <p>This is an error. Here you are trying to store the address of <span class="code"
+        >number</span> into the place pointed at by <span class="code">p</span>. However <span
+        class="code">*p</span> is an integer and the compiler won't be happy with you storing an
+      address into an integer.</p>
+    <pre class="code">
+printf("The thing pointed at by p is %d\n", p);
+</pre>
+    <p>This is an error. You are trying to print an address using %d, not an integer. If you
+      want to print an address you can use %p with <span class="code">printf</span>. However, in
+      that case you should really change the text of the message so that it won't be
+      misleading.</p>
+    <pre class="code">
+printf("The thing pointed at by p is %d\n", &amp;p);
+</pre>
+    <p>This is an error. The address of <span class="code">p</span> is a "pointer to a pointer
+      to an int." We will talk about pointers to pointers in <a href="LESSON-25.html">Lesson
+        25</a>. In any event it is not an integer and shouldn't be printed using %d.</p>
+    <p>In short, students make every kind of mistake possible when working with pointers. Don't
+      let that be you! Remember the phrases "the address of..." for <span class="code"
+        >&amp;</span> and "the thing pointed at by..." for <span class="code">*</span> and you
+      will be okay.</p>
+    <p>You might have noticed that the indirection operator looks the same as the multiplication
+      operator. Both are astericks. The compiler can tell them apart because indirection is a
+      unary operator and multiplication is a binary operator. Take a look at this statement.</p>
+    <pre class="code">
+int  x;
+int  y;
+int *z;
+
+// etc...
+
+x = y * *z;
+</pre>
+    <p>This takes the integer <span class="code">y</span> and multiplies it by the integer
+      pointed at by <span class="code">z</span>. The resulting product is put into <span
+        class="code">x</span>. This is perfectly fine and reasonable. Seeing those two astericks
+      next to each other like that looks a little strange but they are really two different
+      operators. In fact you could even write that statement like this</p>
+    <pre class="code">
+x = y**z;
+</pre>
+    <p>However that would be horribly confusing so don't even think about doing it in a real
+      program.</p>
+    <h2>Summary</h2>
+    <ol id="summary-list">
+      <li>
+        <p>A pointer is an address. It is a variable that holds the address of something
+          else.</p>
+      </li>
+      <li>
+        <p>To declare a pointer variable you must use a <span class="code">*</span> in the
+          declaration. You must also specify the type of variable the pointer will point at. For
+          example:</p>
+        <pre class="code">
+int    *p1;   // p1 contains the address of an integer.
+double *p2;   // p2 contains the address of a double.
+</pre>
+        <p>To give a pointer a value, you must use the "address-of" operator to generate the
+          address of some other suitable variable.</p>
+        <pre class="code">
+int   X = 10; // A typical integer.
+int  *p;      // A pointer to integer.
+
+p = &amp;X;       // Put the address of X into p.
+</pre>
+        <p>To access the variable a pointer is pointing at, you must use the "indirection"
+          operator.</p>
+        <pre class="code">
+*p = 20;      // Put 20 into the integer pointed at by p.
+</pre>
+      </li>
+      <li>
+        <p>Students often put <span class="code">*</span> characters in when they are not needed
+          or leave them out when they are. Students also do the same with <span class="code"
+            >&amp;</span> characters. The key to getting this right is remember to read <span
+            class="code">&amp;X</span> as "the address of X" and <span class="code">*p</span> as
+          "the thing pointed at by p." Keep in mind also that when you use pointers there are
+          really two variables involved. Sometimes you want to talk about the thing a pointer is
+          pointing at (<span class="code">*p</span>), and sometimes you just want to talk about
+          the pointer itself (<span class="code">p</span>). There is no hard and fast rule about
+          which is correct. The correct thing to say depends on what you are trying to do.</p>
+      </li>
+    </ol>
+    <address>&copy; Copyright 2003 by Peter C. Chapin.<br />
+Last Revised: <b>July 15, 2003</b></address>
+  </body>
+</html>

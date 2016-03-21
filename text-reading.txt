@@ -1,0 +1,98 @@
+
+Reading Assignments from Published Books
+(C) Copyright 2001 by Peter Chapin
+==================================
+
+The following readings are from Stephen G. Kochan's "Programming in ANSI
+C" (Revised edition, Sams Publishing, (C) 1994, ISBN=0-672-30339-6). You
+can use Kochan's text to supplement my lessons and to get another
+presentation of the material if you need or want it. I encourage you to
+look at as many different books about C as you can to get the widest
+possible vision of the material.
+
+Lesson # 1: No reading in the text.
+
+Lesson # 2: No reading in the text.
+
+Lesson # 3: No reading in the text.
+
+Lesson # 4: Read all of chapter 2 and all of chapter 3. (They are short).
+
+Lesson # 5: You should read all of chapter 4 while working through this
+            lesson and the next one. Also check out pages 414 to 415,
+            section 4.2.
+
+Lesson # 6: Finish chapter 4. See table A.3 on page 423 for a precedence
+            chart. 
+
+Lesson # 7: During this lesson and the next you should read in Chapter
+            6, from page 71 to page 92. (Stop at the section on the
+            switch statement).
+
+Lesson # 8: Finish reading in chapter 6 up to page 92. Also start
+            reading chapter 5. You should read all of chapter 5 during
+            this lesson and the next.
+
+Lesson # 9: Finish reading chapter 5.
+
+Lesson #10: Finish reading chapter 6, starting on page 92 with the
+            switch statement. You don't need to worry about the
+            conditional operator.
+
+Lesson #11: No reading in the text.
+
+Lesson #12: No reading in the text.
+
+Lesson #13: No reading in the text.
+
+Lesson #14: Read in chapter 8, pages 128 to 147.
+
+Lesson #15: Read in chapter 8, pages 162 to 165.
+
+Lesson #16: Read in chapter 8, page 166 to the top of 169.
+
+Lesson #17: Read all of chapter 15 (it's fairly small).
+
+Lesson #18: Read all of chapter 7 except the section on multidimensional
+            arrays starting on page 121.
+
+Lesson #19: Kochan describes pointers in chapter 11, after he has
+            already talked about structures and strings. I prefer doing
+            it the other way around. Thus we will be skipping over quite
+            a bit of chapter 11 right now and returning to it again
+            later. In addition, I've split the material in chapter 11
+            that we can cover now into three lessons (19 to 21). For
+            this lesson, read pages 245 to 251, 280 to 284, and 286 to
+            287.
+
+Lesson #20: Read the section in chapter 11 on pointers and arrays. It
+            starts on page 270 and goes to page 276.
+
+Lesson #21: In chapter 11 read the section on pointers and functions
+            starting on page 264 and ending on page 270. Kochan uses
+            structures in some of his examples. Since we haven't talked
+            about structures yet, you can just skim over those parts.
+
+Lesson #22: During this lesson and the next read over chapter 10 from
+            page 203 to page 228. Also note the list of standard string
+            handling functions in Appendix B on page 454.
+
+Lesson #23: Continue the reading described in the last lesson.
+
+Lesson #24: In chapter 16, read pages 378 to 388.
+
+Lesson #25: In chapter 17, read the section on command line arguments on
+            pages 398 to 402.
+
+Lesson #26: During this lesson and the next you should read all of
+            Chapter 9.
+
+Lesson #27: Finish reading chapter 9.
+
+Lesson #28: All of chapter 13.
+
+Lesson #29: Read in chapter 12 from page 291 to page 306. Don't bother
+            with the section on bit fields.
+
+Lesson #30: Read about the typedef statement in Chapter 14 on pages 341
+            to 344.

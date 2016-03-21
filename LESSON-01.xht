@@ -1,0 +1,340 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- FILE         : LESSON-01.xht
+     LAST REVISED : 2016-01-11
+     AUTHOR       : (C) Copyright 2016 by Peter Chapin
+     SUBJECT      : Unix: Logging on/off. Mail, editing files, file transfer. -->
+
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
+  <head>
+    <title>Lesson #1</title>
+    <meta name="Author" content="Peter C. Chapin" />
+    <meta name="ROBOTS" content="NOARCHIVE" />
+    <link rel="stylesheet" href="c-course.css" type="text/css" />
+  </head>
+
+  <body>
+    <h1>Lesson #1</h1>
+    <p class="subtitle">Unix: Mail, Editing Files, File Transfer</p>
+
+    <h2>Overview</h2>
+    <p>In this lesson I will cover the following topics</p>
+    <ol id="overview-list">
+      <li><p>How to log into the Unix host.</p></li>
+      <li><p>How to use mail on the Unix host.</p></li>
+      <li><p>How to edit files on the Unix host.</p></li>
+      <li><p>How to transfer files to and from the Unix host and how to backup your files on the
+      Unix host.</p></li>
+    </ol>
+
+    <h2>Body</h2>
+
+    <h3>Getting on the Unix host</h3>
+
+    <p>You have a username and password on the Unix system we will be using in this course. That
+    information was sent to you in a separate message (if you didn't get such a message, please
+    contact me as soon as possible). You will need to use a secure shell (SSH) client to log
+    into the system.</p>
+
+    <h3>Using SSH</h3>
+
+    <p>Many older network protocols, such as telnet, are highly insecure because the information
+    they transmit over the network is "visible" in unencrypted form on the network cable. People
+    with special tools who are positioned between you and the remote host you are using can
+    watch your session and steal your passwords quite easily. This is bad not only for you, but
+    also for everyone else who uses the same remote host. If your account is compromised the
+    attacker can use it to more easily launch other attacks against the machine or, for that
+    matter, against other machines on the Internet. This is not a hypothetical situation. It
+    happens on the net every day.</p>
+
+    <p>To help prevent this problem, all of our Unix systems are running a "secure shell
+    server". If you use an appropriate client, this server will create a terminal session for
+    you but all information sent across the network will be encrypted. Even the initial password
+    that you use to establish the connection will be encrypted on the network.</p>
+
+    <p>If you are located on the VTC campus and are using one of the VTC lab machines, then a
+    suitable ssh client should already be installed and available to you. Just run it and
+    connect to the Unix host. If you are using your own machine, and if you are using Windows,
+    you can download and install the free PuTTY program as an ssh client.</p>
+
+    <ol>
+      <li><p>Get the files putty.exe and pscp.exe from <a
+      href="http://www.putty.org/">http://www.putty.org/</a>.</p></li>
+      
+      <li><p>Put pscp.exe into your C:\Windows folder (or any folder in your path). This is the
+      program you will use for transferring files between your system and the Unix
+      host.</p></li>
+      
+      <li><p>Put putty.exe anywhere you like. Make a shortcut on your desktop to the
+      program.</p></li>
+    </ol>
+
+    <p>There is no installation that needs to be done for PuTTY. Just run the executable by
+    double clicking on the shortcut.</p>
+
+    <p>The first time you run PuTTY a dialog box will appear where you can create a session or
+    manage sessions you've already created. Type the name of the Unix host in the "Host Name"
+    field. Be sure the SSH protocol option is checked. Under "Saved Sessions" type a name for
+    this session. Click on "Save". Click on "Open" to connect to the host you specified. There
+    are numerous other session options you can adjust (see the list of catagories on the left
+    side of the dialog box) but all of the defaults should be fine.</p>
+
+    <p>The next time you run PuTTY you should see your session listed in the saved sessions box.
+    You can just double click on the name to start it up again (or click on the name once, and
+    then click on "Load" if you want to edit the session parameters).</p>
+
+    <p>The first time you connect to a host you will get a warning message because you don't
+    have the host key for that host stored on your machine. Technically you should verify the
+    authenticity of the host key before accepting it. However, since it's highly unlikely to be
+    bogus in this situation, you are probably safe accepting it without verifying it. Once you
+    have the host key stored on your machine, you won't be warned about it again (unless it
+    changes... a sign that someone might be trying to trick you into using the wrong host).</p>
+
+    <p>Using ssh might sound like an annoyance, but I do advise you to use the ssh protocol to
+    access the Unix host if at all possible. Snooping passwords off the network is easier than
+    it might sound. If even one user's password is snooped, then further attacks against the
+    entire machine become much easier. If you are using an operating system other than Windows
+    and would like to configure an ssh client, let me know.</p>
+
+    <h3>Changing your password</h3>
+
+    <p>When you first log into the Unix host you may be required to change your password
+    immediately. The password I gave you when I created your account is for temporary purposes
+    only. You should use a password that only you know.</p>
+
+    <p>Many Unix systems will periodically expire your password and force you to change it. This
+    is done to enhance the security of the system. If your password is compromised in some way,
+    an attacker will only have access to your account as long as you don't change your password.
+    By changing your password regularly you limit the amount of damage an attacker can do.</p>
+
+    <p>To change your password manually you should use the "passwd" command (yes, it is really
+    spelled that way).</p>
+
+<pre class="terminal">
+  pchapin@lemuria:~$ <span class="user-input">passwd</span>
+</pre>
+
+    <p>You will be asked to enter your old password to verify that you are you. Then you will be
+    asked to enter your new password twice. The second time is to verify that you didn't make a
+    typo the first time. None of the passwords will be displayed as you type them.</p>
+
+    <p>Choosing a good password is an art. Do not use anyone's name or any normal, correctly
+    spelled word. Do not use the names of fictional characters or places. Do not use significant
+    numbers like birth dates or street addresses. Do not use any of these things spelled
+    backwards. Such passwords are easily guessed. A good password should</p>
+
+    <ol>
+      <li>Be long. Use 8 characters or more.</li>
+      <li>Contain a mixture of upper and lower case letters.</li>
+      <li>Contain some digits and punctuation marks.</li>
+      <li>Contain at least two, unrelated nonsense words.</li>
+    </ol>
+
+    <p>If you forget your password, send me email. I can give you a new one.</p>
+
+    <p>If you are a regular VTC student you should keep in mind also that the password you use
+    the Unix host is not necessarily the same as the password you use on the main network at
+    VTC. In fact, for security reasons, it would be best if you used different passwords for
+    those two systems.</p>
+
+    <h3>Using mail on the Unix host</h3>
+
+    <p>From now on I will just use a "$" to represent the Unix prompt in my examples. Keep in
+    mind that the prompt is normally longer than that (as I've shown above).</p>
+
+    <p>The Unix host is a all fully operational, networked system. It runs 24 hours per day, 7
+    days per week. It is connected to the Internet at all times. In addition, the Unix host has
+    its own, independent mail software. Thus you are able to send and receive mail there
+    separately from any other Internet mail service you might have.</p>
+
+    <p>Your address on the Unix host is your username followed by an '@' followed by the name of
+    the host. For example, if the host name is "lemuria" than my address would be</p>
+
+<pre class="terminal">
+  pchapin@lemuria.cis.vtc.edu
+</pre>
+
+    <p>The mail program on the Unix host is called "alpine". It is a text mode program (not
+    graphical) but it is full featured, modern, and quite powerful. You can start the program by
+    just typing "alpine" at the prompt.</p>
+
+<pre class="terminal">
+  $ <span class="user-input">alpine</span>
+</pre>
+
+    <p>Alpine is fairly easy to use. Most of the commands are letters or control characters.
+    There is usually a menu at the bottom of the screen that gives you an idea of what you can
+    do. Note that menu items shown with a "^" are control characters. Thus "^Y" means push the
+    CTRL key, hold it down, and type a "Y" (not case sensitive). In some cases you can navigate
+    the program with the arrow keys on your keyboard.</p>
+
+    <p>Try this out. Send a mail message to your Unix address using your regular mail program.
+    Then start alpine and read your mail (it may take a few moments for the mail to arrive).
+    Once you are finished reading a message you can type the letter 'D' (not case sensitive) to
+    delete it. Alternatively you could type the letter 'S' to save it to a folder. If you do
+    that you will be asked to enter the name of the target folder. If the folder does not exist
+    you will be asked if you want to create it. Try sending a message to your usual email
+    address from the Unix host.</p>
+
+    <p>I'm hoping that you can figure out how to do basic things with alpine by just reading the
+    menus and fooling around a bit with the program. Alpine's on-line help is also fairly good
+    (look at the menus for how to enter help). However, if you can't figure out how to do
+    something please post a note to the class list or send email to me and I'll be happy to
+    provide more details.</p>
+
+    <p>You might wonder what the point is of using mail on the Unix host. After all, you already
+    have a perfectly good mail program available to you or you wouldn't be taking this course!
+    Nevertheless there are times when you might find it handy to send or receive mail on the
+    Unix host. For example, you could use mail as a way of transferring files to and from the
+    Unix environment. Or you might want to dash off a quick note while you are working on a
+    program and you might find it easiest to just hop into alpine to do it.</p>
+
+    <p>As a point of information, alpine is not universal on Unix systems. It is normally
+    something the administrator must download and install. However, since alpine is free and
+    since alpine is good, it is very commonly available.</p>
+
+    <h3>Editing files</h3>
+
+    <p>In order to write programs you will need to create and edit plain text files. I will
+    describe how you can do that on the Unix host. There are several text editors on the system.
+    The one I suggest you use is called "nano". It is not the most powerful or full featured
+    editor by any means. It is actually quite simple. However, to create short text files it's a
+    very good choice and it's quite simple to learn. It will be sufficient for our needs in this
+    course.</p>
+
+    <p>The original version of nano was called pico and was created by the same people who
+    created alpine. It looks and acts very much like the editor alpine uses when you compose a
+    mail message. It has the same menus and uses most of the same control keys. To edit the file
+    "afile.txt" with nano, type the command</p>
+
+<pre class="terminal">
+  $ <span class="user-input">nano afile.txt</span>
+</pre>
+
+    <p>Try it out. You should see a mostly blank screen into which you can type your text. Type
+    a few lines and then type ^X (that's CTRL+X) to save the file and exit nano. You should then
+    see another prompt from the Unix host.</p>
+
+    <p>After creating a file in this manner you can use the "ls" command to see it. (That's
+    ell-ess, not one-ess)</p>
+
+<pre class="terminal">
+  $ <span class="user-input">ls</span>
+</pre>
+
+    <p>This command displays a list of all your files. It is very handy! Keep in mind that you
+    can store whatever files you like on the Unix host. If you do all of your programming there,
+    as I'm assuming you will, then all of your program files will be stored there. They will not
+    be on your local machine unless you explicit transfer them to your machine. This means that
+    if you can gain access to the network and an SSH client, you can log into the Unix host and
+    do whatever you like with your files there.</p>
+
+    <p>Use the command</p>
+
+<pre class="terminal">
+  $ <span class="user-input">nano afile.txt</span>
+</pre>
+
+    <p>To edit the existing file. You should see the material you typed into the file before.
+    Change it and then use ^X to save it and exit pico.</p>
+
+    <p>As with alpine, I'm hoping that you'll be able to figure out how to do basic things with
+    nano by just playing around with the program. However, I do encourage you to ask about
+    anything you can't figure out. Remember: there are no stupid questions.</p>
+
+    <h3>File transfer</h3>
+
+    <p>I highly recommend that you backup your files to your personal machine. If something goes
+    wrong with the Unix host or if you accidentally delete a file, then you can use your backup
+    to recover your data. In addition, you might want to write your programs on your local
+    machine so you can do so off-line or so that you can use your own tools. In that case,
+    you'll want to transfer your programs to the Unix host where you can test them. Either way,
+    you'll want to know how to transfer files to and from the Unix host. Here is how.</p>
+
+    <p>First, you could just use mail. You could use your mail program to send a message to your
+    Unix address with a file attached. You could then read the message on the Unix host using
+    alpine and save the attachment to a file. Similarly you could use alpine to send a message
+    to your usual address with a file attached. Then you could use your usual mail program to
+    save the attachment to a file on your local machine. I can explain in more detail how to
+    receive and send file attachments using alpine. I can't necessarily help you with your own
+    mail program, but if you have trouble you could post a message to the class mailing list and
+    maybe someone in the class could help.</p>
+
+    <p>A more direct way to transfer files to and from the Unix host is to use the "secure copy"
+    program (SCP) to copy files from one host to another using encrypted transfers. If you
+    downloaded and installed pscp.exe as I described above, you can use that program to do
+    secure transfers. Here's how</p>
+
+    <ol>
+      <li><p>Open a command prompt on your Windows machine. Use the "cd" command under Windows
+      to change to the directory (folder) where you want to send or receive files.</p></li>
+      
+      <li><p>Type:</p>
+      
+<pre class="terminal">
+  C:\&gt; <span class="user-input">pscp somefile username@lemuria.cis.vtc.edu:</span>
+</pre>
+
+        <p>This will send "somefile" to the host named "lemuria.cis.vtc..edu" using the account
+        "username" on the host. Replace "username" with appropriate things for your situation.
+        Note the colon at the end of the command line; that is required.</p></li>
+
+      <li>
+        <p>Type:</p>
+
+<pre class="terminal">
+  C:\&gt; <span class="user-input">pscp username@lemuria.cis.vtc.edu:somefile .</span>
+</pre>
+
+        <p>This will get somefile on the host "lemuria.cis.vtc.edu" (using the account
+        "username") and store it on your local machine in the current directory. The dot
+        represents the current directory on your machine.</p></li>
+    </ol>
+
+    <p>The pscp program will prompt you for your password on the Unix host. However, that
+    password will be sent over the network in encrypted form so nobody will be able to capture
+    it.</p>
+
+    <p>To make a backup of all your material on the Unix host, you should probably first create
+    a compressed archive of all your files there. Of course right now you don't have much there.
+    But that will change! Use these commands to create the compressed archive:</p>
+
+<pre class="terminal">
+  $ <span class="user-input">rm -f mystuff.zip</span>
+  $ <span class="user-input">zip -r mystuff.zip *</span>
+</pre>
+
+    <p>The first command deletes any existing "mystuff.zip" file. The second command creates a
+    new one. Note that the last character in that command is an asterick. Note also that spaces
+    are significant!</p>
+
+    <p>The single file "mystuff.zip" will contain a (compressed) copy of all your other files.
+    You can then transfer this single file to your local machine. If you ever need to restore a
+    file from this backup, you would first need to extract it from the archive. I can help you
+    do that should it become necessary.</p>
+
+    <h2>Summary</h2>
+
+    <ol id="summary-list">
+      <li><p>You can use either telnet or ssh to log into the Unix host. Using ssh has the
+      advantage of being more secure, but telnet is simplier.</p></li>
+      
+      <li><p>The Unix host has its own mail system. Use pine to send and receive mail. Although
+      you can certainly use your regular email program for mail, you might find the Unix
+      system's mail easier at times.</p></li>
+      
+      <li><p>Use pico to edit files on the Unix host. Pico behaves very much like pine. It is a
+      relatively limited text editor, but it is easy to use. If you keep files on the Unix
+      system they will be available to you from any point on the network.</p></li>
+      
+      <li><p>You can transfer files to and from the Unix host using the scp protocol, or as file
+      attachments to mail messages.</p></li>
+    </ol>
+
+    <address>
+      &copy; Copyright 2016 by Peter C. Chapin.<br />
+      Last Revised: <b>January 11, 2016</b>
+    </address>
+  </body>
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- FILE         : EXAMPLE-01.xht
+     LAST REVISED : 2016-02-01
+     AUTHOR       : (C) Copyright 2016 by Peter Chapin
+     SUBJECT      : Prime Numbers. -->
+
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
+  <head>
+    <title>Example #1</title>
+    <meta name="Author" content="Peter C. Chapin" />
+    <!-- <meta name="keywords" lang="en-US" content="..."> -->
+    <meta name="ROBOTS" content="NOARCHIVE" />
+    <link rel="stylesheet" href="c-course.css" type="text/css" />
+  </head>
+
+  <body>
+    <h1>Example #1</h1>
+
+    <p class="subtitle">Prime Numbers</p>
+
+    <p>The time has come to give you an example of a complete program. This will, hopefully,
+    give you a better idea of how some of the features I've been talking about work in "real
+    life". The short examples in my lessons are fine, but they don't give you the big
+    picture.</p>
+
+    <p>In this example I will write a program that tests to see if a given number is a prime
+    number. Prime numbers are integers that can't be evenly divided by any other number (except
+    for themselves and one). Here is what I need to do.</p>
+
+<pre class="pcode">
+  &lt;Ask the user to enter a number&gt;
+  &lt;Check to see if the number is prime and, if so, print a message&gt;
+</pre>
+
+    <p>I need to elaborate on this outline a bit. First, I should be sure that the user doesn't
+    try to be cute and enter a negative number.</p>
+
+<pre class="pcode">
+  &lt;Ask the user to enter a number&gt;
+  IF &lt;The number is negative&gt; THEN
+    &lt;Print an error message and end the program&gt;
+  END
+  &lt;Check to see if the number is prime and, if so, print a message&gt;
+</pre>
+
+    <p>Since I'm in the process of figuring out what I need to do, I'm not bothering to write
+    things in C. Instead I'm using a pseudo language to just help me organize the steps. Later,
+    once I'm convinced that I've got the steps right, I can translate my pseudo language into C
+    (or, for that matter, any other reasonable programming language).</p>
+
+    <p>How am I going to test to see if a number is prime? How about the brute force way: I'll
+    try to divide it by all numbers less than itself.</p>
+
+<pre class="pcode">
+  &lt;Ask the user to enter a number&gt;
+  IF &lt;The number is negative&gt; THEN
+    &lt;Print an error message and end the program&gt;
+  END
+  FOR &lt;All numbers less than the given number&gt; LOOP
+    IF &lt;I can divide the given number by the smaller number&gt; THEN
+      &lt;The given number is not prime&gt;
+      &lt;End the program&gt;
+    END
+  END
+  &lt;If I get here the given number must be prime&gt;
+</pre>
+
+    <p>Is this logic right? Now is the time to check it. I check my programs by just going
+    through them the way the computer does. Suppose I'm the program and I'm given a number like
+    117. I will loop over all the numbers less than 117, like 1, 2, 3, 4, and so forth. For each
+    of those I will try to divide that number into 117. Oops... the value of 1 will always go
+    into 117! I need to start my loop at 2. But then... what if the user gives us the value of 1
+    (or for that matter zero)? Hmmm. I should handle that case before reaching the loop.</p>
+
+    <p>Here is the refined program.</p>
+
+<pre class="pcode">
+  &lt;Ask the user to enter a number&gt;
+  IF &lt;The number is less than 2&gt; THEN
+    &lt;Print an error message and end the program&gt;
+  END
+  FOR &lt;All numbers from 2 that are less than the given number&gt; LOOP
+    IF &lt;I can divide the given number by the smaller number&gt; THEN
+      &lt;The given number is not prime&gt;
+      &lt;End the program&gt;
+    END
+  END
+  &lt;If I get here the given number must be prime&gt;
+</pre>
+
+    <p>Okay, this new version looks better. If I'm given 117 it will loop from 2 to 116. That's
+    fine. If any of those smaller numbers divide into 117 evenly then 117 can't be prime. The
+    program will print a message and exit at once. If I get through all of those smaller numbers
+    without triggering the print statement inside the loop, 117 must be prime. I believe the
+    logic works.</p>
+
+    <p>But wait... what if the user gives us 2? The first error message won't trigger. Yet the
+    loop won't execute either since there are no values starting at 2 that are less than 2. Thus
+    the program will go right to the end where it will print that 2 is a prime number. Good! Two
+    is a prime number so it works.</p>
+
+    <p>Now I'm ready to convert my pseudo language into C. The statements in my pseudo langauge
+    become the comments in my C.</p>
+
+<pre class="code">
+  #include &lt;stdio.h&gt;
+
+  int main( void )
+  {
+      int number;   // The number I am testing.
+      int i;        // Loop index.
+
+      // Ask the user to enter a number.
+      printf( "Enter a number: " );
+      scanf( "%d", &amp;number );
+
+      // Do I like it? If not, print a message and die.
+      if( number &lt; 2 ) {
+          printf( "The value %d is not prime.\n", number );
+          return 1;
+      }
+
+      // Can I divide this number by anything less than it?
+      for( i = 2; i &lt; number; i++ ) {
+          if( number % i == 0 ) {
+              printf( "I'm sorry, %d is not prime. It can be divided by %d\n", number, i );
+              return 0;
+          }
+      }
+
+      // If we got here, it must be prime.
+      printf( "The number %d is prime!\n", number );
+      return 0;
+  }
+</pre>
+
+    <p>This program works, but it has at least two issues. First it is not very efficient. If
+    you give it a large prime number it will take a while to figure it out. Most of its time
+    will be spent in the for loop dividing your number by all the smaller ones. Consider how
+    this will work if you give it a number in millions.</p>
+
+    <p>The other issue is that it contains a return in the middle of the for loop. In general,
+    having your program end in multiple places is often not a good idea. Let me improve this
+    program by reorganizing it so that there is only one return. To do that, I will need to
+    introduce a "flag variable". The point of the flag is just to keep track of something that
+    has happened. In particular, when I discover that the number is not prime, I will set the
+    flag. The loop condition needs to look at the flag too. Here is how that looks</p>
+
+<pre class="code">
+  #include &lt;stdio.h&gt;
+
+  int main( void )
+  {
+      int number;    // The number I am testing.
+      int i;         // Loop index.
+      int prime = 1; // We start by assuming the number is prime.
+
+      // Ask the user to enter a number.
+      printf( "Enter a number: " );
+      scanf( "%d", &amp;number );
+
+      // Do I like it? If not, print a message and die.
+      if( number &lt; 2 ) {
+          printf( "The value %d is not prime.\n", number );
+          return 1;
+      }
+
+      // Can I divide this number by anything less than it?
+      for( i = 2; (i &lt; number) &amp;&amp; prime; i++ ) {
+          if( number % i == 0 ) {
+              prime = 0;
+          }
+      }
+
+      // What is the result of my test?
+      if( prime ) {
+        printf( "The number %d is prime!\n", number );
+      }
+      else {
+        printf( "I'm sorry, %d is not prime. It can be divided by %d\n", number, i - 1 );
+      }
+      return 0;
+  }
+</pre>
+
+    <p>Although the flag variable, <span class="code">prime</span>, is an integer, it is being
+    used to hold a true/false value. Initially I assume that the given number will be prime and
+    I set <span class="code">prime</span> to 1 (true). The for loop executes "as long as" both
+    <span class="code">i &lt; number</span> AND <span class="code">prime</span> is true. If I
+    discover inside the for loop that the given number is not prime I set <span
+    class="code">prime</span> to 0 (false). This will cause the loop to end because the loop
+    condition will be false as well.</p>
+
+    <p>There are two reasons why I could be at the code below the for loop. Either the loop ran
+    all the way (meaning that the given number was prime) or the loop aborted because I
+    discovered that the number was not prime. I can distinguish between those two cases easily
+    by just looking at the flag variable. If it's still set to "true" than the loop must have
+    run all the way. Notice that in this case when I print out the value of <span
+    class="code">i</span> (when the number is not prime) I actually print <span class="code">i -
+    1</span>. This is because the end expression of the for loop did execute and thus the
+    statement executed inside the loop.</p>
+
+    <p>This new version has only one return statement. If I wanted to later do something special
+    just before this program ends, it would be easy to see where that could be done.
+    Furthermore, this version cleanly divides the analysis from the output. The for loop figures
+    out if the number is prime or not. Then, later, I print out the result. I think this is much
+    better than the earlier program.</p>
+
+    <p>Okay... what about speed? This program is still horribly slow. Well, if the given number
+    is even it can't be prime. Only odd numbers can be prime (except for 2) and odd numbers
+    can't be divided evenly by even numbers. (I leave the proof as an exercise). Thus I could
+    speed up the program by a factor of two if I just skip all even numbers in the for loop.</p>
+
+    <p>Actually I can do far better than that. Consider 117 again as an example. If 117 can't be
+    divided by 2, it certainly can't be divided by anything bigger than 117/2 (such as, say,
+    96). It sure seems silly when you think about it to try doing 117/110, 117/111, 117/112,
+    etc! Obviously those aren't going to work. Furthermore, if 117 can't be divided by 3, it
+    can't be divided by anything bigger than 117/3. Thus each time we test a number, we can
+    lower the upper bound of the loop. If 117 isn't evenly divisable by four, we know nothing
+    over 117/4 will work either. Thus we get this version of the program</p>
+
+<pre class="code">
+  #include &lt;stdio.h&gt;
+
+  int main( void )
+  {
+      int number;    // The number I am testing.
+      int i;         // Loop index.
+      int prime = 1; // We start by assuming the number is prime.
+      int upper;     // Upper bound of the for loop.
+
+      // Ask the user to enter a number.
+      printf( "Enter a number: " );
+      scanf( "%d", &amp;number );
+
+      // Do I like it? If not, print a message and die.
+      if( number &lt; 2 ) {
+          printf( "The value %d is not prime.\n", number );
+          return 1;
+      }
+
+      // Can I divide this number by anything less than it?
+      upper = number;
+      for( i = 2; (i &lt; upper) &amp;&amp; prime; i++ ) {
+
+          // If it divides evenly, it's not prime. Otherwise I can adjust upper.
+          if( number % i == 0 ) {
+              prime = 0;
+          }
+          else {
+              upper = number / i;
+          }
+      }
+
+      // What is the result of my test?
+      if( prime ) {
+          printf( "The number %d is prime!\n", number );
+      }
+      else {
+          printf( "I'm sorry, %d is not prime. It can be divided by %d\n", number, i - 1 );
+      }
+      return 0;
+  }
+</pre>
+
+    <p>This version is not just a little bit faster than the earlier one, it is a LOT faster. In
+    fact, the amount of time it takes to test a number is proportional to the square root of the
+    number. The earlier version required a time proportional to the number itself. Thus to test
+    a number near 1000000, the first first would require 1000000 passes of the for loop. The
+    latest version only requires 1000. It would be about 1000 times faster!</p>
+
+    <p>We could, of course, speed up the program by another factor of two by skipping all even
+    numbers while we were at it. However, to do that we would have to add some special case
+    handling for the value 2. I leave that as an exercise.</p>
+
+    <p>If you decide you want to play around with this program, it might be handy to know some
+    large prime numbers. Here are a few for your reference.</p>
+
+<pre>
+        141,359
+      1,234,577
+     33,876,329
+    357,666,983
+  2,147,483,629
+</pre>
+
+    <p>There are actually quite a few prime numbers. You can probably find a few large ones of
+    your own by just trying some numbers out.</p>
+
+    <p>My final program is <a href="samples/prime.c">prime.c</a>.</p>
+
+    <address>&copy; Copyright 2016 by Peter C. Chapin.<br />
+    Last Revised: <b>February 1, 2016</b></address>
+  </body>
+</html>

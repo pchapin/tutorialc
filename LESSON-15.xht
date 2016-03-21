@@ -1,0 +1,434 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE         : LESSON-15.htm
+     LAST REVISED : 2003-07-16
+     AUTHOR       : (C) Copyright 2003 by Peter Chapin
+     SUBJECT      : Scope. Local (Block) vs Global. -->
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
+  <head>
+    <meta name="generator" content="HTML Tidy for Windows (vers 24 July 2007), see www.w3.org" />
+    <title>Lesson #15</title>
+    <meta name="Author" content="Peter C. Chapin" />
+    <!-- <meta name="keywords" lang="en-US" content="..."> -->
+    <meta name="ROBOTS" content="NOARCHIVE" />
+    <link rel="stylesheet" href="c-course.css" type="text/css" />
+  </head>
+  <body>
+    <h1>Lesson #15</h1>
+    <p class="subtitle">Scope. Local (Block) vs Global</p>
+    <h2>Overview</h2>
+    <p>In this lesson I will cover the following topics</p>
+    <ol id="overview-list">
+      <li>
+        <p>Local scope and global scope.</p>
+      </li>
+      <li>
+        <p>Variable hiding.</p>
+      </li>
+      <li>
+        <p>Why global variables should be avoided and how that can be accomplished.</p>
+      </li>
+    </ol>
+    <h2>Body</h2>
+    <h3>Local scope</h3>
+    <p>The topic of scope is important so read carefully!</p>
+    <p>So far in my examples I have declared variables just inside the opening brace of main. In
+      the last lesson I showed how you can create and use other functions besides main. In those
+      examples I declared some variables inside main and some inside the other function. I did
+      this on purpose. To understand the significance of this, take a look at the following
+      example.</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+// The function named 'f' takes no parameters and returns nothing.
+void f(void)
+{
+  int i;
+
+  i = 5;
+}
+
+// The main function.
+int main(void)
+{
+  int i;
+
+  i = 2;
+  printf("i = %d\n", i);
+  f();
+  printf("i = %d\n", i);
+
+  return 0;
+}
+</pre>
+    <p>As always, the program starts with <span class="code">main</span>. Inside <span
+        class="code">main</span> a variable named <span class="code">i</span> is declared and
+      the value 2 is assigned to it. The first <span class="code">printf</span> prints</p>
+    <pre class="terminal">
+i = 2
+</pre>
+    <p>Next, the function <span class="code">f</span> is called. Inside <span class="code"
+        >f</span> another variable named <span class="code">i</span> is declared and the value 5
+      is assigned to it. Nothing more is done inside <span class="code">f</span> (making it a
+      rather strange function) so <span class="code">f</span> returns back to <span class="code"
+        >main</span>. What does the second <span class="code">printf</span> display? The answer
+      is</p>
+    <pre class="terminal">
+i = 2
+</pre>
+    <p>just like before. This is because the <span class="code">i</span> inside function <span
+        class="code">f</span> has nothing to do with the <span class="code">i</span> inside
+        <span class="code">main</span>. They are two different variables entirely. The main
+      function does not know about the <span class="code">i</span> inside function <span
+        class="code">f</span>. When you talk about <span class="code">i</span> in <span
+        class="code">main</span> you are talking only about <span class="code">main</span>'s
+        <span class="code">i</span>. As far as <span class="code">main</span> is concerned the
+      variables inside <span class="code">f</span> don't exist.</p>
+    <p>You might think that perhaps this works because <span class="code">f</span> has its own
+      declaration of <span class="code">i</span>. Perhaps in the following example things are
+      different:</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+// The function named 'f' takes no parameters and returns nothing.
+void f(void)
+{
+  i = 5;
+}
+
+// The main function.
+int main(void)
+{
+  int i;
+
+  i = 2;
+  printf("i = %d\n", i);
+  f();
+  printf("i = %d\n", i);
+
+  return 0;
+}
+</pre>
+    <p>The only difference here is that <span class="code">f</span> no longer tries to declare
+        <span class="code">i</span>. Instead it just assigns the value of 5 to <span
+        class="code">i</span>. Which <span class="code">i</span> is it using? The one in <span
+        class="code">main</span>? No. This program is in error and it won't even compile. When
+      the compiler sees me trying to assign to <span class="code">i</span> in function <span
+        class="code">f</span> it will complain by saying that <span class="code">i</span> is an
+      "undefined identifier". In other words, there is no declaration for that <span
+        class="code">i</span> and the compiler doesn't know what it is. The compiler will not
+      assume that it has anything to do with the <span class="code">i</span> in <span
+        class="code">main</span>.</p>
+    <p><em>Remember:</em> Variables declared inside a function are said to be "local" to that
+      function and are said to have "local scope". They do not exist outside of the
+      function.</p>
+    <p>This rule is <em>very</em> important. It means that you can use functions correctly
+      without knowing what variables those functions use. Take a look at this program.</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  int age;
+
+  // Get the user's age.
+  printf("What is your age? ");
+  scanf("%d", &amp;age);
+
+  // Now print it out.
+  printf("I understand you to be %d years old.\n", age);
+
+  return 0;
+}
+</pre>
+    <p>Now suppose that, for some reason, the <span class="code">printf</span> function used a
+      variable named <span class="code">age</span> internally (keep in mind that <span
+        class="code">printf</span> is probably also written in C). So what? It doesn't matter
+      what variables <span class="code">printf</span> is trying to use or what it's trying to do
+      with them. When I say <span class="code">age</span> I'm talking about the <span
+        class="code">age</span> variable that I declared in my <span class="code">main</span>.
+      Any <span class="code">age</span> variables declared inside any of the other functions I'm
+      using are different and won't interfere.</p>
+    <p>Without this rule it would be next to impossible to write a large program. Because of
+      this rule two things are true.</p>
+    <ol>
+      <li>
+        <p>You don't need to worry about what local variables are being used by the functions
+          you call. The variables you use are the ones you declare. You won't accidently use a
+          variable that some other function is trying to use.</p>
+      </li>
+      <li>
+        <p>When you write a function you can choose whatever variable names you like. You don't
+          need to worry about accidently changing variables somewhere else in the program.</p>
+      </li>
+    </ol>
+    <p>When a program is created by many different people, the last thing you want to worry
+      about is coordinating variable names. And... you don't have to. You can pick whatever
+      names you like and the other people can pick whatever names they like. There will be no
+      clashes as long as all your variables have local scope (declared inside functions).</p>
+    <h3>Global scope</h3>
+    <p>As you can probably guess there is an alternative to local scope. It is called global
+      scope. Such variables can be accessed by every function in the program. Here is an
+      example</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+// Global variables are declared outside of all functions.
+int i;
+
+void f(void)
+{
+  // Here i is not "undefined." The value 5 is assigned to the global.
+  i = 5;
+}
+
+int main(void)
+{
+  // Program starts by assigning 2 to the global.
+  i = 2;
+  printf("i = %d\n", i);  // Prints i = 2
+  f();                    // Function f modifies the global.
+  printf("i = %d\n", i);  // Prints i = 5
+
+  return 0;
+}
+</pre>
+    <p>This program is very much the same as my earlier example. However, in this case the
+      assignment of 5 to <span class="code">i</span> in function <span class="code">f</span> is
+      not an error. The compiler has seen the global declaration of <span class="code">i</span>
+      and thus knows that the <span class="code">i</span> in function <span class="code"
+        >f</span> is the global <span class="code">i</span>. When the program starts, it assigns
+      2 to the global <span class="code">i</span> and then prints</p>
+    <pre class="terminal">
+i = 2
+</pre>
+    <p>Next it calls function <span class="code">f</span> which changes the value stored in the
+      global <span class="code">i</span>. When <span class="code">main</span> resumes the next
+        <span class="code">printf</span> prints the new value</p>
+    <pre class="terminal">
+i = 5
+</pre>
+    <p>In my earlier examples there were two different local variables named <span class="code"
+        >i</span>. But there is only one global variable of any given name.</p>
+    <p>When you declare a variable outside of all functions it can be used inside any function
+      that is defined after that variable's declaration. Typically people put global variable
+      declarations at the top of their program so that every function in the program can use it.
+      For example</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+int i;  // This is where global variables are usually declared.
+
+void f(void)
+{
+  i = 5;  // Fine. Changes the global i.
+  j = 7;  // Error. What is j?
+}
+
+int j;  // This is also a "global" but it can only be used from here down.
+
+void g(void)
+{
+  i = 5;  // Fine. Changes the global i.
+  j = 7;  // Fine. Changes the global j.
+}
+</pre>
+    <h3>Mixing global and local variables</h3>
+    <p>You can have different local variables with the same name as long as they are in
+      different functions. However, there can be only one global variable with a particular
+      name. You might now wonder what happens when you try to create a local variable with the
+      same name as a global variable. This example shows the effect</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+int i;  // Global variable.
+
+void f(void)
+{
+  i = 5;  // Sets the global i to 5.
+}
+
+int main(void)
+{
+  int i;  // Fine. Local variable named i is different than the global.
+
+  i = 2;                  // Sets the local i to 2.
+  printf("i = %d\n", i);  // Prints i = 2
+  f();                    // Function f changes the global i.
+  printf("i = %d\n", i);  // Prints i = 2
+
+  return 0;
+}
+</pre>
+    <p>Inside function <span class="code">main</span> any use of the name <span class="code"
+        >i</span> refers to the local variable. The global variable is "hidden" by the local
+      and, in effect, does not exist. However, in other functions without any local <span
+        class="code">i</span>, using the name <span class="code">i</span> refers to the global
+      variable. This is exactly what you want. When you declare a local variable and use it, you
+      don't have to worry about similarly named local variables in other functions OR global
+      variables. This gives you control over what you are doing. When you create and use a local
+      variable you are getting exactly what you expect.</p>
+    <p>Actually you can declare variables inside any block. Such variables are local to that
+      block and hide any similarly named variables outside of that block. This is not often done
+      in C (it is more common in C++) but here is how it looks.</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+int i = 2; // Declare a global variable and initialize it to 2.
+
+int main(void)
+{
+  int i;   // Local declaration hides the global variable.
+
+  // Loop ten times. The value of the global i is not changed by this.
+  for (i = 0; i &lt; 10; i++) {
+    int i = 5;  // Declare a new i local to this block and initialize it.
+
+    printf("i = %d\n", i); // Prints i = 5 all the time.
+  }
+
+  // Print the value of the i declared in main (currently 10).
+  printf("i = %d\n", i);
+
+  return 0;
+}
+</pre>
+    <p>The global scope covers the entire program. Each block that you create with braces
+      creates a new, inner scope into which you can optional declare variables. These inner
+      declarations exist only in the block in which they are declared and they hide any
+      similarly named variables declared in an enclosing block. Read this paragraph twice. This
+      principle is very important.</p>
+    <p>It sometimes helps to turn things around a bit. When you use a variable the compiler
+      needs to locate a declaration for that variable so that the compiler knows the type of the
+      variable and so forth. The compiler starts its search in the innermost block where you
+      used the variable. If it doesn't find a declaration there, it expands its search to the
+      block enclosing the innermost block. The compiler continues in this way, expanding the
+      search outwards block by block looking for a declaration. The compiler will even search
+      outside all functions as a last ditch effort to locate the declaration. This final "block"
+      is the global scope. If it can't locate a declaration for the variable even there, it
+      gives up and calls the variable undefined.</p>
+    <h3>And the point is?</h3>
+    <p>Local variables have the very desirable property that they are not influenced by things
+      happening in other parts of your program. Considering that most programs are written by
+      large teams of people this is a very good thing. When you write a function you don't want
+      to worry about the variables other people have created or will create.</p>
+    <p>However, there are times when two different functions want to share information. In that
+      case, it is sometimes handy to have both of those functions manipulate a common global
+      variable. Global variables definitely have their place. However, global variables
+      "connect" two otherwise independent functions and thus make it more difficult to modify
+      one of the functions without "breaking" the other. In general you should not use global
+      variables! Global variables are useful only for certain, specialized situations. You
+      should avoid them unless you absolutely know what you are doing.</p>
+    <p>Some students resort to using global variables when they should use function parameters
+      instead. Let me show you a very simple example of that first. In the program below, I'm
+      using a function to print out the result of a calculation. This is a bit silly, but I will
+      show a more juicy example later.</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+int result;  // Global variable.
+
+/*
+ * This function takes no parameters and returns nothing. However it does
+ * access the global variable Result.
+ */
+void print_result(void)
+{
+  printf("The result = %d\n", result);
+}
+
+int main(void)
+{
+  int age;
+
+  // Ask the user for his/her age and store it in a local variable.
+  printf("What is your age? ");
+  scanf("%d", &amp;age);
+
+  // Compute age/2 (rounded up) and store in the global variable.
+  result = (age + 1) / 2;
+
+  // Call the function that prints the global variable.
+  print_result();
+
+  return 0;
+}
+</pre>
+    <p>Here I'm using a global variable to transmit information from one function to another.
+      This is totally unnecessary. Sending information from one function to another is exactly
+      what function parameters are for. Here is a version that does without the global variable.
+      It is better.</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+// This function takes the value to be printed as a parameter.
+void print_result(int the_result)
+{
+  printf("The result = %d\n", the_result);
+}
+
+int main(void)
+{
+  int age;
+  int result;
+
+  // Ask the user for his/her age and store it in a local variable.
+  printf("What is your age? ");
+  scanf("%d", &amp;age);
+
+  // Compute age/2 (rounded up) and store in a local variable.
+  result = (age + 1) / 2;
+
+  // Call the function that prints the results.
+  print_result(result);
+
+  return 0;
+}
+</pre>
+    <p>Because this program has no global variables the functions in it are more independent.
+      The <span class="code">print_result</span> function might be useful in another program. If
+      so, you only need to copy and paste it from this program to the new one. Moving the <span
+        class="code">print_result</span> function in the original version would be harder. The
+      global variable is like stringy cheese on a slice of pizza. It ends up dragging a whole
+      bunch more with the function than you really want. You need the variable <em>and</em> you
+      need all the stuff in <span class="code">main</span> where it is given a value. Ugh.</p>
+    <p>The trick of using function parameters to pass information from one function to another
+      works very well---provided one function calls another. Where global variables are useful
+      is where two functions that don't call each other want to share information. There are
+      tricks you can use to do without globals even in such cases, but there comes a point where
+      the tricks are not worth the effort. Global variables are useful, but using them properly
+      requires experience and caution. If you don't need to use them, then stay away from them.
+      Declare everything local if you can.</p>
+    <h2>Summary</h2>
+    <ol id="summary-list">
+      <li>
+        <p>A variable declared inside curly braces is said to be "local" to the block defined by
+          those braces. That variable can only be used in that block. A variable declared
+          outside the bodies of all functions is said to be "global". It can be used in any
+          function in the program.</p>
+      </li>
+      <li>
+        <p>There can be many local variables with the same name in a single program. A local
+          variable in one function will not conflict at all with a similarly named local
+          variable in another function.</p>
+      </li>
+      <li>
+        <p>If you declare a local variable with the same name as a global variable, the global
+          variable is temporarly "hidden" by the local. Any use of that name in the block with
+          the local variable will refer to the local variable. In this way, local variables also
+          do not conflict with similarly named global variables.</p>
+      </li>
+      <li>
+        <p>Global variables allow two functions to communicate information to each other (one
+          function can set the value of the global variable and the other can use that value).
+          However, this causes hard to manage dependencies to exist between functions. Modifying
+          and reusing the functions is much more difficult. It is better for one function to
+          pass information to another using function parameters instead of global variables.
+          However, that technique only really works well when the two communicating functions
+          are such that one calls the other.</p>
+      </li>
+    </ol>
+    <address>&copy; Copyright 2003 by Peter C. Chapin.<br />
+Last Revised: <b>July 16, 2003</b></address>
+  </body>
+</html>

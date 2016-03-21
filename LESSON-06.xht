@@ -1,0 +1,535 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- FILE         : LESSON-06.htm
+     LAST REVISED : 2016-01-25
+     AUTHOR       : (C) Copyright 2016 by Peter Chapin
+     SUBJECT      : Expressions and precedence. -->
+
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
+  <head>
+    <title>Lesson #6</title>
+    <meta name="Author" content="Peter C. Chapin" />
+    <!-- <meta name="keywords" lang="en-US" content="..."> -->
+    <meta name="ROBOTS" content="NOARCHIVE" />
+    <link rel="stylesheet" href="c-course.css" type="text/css" />
+  </head>
+
+  <body>
+    <h1>Lesson #6</h1>
+    <p class="subtitle">Expressions and Precedence</p>
+
+    <h2>Overview</h2>
+
+    <p>In this lesson I will cover the following topics</p>
+
+    <ol id="overview-list">
+      <li><p>The binary operators that provide for the basic arithmetic operations.</p></li>
+      <li><p>The assignment operator.</p></li>
+      <li><p>Expressions and precedence.</p></li>
+      <li><p>Some shortcut operators.</p></li>
+    </ol>
+    
+    <h2>Body</h2>
+    
+    <h3>Binary operators</h3>
+
+    <p>An "operator" is a special symbol that causes the program to perform a certain operation.
+    The values that are operated upon are called "operands". For example, in the statement</p>
+    
+<pre class="code">
+  x = y + z;
+</pre>
+
+    <p>The values stored in <span class="code">y</span> and <span class="code">z</span> are the
+    operands to the <span class="code">+</span> operator. The <span class="code">+</span>
+    operator is an example of a "binary" operator. It is called binary because it takes two
+    operands. There are several other binary operators in C. The most important are</p>
+    
+<pre class="code">
+  x = y + z;  // Addition
+  x = y - z;  // Subtraction
+  x = y * z;  // Multiplication
+  x = y / z;  // Division
+  x = y % z;  // Modulus
+</pre>
+
+    <p>Addition, subtraction, and multiplication are all as you would expect. The last two
+    require some more explaination.</p>
+    
+    <p>When two integers are divided the result is just the quotent. The fractional part is
+    thrown away. For example 5/2 is 2, not 2.5 like you might expect. Similarly 15/4 is 3, not
+    3.75. The significance of this is that the division of integers yields another integer.
+    Furthermore the result is <em>not</em> rounded off. This was done on purpose. It is much
+    faster than computing a result using floating point numbers. Also, believe it or not, it is
+    often exactly what you want.</p>
+    
+    <p>It is important to know that when you divide floating point numbers (variables of type
+    float, double, or long double), the result is a floating point number. That is, 5.0/2.0 is
+    2.5 just as you might expect (except that it might really be something like
+    2.50000000013298213). Notice that I typed an explict decimal place to indicate a floating
+    point value. The C compiler understands this. If you put a "5" in your program, the compiler
+    treats it as an integer. If you put a "5.0" in your program, the compiler treats it as a
+    double.</p>
+    
+    <p>The modulus operator might be unfamiliar to you. It computes the integer remainder after
+    doing integer division. For example, 11/4 yields a quotent of 2 and a remainder of 3. Thus
+    11 % 4 is 3 (the remainder). Division and modulus are thus two sides of the same operation.
+    You can see how they relate with this chart.</p>
+    
+    <table border="1">
+      <tr>
+        <td>0/3 is 0</td>
+        <td>0%3 is 0</td>
+      </tr>
+      <tr>
+        <td>1/3 is 0</td>
+        <td>1%3 is 1</td>
+      </tr>
+      <tr>
+        <td>2/3 is 0</td>
+        <td>2%3 is 2</td>
+      </tr>
+      <tr>
+        <td>3/3 is 1</td>
+        <td>3%3 is 0</td>
+      </tr>
+      <tr>
+        <td>4/3 is 1</td>
+        <td>4%3 is 1</td>
+      </tr>
+      <tr>
+        <td>5/3 is 1</td>
+        <td>5%3 is 2</td>
+      </tr>
+      <tr>
+        <td>6/3 is 2</td>
+        <td>6%3 is 0</td>
+      </tr>
+      <tr>
+        <td>7/3 is 2</td>
+        <td>7%3 is 1</td>
+      </tr>
+      <tr>
+        <td>8/3 is 2</td>
+        <td>8%3 is 2</td>
+      </tr>
+      <tr>
+        <td>etc...</td>
+        <td>etc...</td>
+      </tr>
+    </table>
+
+    <p>C has other binary operators besides the five I've shown here, but these are commonly
+    used and will be enough for the moment.</p>
+    
+    <h3>Unary operators</h3>
+    
+    <p>A unary operator is an operator that has only one operand. The only one we will worry
+    about right now is unary minus. For example</p>
+    
+<pre class="code">
+  x = -y;
+</pre>
+
+    <p>This takes the value of <span class="code">y</span>, negates it, and puts the result into
+    <span class="code">x</span>. There is also a unary plus, but nobody uses it because it
+    doesn't do anything. It exists in the language purely for symmetry with unary minus.</p>
+    
+    <p>C has quite a few other unary operators that we will discuss as we come to them.</p>
+    
+    <h3>The assignment operator</h3>
+    
+    <p>First, consider this statement</p>
+    
+<pre class="code">
+  x = y;
+</pre>
+
+    <p>The assignment operator is a binary operator because it requires two operands. The
+    operand on the right is the value that is being copied. The operand on the left is the place
+    the copy is going. Assignment is special because the left operand can't be just anything. It
+    must refer to something that exists in the program's memory. Consider</p>
+    
+<pre class="code">
+  x = y + z;
+</pre>
+
+    <p>This is fine. The value of <span class="code">y + z</span> is computed and that value is
+    put into <span class="code">x</span>.</p>
+    
+<pre class="code">
+  x + y = z;
+</pre>
+
+    <p>Error! I can't put the value of <span class="code">z</span> into <span class="code">x +
+    y</span> because there is no place in memory associated with <span class="code">x +
+    y</span>.</p>
+    
+    <p>In C techno-babble we say that assignment's left operand must be an "lvalue". The "l" in
+    "lvalue" comes from "left". C is rather unique in the way it handles assignment. In most
+    languages assignment is handled by a statement, not an operator. This is an subtle technical
+    distinction, but it means that C (and C++) need to define the concept of "lvalue" while most
+    other languages can ignore the whole issue. How important is this to us? Not very. However,
+    you will probably eventually get an error message from the compiler that says something like
+    "lvalue required". It would be nice if you had some idea of what it was talking about!</p>
+    
+    <h3>Expressions</h3>
+    
+    <p>It is important to understand that, except for assignment's left operand, none of the
+    operators we've looked at so far modify their operands. Let's look at that again:</p>
+    
+<pre class="code">
+  x = y + z;
+</pre>
+
+    <p>This computes the sum of <span class="code">y</span> and <span class="code">z</span>, BUT
+    neither <span class="code">y</span> nor <span class="code">z</span> is changed by that. The
+    value of <span class="code">x</span> is changed but that's because assignment has the
+    special feature that it modifies it's left operand (that's why that operand must be an
+    lvalue).</p>
+    
+<pre class="code">
+  x = -y;
+</pre>
+
+    <p>Here the negation of <span class="code">y</span> is computed and that result is put into
+    <span class="code">x</span>, but the value of <span class="code">y</span> is not changed.
+    Most operators are like this. With only a few special exceptions, they do not modify their
+    operands.</p>
+    
+    <p>As a result of this, complicated expressions can be created by combining simplier ones
+    using parentheses. For example</p>
+    
+<pre class="code">
+  x = (z1 + z2) / (z1 - z2);
+</pre>
+
+    <p>Here the left operand of <span class="code">/</span> is the result of computing <span
+    class="code">z1 + z2</span>. The right operand of <span class="code">/</span> is the result
+    of computing <span class="code">z1 - z2</span>. The result of the final division is then put
+    into <span class="code">x</span>. The values of <span class="code">z1</span> and <span
+    class="code">z2</span> are not changed by any of this. Only <span class="code" >x</span> is
+    changed.</p>
+    
+    <p>The fact that the operators don't modify their operands is important to make things like
+    this work. What if <span class="code">/</span> modified its operands? In that case, it would
+    be trying to modify <span class="code">z1 + z2</span>. That would be sort of like trying to
+    do</p>
+    
+<pre class="code">
+  z1 + z2 = x;
+</pre>
+
+    <p>It doesn't make sense! Thankfully that is not what's happening and the expression makes
+    perfectly good sense. You can write expressions that are as large and nasty as you want. Any
+    good C compiler should be able to handle anything no matter how complex it gets. There are
+    no limits.</p>
+    
+<pre class="code">
+  x = ((z1 + z2) * (z1 - z2)) / ((x + y) / 2);
+</pre>
+
+    <p>Here the left operand of <span class="code">/</span> is the result of multiplying <span
+    class="code">z1 + z2</span> by <span class="code">z1 - z2</span>. The right operand of <span
+    class="code">/</span> is the result of computing <span class="code">(x + y) / 2</span>.
+    Notice that this statement uses the value of <span class="code">x</span> and assigns to the
+    value of <span class="code">x</span>. This is not a problem. The original value of <span
+    class="code">x</span> is used to compute the new result and then that new value is assigned
+    to <span class="code">x</span>. This is very much like what happens in this statement</p>
+    
+<pre class="code">
+  x = x + 1;
+</pre>
+
+    <p>Notice also that I used spacing in such a way as to make the grouping of subexpressions
+    clear. I believe that you should include spaces around binary operators, including
+    assignment, but not around unary operators. You should avoid putting spaces after '(' or
+    before ').'</p>
+    
+    <h3>Precedence</h3>
+    
+    <p>I've been writing</p>
+    
+<pre class="code">
+  x = y + z;
+</pre>
+
+    <p>without any parentheses. How can I get away with that? There are two binary operators in
+    that statement: plus and assignment. Which one is computed first? Does it matter? In general
+    it does matter. First consider:</p>
+    
+<pre class="code">
+  x = (y + z);
+</pre>
+
+    <p>This is what I want to happen. It is legal and reasonable. Now consider:</p>
+
+<pre class="code">
+  (x = y) + z;
+</pre>
+
+    <p>Strangely this happens to also be legal. In C the value of an assignment operation is the
+    value of the left operand after the assignment occured. Thus this statement assigns <span
+    class="code">y</span> to <span class="code">x</span> and then computes the sum of <span
+    class="code">z</span> and the new value of <span class="code">x</span>. The result of that
+    addition is then thrown away. In short, the statement is legal but doesn't make a whole lot
+    of sense.</p>
+    
+    <p>It happens that the version I want is what I will get. This is because the addition
+    operator has higher "precedence" than assignment. When those two operators compete for the
+    same operands, addition will win. It is done first.</p>
+    
+<pre class="code">
+  x = y + z;
+  //  ^ Both + and = want this operand. Addition wins. More precedence.
+</pre>
+
+    <p>In your mind, visualize the statement like this</p>
+
+<pre class="code">
+  x     =     y+z;
+</pre>
+
+    <p>The addition operator bonds to its operands more tightly than assignment.</p>
+
+    <p>Now take a look at this statement</p>
+    
+<pre class="code">
+  x = a + b / c;
+</pre>
+
+    <p>Does this add <span class="code">a</span> to the quotient of <span
+    class="code">b/c</span> or does it divide <span class="code">c</span> into the sum of <span
+    class="code">a+b</span>? In other words are we getting</p>
+    
+<pre class="code">
+  x = a + (b / c);
+</pre>
+
+    <p>or</p>
+
+<pre class="code">
+x = (a + b) / c;
+</pre>
+
+    <p>This is a very important question because, mathematically, the two computations are very
+    different. The answer is that we are getting</p>
+
+<pre class="code">
+  x = a + (b / c);
+</pre>
+
+    <p>This is because division has higher precedence than addition. Visualize the statement
+    like this</p>
+
+<pre class="code">
+  x     =     a  +  b/c;
+</pre>
+
+    <p>Multiplication and division have the same precedence which is higher than addition or
+    subtraction. Addition and subtraction have the same precedence which is higher than
+    assignment. Every operator has a precedence level. Knowing these levels for the commonly
+    used operators is important. Consult your text for a complete list of all of C's operators
+    and their relative precedence.</p>
+    
+    <p>But what happens when an expression involves two operators with the same precedence?
+    Check out this example</p>
+    
+<pre class="code">
+  x = a + b + c;
+</pre>
+
+    <p>In this case you need to consider the associativity of the operators. Checking a
+    precedence chart I see that addition associates from left to right. Thus the above statement
+    becomes</p>
+    
+<pre class="code">
+  x = ((a + b) + c);
+</pre>
+
+    <p>In other words, the leftmost operation is done first. Now it happens that it doesn't
+    really matter for addition since addition is mathematically associative (it might matter in
+    real life if there was a possibility of overflow). But what about this case</p>
+    
+<pre class="code">
+  x = a / b * c;
+</pre>
+
+    <p>Multiplication and division have the same precedence. Yet</p>
+
+<pre class="code">
+  x = (a / b) * c;
+</pre>
+
+    <p>and</p>
+
+<pre class="code">
+  x = a / (b * c);
+</pre>
+
+    <p>are very different! Checking a precedence chart I see that multiplication and division
+    associate from left to right. Thus I get</p>
+
+<pre class="code">
+  x = (a / b) * c;
+</pre>
+
+    <p>If I want the other option I can add explicit parentheses. You can always override the
+    precedence or associativity of an operator by using parentheses. Since parentheses never
+    hurt, feel free to include them when you are in doubt about the interpretation of an
+    expression. Nevertheless knowing some of the basic rules is a must.</p>
+    
+    <h3>Sample program</h3>
+    
+    <p>Attached to this lesson is a sample program named <a href="prec.c">prec.c</a>. You should
+    compile that program and try it out. It asks you to enter three integers. It then computes
+    various expressions using those integers and prints out the results. Be sure you understand
+    why the results are what they are.</p>
+    
+    <p>Notice how in the sample program I declared a single integer named <span
+    class="code">result</span> to hold the results of each computation. Since I print out one
+    result before calculating the next, there is no reason why I can't reuse the <span
+    class="code">result</span> variable. It is very important to understand that the
+    instructions in a program execute in a certain sequence. The machine does one step at a time
+    moving from the first line of the program toward the last.</p>
+    
+    <h3>A few other useful operators</h3>
+
+    <p>The C language has a few "shortcut" operators for commonly needed operations. Consider
+    the statement</p>
+    
+<pre class="code">
+  x = x + 1;
+</pre>
+
+    <p>The point of this statement is to add one to <span class="code">x</span> and replace
+    <span class="code">x</span> with the new value. This sort of thing is so common that C has a
+    special version of the assignment operator for it.</p>
+
+<pre class="code">
+  x += 1;
+</pre>
+
+    <p>Do not put a space between the '+' and the '='. Unlike the other operators we have seen
+    so far, this operator is two characters.</p>
+
+    <p>In addition to <span class="code">+=</span>, there are also similar operators for the
+    other math operations.</p>
+    
+<pre class="code">
+  x += y;         // Like x = x + y;
+  x -= y;         // Like x = x - y;
+  x *= y;         // Like x = x * y;
+  x /= y;         // Like x = x / y;
+  x %= y;         // Like x = x % y;
+</pre>
+
+    <p>Think of these operations as "in place" operations. As with ordinary assignment they
+    modify their left operand. In this case they make the modification by "blending in" the
+    right operand according to the appropriate operation.</p>
+    
+    <p>For a while these in place operations were peculiar to C. Other languages, like Pascal,
+    don't have them. However, C has been a very influential language. Many newer languages have
+    similar operators because C programmers expect them. They can be very handy. When you get
+    used to them, you will really like them.</p>
+    
+    <h3>Increment and decrement</h3>
+    
+    <p>Adding or subtracting one from the value of a variable is so common that C provides
+    special operators just for that purpose.</p>
+    
+<pre class="code">
+  x  = x + 1;     // You're a Pascal programmer, right?
+  x += 1;         // Not really the way it would be done in C.
+  x++;            // That's more like it!
+</pre>
+
+    <p>To subtract one from a variable, use --.</p>
+
+<pre class="code">
+  x--;
+</pre>
+
+    <p>These statements look a little strange because there is no equals sign in them. The <span
+    class="code">++</span> operator (increment) and the <span class="code">--</span> operator
+    (decrement) modify their operands directly. In other words you don't want to say</p>
+    
+<pre class="code">
+  x = x++;        // Bad.
+</pre>
+
+    <p>The increment and decrement operators are actually a bit subtle. It turns out that you
+    can do either</p>
+    
+<pre class="code">
+  x++;
+</pre>
+
+    <p>or</p>
+
+<pre class="code">
+  ++x;
+</pre>
+
+    <p>if you want to increment <span class="code">x</span>. However, there is a difference. The
+    difference shows up if you use <span class="code">++</span> (or <span
+    class="code">--</span>) in a more complex expression. This is not something I want to get
+    into right now. We will revisit the issue later when we are talking about pointers. But if
+    you are interested, consider</p>
+    
+<pre class="code">
+  x = y++;
+  x = ++y;
+</pre>
+
+    <p>In the first case the original value of <span class="code">y</span> is assigned to <span
+    class="code">x</span> and then <span class="code">y</span> is incremented afterwards. In the
+    second case, <span class="code">y</span> is incremented first and then the new value is
+    assigned to <span class="code">x</span>. The first case is called "post" incrementing and
+    the second case is called "pre" incrementing. If you didn't follow that, don't worry about.
+    You don't need to understand that right now. For now, just avoid using <span
+    class="code">++</span> or <span class="code">--</span> with any other operators.</p>
+    
+    <h2>Summary</h2>
+    
+    <ol id="summary-list">
+      <li><p>In C you use '+' for addition, '-' for subtraction, '*' for multiplication, '/' for
+      division, and '%' for modulus (remainder). For example:</p>
+      
+<pre class="code">
+  x = y / z;   // Computes y divided by z and puts result in x.
+</pre>
+
+      <p>When integers are divided the fractional result is thrown away. The result is an
+      integer. For example, 5/2 is 2, not 2.5.</p></li>
+      
+      <li><p>C treats assignment as an operator. However, unlike most other operators, the <span
+      class="code">=</span> operator modifies one of its operands (the left hand one).</p></li>
+      
+      <li><p>Large and complicated expressons can be made by combining operators so that the
+      results of one calculation become an operand of the next. When combining operations, it is
+      important to know which is done first. This depends on the precedence of the operators
+      involved. You can, however, always use parentheses to force a certain order in the
+      computation.</p></li>
+      
+      <li><p>C allows you to combine a simple math operation with an assignment using a shortcut
+      operator. For example</p>
+
+<pre class="code">
+  x += y;    // Like x = x + y;
+</pre>
+
+      <p>You can also increment (add one) or decrement (subtract one) a number using <span
+      class="code">++</span> or <span class="code">--</span> like this</p>
+
+<pre class="code">
+  x++;
+  y--;
+</pre></li>
+    </ol>
+    
+    <address>&copy; Copyright 2016 by Peter C. Chapin.<br />
+    Last Revised: <b>January 25, 2016</b></address>
+  </body>
+</html>

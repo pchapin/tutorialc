@@ -1,0 +1,449 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE         : LESSON-13.htm
+     LAST REVISED : 2003-07-17
+     AUTHOR       : (C) Copyright 2003 by Peter Chapin
+     SUBJECT      : Debugging using the debugger. -->
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
+  <head>
+    <meta name="generator" content="HTML Tidy for Windows (vers 24 July 2007), see www.w3.org" />
+    <title>Lesson #13</title>
+    <meta name="Author" content="Peter C. Chapin" />
+    <!-- <meta name="keywords" lang="en-US" content="..."> -->
+    <meta name="ROBOTS" content="NOARCHIVE" />
+    <link rel="stylesheet" href="c-course.css" type="text/css" />
+  </head>
+  <body>
+    <h1>Lesson #13</h1>
+    <p class="subtitle">Debugging Using the Debugger</p>
+    <h2>Overview</h2>
+    <p class="note">This is the GDB version of this lesson. It is my intention to one day
+      produce other version of this lesson appropriate for other debuggers.</p>
+    <p>In this lesson I will cover the following topics</p>
+    <ol id="overview-list">
+      <li>
+        <p>What is a source level debugger.</p>
+      </li>
+      <li>
+        <p>Warnings about using debuggers.</p>
+      </li>
+      <li>
+        <p>Using the gdb debugger.</p>
+      </li>
+    </ol>
+    <h2>Body</h2>
+    <h3>Source level debuggers</h3>
+    <p>Debugging a program by inserting <span class="code">printf</span> statements into it is
+      often quite effective. But it has drawbacks.</p>
+    <ol>
+      <li>
+        <p>Eventually you don't want those extra <span class="code">printf</span> statements
+          there. That means you have to take them out before you compile your "final" version.
+          If a new bug becomes apparent you then have to put them all back in again to debug the
+          new problem.</p>
+      </li>
+      <li>
+        <p>It's hard to know ahead of time just what information you want to print in your <span
+            class="code">printf</span> statements. If you aren't printing the information you
+          need you have to modify your program and do another test run. Yet test runs can
+          sometimes take a long time to reach the place where the bug is happening. Thus making
+          such changes can be very annoying.</p>
+      </li>
+      <li>
+        <p>There are times when you just can't <span class="code">printf</span> the information
+          you need. Difficult bugs need more aggressive treatment.</p>
+      </li>
+    </ol>
+    <p>Thankfully special debugging tools have been created to help. They are called "symbolic
+      debuggers". These programs are usually quite sophisticated. They allow you to execute your
+      program in slow motion, view and change the values of any variable at any time, and
+      perform a number of other operations on the program. A symbolic debugger allows you to
+      dissect your program while it is alive. It is similar to performing surgery on your
+      program and observing what its inards are doing while they are working (or not working as
+      the case may be).</p>
+    <p>Every serious compiler that I've heard of comes with a symbolic debugger. Every debugger
+      is a little different. Each vendor tries to make their products more attractive than the
+      next one by giving their debugger especially nice features. Whenever you start using a new
+      compiler, learning your way around its debugger is part of your learning curve.</p>
+    <p>The gcc compiler comes with a symbolic debugger named gdb. Like gcc, it is free and yet
+      of good quality. However, unlike many commercial debuggers, gdb operates purely in text
+      mode. This allows it to be used over a terminal connection (good for us), but it does make
+      it a bit more difficult to use than some other debuggers. Most debuggers use several
+      windows to show you different aspects of your program at once. I will say, however, that
+      gdb is not bad once you get used to it.</p>
+    <h3>The program</h3>
+    <p>For purposes of illustration we need a program to debug. I'll use my prime number testing
+      program (Example #1). Here it is again for your reference.</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  int number;    // The number we are testing.
+  int i;         // Loop index.
+  int prime = 1; // We start by assuming the number is prime.
+  int upper;     // Upper bound of the for loop.
+
+  // Ask the user to enter a number.
+  printf("Enter a number: ");
+  scanf("%d", &amp;number);
+
+  // Do I like it? If not, print a message and die.
+  if (number &lt; 2) {
+    printf("Your number is too small.\n");
+    return 1;
+  }
+
+  // Can I divide this number by anything less than it?
+  upper = number;
+  for (i = 2; i &lt; upper &amp;&amp; prime; i++) {
+
+    // If it divides evenly, it's not prime. Otherwise I can adjust upper.
+    if (number % i == 0) {
+      prime = 0;
+    }
+    else {
+      upper = number / i;
+    }
+  }
+
+  // What is the result of my test?
+  if (prime) {
+    printf("The number %d is prime!\n", number);
+  }
+  else {
+    printf("I'm sorry, %d is not prime. It can be divided by %d\n",
+      number, i - 1);
+  }
+  return 0;
+}
+</pre>
+    <p>To make life more interesting, we should introduce a bug into this program. Lets change
+      the line that says</p>
+    <pre class="code">
+upper = number / i;
+</pre>
+    <p>so that it says</p>
+    <pre class="code">
+upper = number % i;
+</pre>
+    <p>This causes the value of <span class="code">upper</span> to be set incorrectly. It will
+      be given a small value much too early and the for loop will end prematurely. As a result
+      every odd number will appear to be prime. Even numbers will be caught as non prime right
+      away so the bug won't "trigger" for even numbers.</p>
+    <p>This error is not abnormal. People often make mistakes like this. After all, the
+      expression <span class="code">number % i</span> is used earlier in the program. It is easy
+      to see how the programmer might have accidently typed it again. While the programmer might
+      notice this error by just inspecting the program later, it is also possible that something
+      like this could go unnoticed for quite some time. It is often amazing the sort of bugs
+      that people don't notice!</p>
+    <h3>Preparing to use gdb</h3>
+    <p>Before I talk about gdb in particular, I want to give you a couple of warnings about
+      debuggers.</p>
+    <p>First using a debugger effectively takes practice. The first few times you do it you will
+      spend far more time working (fighting?) with the debugger than you will actually looking
+      for your bug. That is normal; don't let it get you down. The debugger might seem like more
+      trouble than it's worth at first, but as you get better with it your feelings about it
+      will change. Eventually you'll be able to get around in the debugger very well and you'll
+      be able to quickly locate bugs that would have taken you hours to find the old fashion
+      way. BUT... it does take practice to get to that point. Don't worry if your first few
+      times seems like a waste of time.</p>
+    <p>Second, using a debugger requires THINKING! Some students seem to go into a trance when
+      they use a debugger. They just push buttons and watch their program with a glazed
+      expression. There is usually a critical moment when the bug "happens". If you miss that
+      moment all the debugging in the world isn't going to help you. To catch that moment you
+      have to pay close attention to what is going on. Before you execute each debugger command
+      ask yourself: "what should the program do here?" When the command finishes ask yourself:
+      "what did the program actually do?" If the program did something different than what you
+      expected, try to figure out why. Only once you've completely understood what happened and
+      why should you try something else. Don't just go pushing buttons mindlessly or you will
+      get nowhere.</p>
+    <p>Before you can use gdb you need to compile your program in a special way. In particular,
+      you need to include the -g command line option.</p>
+    <pre class="terminal">
+$ <span class="user-input">gcc -g -o prime_broken prime_broken.c</span>
+</pre>
+    <p>This tells gcc to add "debugging information" (also called "symbolic information") to the
+      executable file. The debugger uses this information to connect what is going on in the
+      program with what you wrote in your .c file. You can still debug a program without this
+      extra information in it but you can't use the names of your variables and you can't relate
+      what is happening to your .c file. You have to debug the program in raw assembly language
+      and that is nasty.</p>
+    <p>The extra debugging information will cause your program's executable file to become
+      larger. Often it doubles the size of your executable file. That is a bad thing. Normally
+      when you get the bugs worked out you would recompile your program without the debugging
+      option before you ship it.</p>
+    <p>The debugging information should not affect the speed of your program very much. It is
+      mostly all stored as tables of data that the debugger uses. The program itself is
+      unaffected. However, when you activate debugging, it is usually wise to turn off all
+      compiler optimization options. When you tell the compiler to optimize your program the
+      compiler will sometimes rearrange your code to make it faster. Debugging programs that
+      have been rearranged is difficult since the actual program is different than what you
+      wrote in your .c file.</p>
+    <p>Of course the compiler optimizations are supposed to be such that the optimized program
+      still has the same effects as before. Thus once you get your program working properly
+      without optimizations you should be able to turn on the optimizations and recompile it
+      without any problems. Once in a while, however, a bug shows up only when the program is
+      optimized. Those bugs are particularly difficult. If you get one of them you either have
+      to do without the debugger or try to debug optimized code.</p>
+    <p>In any case, after using the -g option on the compiler you are now ready to debug your
+      program. Type</p>
+    <pre class="terminal">
+$ <span class="user-input">gdb prime_broken</span>
+</pre>
+    <p>to run your program under the control of the debugger. Note that in the command above you
+      are running the gdb program. The first (and only) argument to that command is the name of
+      the program you wish to debug. Give gdb the name of the executable file. Do not give it
+      the name of the source file. Gdb will locate the source file automatically.</p>
+    <h3>Using gdb</h3>
+    <p>When you start gdb as above, the prime_broken program is also loaded. However,
+      prime_broken is prevented from doing anything by the debugger. Let's look around a bit
+      first. It would be helpful if you followed along with your own program as you read this
+      lesson.</p>
+    <p>You can get help in gdb by typing <span class="user-input">help</span> at its prompt. The
+      gdb prompt looks like</p>
+    <pre class="terminal">
+(gdb)
+</pre>
+    <p>So you can get help by doing</p>
+    <pre class="terminal">
+(gdb) <span class="user-input">help</span>
+</pre>
+    <p>You will see that help is divided into several "classes" of help. You can get information
+      on all the gdb commands in a class by typing <span class="user-input">help</span> followed
+      by the class name. For example</p>
+    <pre class="terminal">
+(gdb) <span class="user-input">help files</span>
+</pre>
+    <p>Gives you a list of all commands that relate to specifying and examining files. You can
+      also do <span class="user-input">help</span> followed by the name of a command to get help
+      on a particular command. For example</p>
+    <pre class="terminal">
+(gdb) <span class="user-input">help list</span>
+</pre>
+    <p>Gives you help on the list command.</p>
+    <p>Keep in mind that commands can be abbreviated if the abbreviation is unique. In other
+      words when you type a command you only have to type as many letters as necessary to
+      distinguish it from all the other commands. It happens that the list command is the only
+      command that starts with l (ell). Thus you can execute the list command by just doing</p>
+    <pre class="terminal">
+(gdb) <span class="user-input">l</span>
+</pre>
+    <p>Many commands accept arguments. However, they mostly all have a meaningful and useful
+      default action that you get by just typing the command without any arguments. In addition,
+      if you just type ENTER at the gdb prompt, gdb will re-execute the last command without any
+      arguments. This makes it quite easy to run the same command again and again. As you will
+      see that is often something you want to do. These rules save a lot of typing and make gdb
+      a lot faster to use than you might expect at first.</p>
+    <p>If you just issue the <span class="user-input">l</span> command gdb will list 10 lines of
+      your program around the beginning of function main. Subsequent <span class="user-input"
+        >l</span> commands will step through your program 10 lines at a time. You can do
+      something like</p>
+    <pre class="terminal">
+(gdb) <span class="user-input">l 21</span>
+</pre>
+    <p>to restart the listing around line 21 (in this case). Notice how gdb numbers all the
+      lines for you. You can also do something like</p>
+    <pre class="terminal">
+(gdb) <span class="user-input">l main</span>
+</pre>
+    <p>to restart the listing around the beginning of function <span class="code">main</span>.
+      You don't really need to know the line numbers where all of your functions start! Try
+      using the <span class="user-input">l</span> command several times (remember: you can just
+      type ENTER to re-execute a command). Use the <span class="user-input">l</span> command to
+      jump to a line number. Use the <span class="user-input">l</span> command to jump to the
+      beginning of <span class="code">main</span>.</p>
+    <p>Okay... let's run our program. Type this</p>
+    <pre class="terminal">
+(gdb) <span class="user-input">run</span>
+</pre>
+    <p>Gdb should respond with</p>
+    <pre class="terminal">
+Starting program: /home/pchapin/prime_broken
+</pre>
+    <p>except that it will give the absolute path to the version of prime_broken that you are
+      running (in your home directory). The prime_broken program will then do its thing. When it
+      is finished gdb will say</p>
+    <pre class="terminal">
+Program exited normally.
+(gdb)
+</pre>
+    <p>The "program exited normally" stuff is because main returned a zero. As I explained
+      before, zero traditionally means the program ran without a problem. Notice that gdb gives
+      you another prompt after the program runs. This allows you to run it again or do other
+      operations.</p>
+    <p>Notice that the program ran at full speed and without interruption. This is great, but
+      how can you debug it that way? You can't. To debug the program you have to get it to stop
+      in the middle of what it is doing. One way to do that is to set a "breakpoint". When the
+      program encounters the breakpoint it will stop and gdb will step in again. At that point
+      you can work with the program more closely.</p>
+    <p>Typically you set a breakpoint just before the spot where you think the bug "happens".
+      Then you can let the program run at full speed to that point and start your serious
+      debugging work from there. However, in some cases you really don't know where the bug
+      happens. Let's set a breakpoint at the start of function <span class="code">main</span>
+      this time.</p>
+    <pre class="terminal">
+(gdb) <span class="user-input">break main</span>
+</pre>
+    <p>Gdb might respond with something like</p>
+    <pre class="terminal">
+Breakpoint 1 at 0x80485a6: file prime_broken.c, line 25.
+</pre>
+    <p>This tells you where the break point is located. The strange looking number is the memory
+      address of the breakpoint. That is useful if you are a hardcore debugger who is not afraid
+      of talking in machine language, but for the most part you can ignore that value.</p>
+    <p>Now run the program.</p>
+    <pre class="terminal">
+(gdb) <span class="user-input">run</span>
+</pre>
+    <p>Gdb says</p>
+    <pre class="terminal">
+Starting program: /home/pchapin/prime_broken
+
+Breakpoint 1, main() at prime_broken.c:25
+25      int prime = 1; // We start by assuming the number is prime.
+</pre>
+    <p>Gdb runs the program at full speed. However, when the breakpoint is encountered (which
+      happens right away in this case) it stops the program in its tracks and displays the line
+      number of the break point. Notice that the line displayed is <em>not</em>
+      <span class="code">main</span>'s header. That's because <span class="code">main</span>'s
+      header is not executable. There is nothing in the final compiled program that corresponds
+      to that header line. The line that initialized <span class="code">prime</span> to one is
+      the first executable statement in <span class="code">main</span> and so that is where the
+      breakpoint is actually located. Keep in mind that his line has not yet executed. The
+      breakpoint stops the program just before the line at the breakpoint executes.</p>
+    <p>Let's see what value <span class="code">prime</span> has at this point</p>
+    <pre class="terminal">
+(gdb) <span class="user-input">print prime</span>
+</pre>
+    <p>Gdb says</p>
+    <pre class="terminal">
+$1 = 1073783752
+</pre>
+    <p>Here I ask gdb to print out the current value of the variable <span class="code"
+        >prime</span>. Notice that I had to spell prime exactly right. C is case sensitive so if
+      you use uppercase letters in your variable names, you will need to do so when you mention
+      those variables to gdb. Gdb printed out a a strange value for <span class="code"
+        >prime</span> in this case because I have not yet initialized it. That is normal. The
+      "$1" stuff is gdb's way of telling you that this value is being stored in a "gdb variable"
+      for later use. That's more of an advanced topic.</p>
+    <p>Now lets execute line 25 of the program. There are two ways to execute a single line. The
+        <span class="user-input">next</span> command goes to the next line. If the current line
+      contains a function call, the entire function is executed at full speed. The <span
+        class="user-input">step</span> command is just like the next command except that if the
+      current line contains a function call, that function is entered and only one line of that
+      function is executed. You should probably use <span class="user-input">next</span> most of
+      the time. Use <span class="user-input">step</span> only when you want to investigate how a
+      particular function is working. Once you are convinced that a function works, you can
+        <span class="user-input">next</span> over it from then on.</p>
+    <pre class="terminal">
+(gdb) <span class="user-input">n</span>
+</pre>
+    <p>Gdb says</p>
+    <pre class="terminal">
+29      printf("Enter a number: ");
+</pre>
+    <p>Instead of typing <span class="user-input">next</span> I just used the abbrviation <span
+        class="user-input">n</span>. If I wanted I could step the next line by just typing
+      ENTER. PLEASE: do not go into a trance at this time!! It is so easy to just sit there
+      typing ENTER over and over again without paying any attention.</p>
+    <p>I want to see if <span class="code">prime</span> got initialized okay.</p>
+    <pre class="terminal">
+(gdb) <span class="user-input">print prime</span>
+</pre>
+    <p>Gdb says</p>
+    <pre class="terminal">
+$2 = 1
+</pre>
+    <p>Cool! <span class="code">prime</span> now has the value of one just as desired. (The "$2"
+      just means that this value is being stored in another gdb variable for later use. You can
+      ignore that for now).</p>
+    <p>Okay, now let me next again.</p>
+    <pre class="terminal">
+(gdb) <span class="user-input">n</span>
+</pre>
+    <p>Gdb says</p>
+    <pre class="terminal">
+30      scanf("%d", &amp;number);
+</pre>
+    <p>Hey! Why didn't it print out the prompt "Enter a number:"? Actually this is not a bug.
+      The terminals are normally line buffered. This means that they normally don't output
+      anything until a '\n' character is printed and then they output the entire line all at
+      once (it's faster to do it that way). This is why there was no output when you executed
+      the <span class="code">printf</span> statement. That particular <span class="code"
+        >printf</span> statement does not print a '\n' character.</p>
+    <p>However, when you use <span class="code">scanf</span> to get some input, the <span
+        class="code">scanf</span> function figures that all buffered output probably should be
+      displayed first. Thus <span class="code">scanf</span> "flushes" the output buffer before
+      trying to read the keyboard. The bottom line is that executing the <span class="code"
+        >scanf</span> function will cause <span class="code">printf</span>'s output to appear as
+      well. Try it!</p>
+    <pre class="terminal">
+(gdb) <span class="user-input">n</span>
+</pre>
+    <p>Enter a value of 117 when the program prompts you for a number. Next gdb says</p>
+    <pre class="terminal">
+33      if (number &lt; 2) {
+</pre>
+    <p>to show you that it is ready for the next step in the program. Execute the <span
+        class="user-input">next</span> command several more times until you get to the line that
+      looks like</p>
+    <pre class="terminal">
+43      if (number % i == 0) {
+</pre>
+    <p>This occurs inside the for loop. Just before executing this line check the values of
+        <span class="code">number</span> and <span class="code">i</span> using <span
+        class="user-input">print number</span> and <span class="user-input">print i</span>
+      commands. Make sure the values look normal (they should). Since 117 is not evenly
+      divisible by 2 the body of this if statement should not execute. Run the next command
+      again and you should get to the line that says</p>
+    <pre class="terminal">
+47      upper = number % i;
+</pre>
+    <p>You can list out a section of your program around line 47 (in this case) with a command
+      like</p>
+    <pre class="terminal">
+(gdb) <span class="user-input">l 47</span>
+</pre>
+    <p>This shows you some text both before and after the line so you can see some context. You
+      can see from the listing that the program has decided 117 is not evenly divisible by 2 and
+      is now ready to adjust the value of <span class="code">upper</span>. Let the program do
+      that and then check to see what value it put into upper. Do a <span class="user-input"
+        >next</span> command and then <span class="user-input">print upper</span>.</p>
+    <p>Whoa! You should see that <span class="code">upper</span> now has a value of 1. But that
+      can't be right. How did <span class="code">upper</span> go from 117 all the way to 1 in a
+      single loop pass? Just before you executed the last statement everything was fine. Now
+      things are messed up. The bug has "happened" and the problem seems like it is in the last
+      line. In fact... it is. That line should have been</p>
+    <pre class="code">
+upper = number / i;
+</pre>
+    <p>We found the bug.</p>
+    <p>Now to quit gdb, type the <span class="user-input">quit</span> command. Gdb will warn you
+      that a program is running. You can quit anyway. If you do so, gdb will terminate the
+      program at once.</p>
+    <h2>Summary</h2>
+    <ol id="summary-list">
+      <li>
+        <p>A source level debugger is a programming tool that allows you to study your program
+          while it executes. This helps you to locate bugs that might otherwise be nearly
+          impossible to find.</p>
+      </li>
+      <li>
+        <p>Debuggers are complex tools and have a significant learning curve. The first few
+          times you use a debugger you will probably spend more time learning the debugger than
+          debugging your program. That is normal. Using a debugger effectively requires thought.
+          It is easy to just hit keys without paying attention, but if you do that you will
+          never find the bugs in your program no matter how powerful your debugger might be.</p>
+      </li>
+      <li>
+        <p>Before you can debug your program with gdb you must first compile it with the -g
+          option. That causes the compiler to include debugging information into the executable
+          file. The gdb debugger itself allows you to set breakpoints, execute your program a
+          line at a time, display the value of variables, and do many other things.</p>
+      </li>
+    </ol>
+    <address>&copy; Copyright 2003 by Peter C. Chapin.<br />
+Last Revised: <b>July 17, 2003</b></address>
+  </body>
+</html>

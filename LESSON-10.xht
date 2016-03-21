@@ -1,0 +1,397 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE         : LESSON-10.htm
+     LAST REVISED : 2003-07-20
+     AUTHOR       : (C) Copyright 2003 by Peter Chapin
+     SUBJECT      : Pseudo-code. -->
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
+  <head>
+    <meta name="generator" content="HTML Tidy for Windows (vers 24 July 2007), see www.w3.org" />
+    <title>Lesson #10</title>
+    <meta name="Author" content="Peter C. Chapin" />
+    <!-- <meta name="keywords" lang="en-US" content="..."> -->
+    <meta name="ROBOTS" content="NOARCHIVE" />
+    <link rel="stylesheet" href="c-course.css" type="text/css" />
+  </head>
+  <body>
+    <h1>Lesson #10</h1>
+    <p class="subtitle">Switch Statements</p>
+    <p>The program <a href="textstats.c">textstats.c</a> is a filter program that uses a switch
+      statement. I describe it more below.</p>
+    <h2>Overview</h2>
+    <p>In this lesson I will cover the following topics</p>
+    <ol id="overview-list">
+      <li>
+        <p>The switch statement.</p>
+      </li>
+      <li>
+        <p>The if... else if... chain.</p>
+      </li>
+      <li>
+        <p>When to use one form or the other.</p>
+      </li>
+    </ol>
+    <h2>Body</h2>
+    <h3>The switch statement</h3>
+    <p>Sometimes you want to test the value of a variable and handle several different cases
+      differently. For example, suppose you wanted to print out a small menu of choices and then
+      ask the user to select a choice. Here is how that might look.</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  int choice;
+
+  // Print the menu.
+  printf("0) Exit\n");
+  printf("1) Do something.\n");
+  printf("2) Do something else.\n");
+  printf("3) Do some third thing.\n");
+
+  // Get the user's choice.
+  printf("\nEnter your choice: ");
+  scanf("%d", &amp;choice);
+
+  // Handle it.
+  switch (choice) {
+    case 0:
+      break;
+
+    case 1:
+      // Do something.
+      break;
+
+    case 2:
+      // Do something else.
+      break;
+
+    case 3:
+      // Do some third thing.
+      break;
+
+    default:
+      printf("I don't understand the choice %d. Sorry.\n", choice);
+      break;
+  }
+
+  return 0;
+}
+</pre>
+    <p>The switch statement compares the value of the expression in its parentheses to the
+      values of each of the cases. When it finds a match, your program will start executing the
+      lines below that case. When you execute a break statement, the switch statement ends and
+      the program continues with whatever follows the switch statement. If the expression you
+      are "switching on" does not match any of the cases, the special "default" case is executed
+      instead. In the example above I use the default case to print an error message. There are
+      quite a few things to say about the switch statement.</p>
+    <ol>
+      <li>
+        <p>The expression you switch on has to have some sort of integral type. You can't switch
+          on a floating point value.</p>
+      </li>
+      <li>
+        <p>The cases all have to be constants. You can't use variables for the cases.</p>
+      </li>
+      <li>
+        <p>The cases don't have to be in any particular order.</p>
+      </li>
+      <li>
+        <p>The default case is optional. If you don't include it and if the value you are
+          switching on doesn't match any of the cases, the switch statement does nothing.</p>
+      </li>
+      <li>
+        <p>If you forget a break statement, the program will just "fall through" to the next
+          case. Usually this is bad, but sometimes it is useful.</p>
+        <pre class="code">
+switch (choice) {
+  case 'A':
+  case 'a':
+    // Handle the case of 'A' or 'a'
+    break;
+
+  case 'B':
+  case 'b':
+    // Handle the case of 'B' or 'b'
+    break;
+}
+</pre>
+        <p>In this situation if <span class="code">choice</span> is 'A' or 'a' it will still
+          trigger the same code. This is because there is no break in the case for 'A'. The
+          program just falls through immediately to the next case.</p>
+      </li>
+      <li>
+        <p>There is a colon after each case. Don't forget it or you will get syntax errors from
+          the compiler.</p>
+      </li>
+    </ol>
+    <p>The switch statement is very useful. Not only is it good for processing menu items, but
+      it can be used for classifying data. Let's write a filter program that prints out a few
+      interesting facts about the input file. Inside the main while loop that reads the input
+      (see the last lesson), I will put a switch statement with a different case for each
+      character we want to track. The default case will handle all other characters. I can do
+      things relevant to all characters just before I get to the switch.</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  int ch;
+  int char_count = 0; // The total number of characters.
+  int line_count = 0; // The number of lines.
+  int tab_count  = 0; // The number of tabs.
+  int form_count = 0; // The number of form feeds.
+
+  // Read the input one character at a time.
+  while ((ch = getchar()) != EOF) {
+
+    // No matter what it is, increment the character count.
+    char_count++;
+
+    // Increment an appropriate counter depending on what we see.
+    switch (ch) {
+      case '\n':
+        line_count++;
+        break;
+
+      case '\t':
+        tab_count++;
+        break;
+
+      case '\f':
+        form_count++;
+        break;
+    }
+  }
+
+  // After the loop ends, print out the results.
+  printf("Found:\n");
+  printf("\t%d characters\n", char_count);
+  printf("\t%d lines\n", line_count);
+  printf("\t%d tabs\n", tab_count);
+  printf("\t%d form feeds\n", form_count);
+  return 0;
+}
+</pre>
+    <p>Notice that if one of the break statements above was left out, it would have been bad.
+      For example, if the break under the case '\n' was left out then after <span class="code"
+        >line_count</span> was incremented, the program would have just fallen through to the
+        <span class="code">tab_count++</span> statement. Thus <span class="code"
+        >tab_count</span> would have advanced not only for tabs, but also for newlines giving it
+      an incorrectly high value. You must be careful to avoid errors such as this.</p>
+    <p>The associated file, textstats.c, is a more full featured version of this example.
+      Compile it and try it out.</p>
+    <h3>But what about if?</h3>
+    <p>You might wonder what the point of the switch statement is. Can't the same thing be
+      accomplished using if statements? The short answer is, "yes". The switch statement is not
+      necessary. For example, I could test for the characters in my last example with three if
+      statements</p>
+    <pre class="code">
+if (ch == '\n') {
+  line_count++;
+}
+if (ch == '\t') {
+  tab_count++;
+}
+if (ch == '\f') {
+  form_count++;
+}
+</pre>
+    <p>But there are some differences. First of all, in the case of the if statements, every if
+      statement computes the condition for every character. For example, if <span class="code"
+        >ch</span> was a '\n', the first if statement would trigger and the statement <span
+        class="code">line_count++</span> would execute. But then the tests <span class="code">ch
+        == '\t'</span> and <span class="code">ch == '\f'</span> would be done anyway. Those
+      tests are a waste because we already know that <span class="code">ch</span> is a '\n' in
+      such a case. In a small example like this it doesn't matter much, but what if there were
+      hundreds of other tests to do? The time involved might start adding up. However, you can
+      address that issue by using else clauses.</p>
+    <pre class="code">
+if (ch == '\n') {
+  line_count++;
+}
+else if (ch == '\t') {
+  tab_count++;
+}
+else if (ch == '\f') {
+  form_count++;
+}
+</pre>
+    <p>In this case if <span class="code">ch</span> was a newline, it would execute <span
+        class="code">line_count++</span> and then skip the else clause that went with that if
+      statement. This entails skipping over everything else so the other tests are not done. Yet
+      even with this enhancement a lot of extra tests might happen. Suppose <span class="code"
+        >ch</span> is a form feed character. First the test <span class="code">ch == '\n'</span>
+      is done. Since that is false, the else clause is executed. That else clause contains
+      another if statement where the test <span class="code">ch == '\t'</span> is done. Since
+      that is false, that inner if statement's else clause is executed. Finally the test <span
+        class="code">ch == '\f'</span> is done. Yet with the switch statement the compiler might
+      be able to jump directly to the appropriate case without executing any extra tests (how
+      true this is depends on various factors including how clever your compiler is). In short:
+      in many situations the switch statement will be faster than an equivalent chain of if...
+      else if... statements.</p>
+    <p>But wait a second... isn't there something wrong with the way I've written that if...
+      else if... stuff? Shouldn't it be written like this</p>
+    <pre class="code">
+if (ch == '\n') {
+  line_count++;
+}
+else {
+  if (ch == '\t') {
+    tab_count++;
+  }
+  else {
+    if (ch == '\f') {
+      form_count++;
+    }
+  }
+}
+</pre>
+    <p>Don't I need to put braces around the statements in my else clauses and indent them
+      properly? The answer is no. In C you don't actually need the braces around a block
+        <em>provided</em> there is only one statement in that block. This is true for loops as
+      well. For example</p>
+    <pre class="code">
+for (i = 0; i &lt; 10; i++) {
+  printf("%d\n", i);
+}
+</pre>
+    <p>can be written as</p>
+    <pre class="code">
+for (i = 0; i &lt; 10; i++)
+  printf("%d\n", i);
+</pre>
+    <p>or even</p>
+    <pre class="code">
+for (i = 0; i &lt; 10; i++) printf("%d\n", i);
+</pre>
+    <p>Personally I like the last version. For very short loops it seems nice and neat to me to
+      have everything on one line. Many C programmers take advantage of this feature. I will too
+      from now on.</p>
+    <p>Because of this feature the braces around the else clauses in the if... else if... chain
+      are not necessary. Each else clause contains a single if statement. The fact that the
+      inner if statements contain else clauses and nested statements of their own does not
+      change the fact that they are single if statements. Although each else clause is actually
+      nested one level deeper than the one before it, you can make an exception to the usual
+      formatting rules and format an if... else if... chain the way I've shown it. It is a
+      structure that is well understood by all programmers who see it.</p>
+    <p>Actually C's ability to drop the braces around blocks that contain a single statement is
+      what allows C programmers to write if... else if... chains without there being a special
+      keyword in the language. In some languages (where you need block delimiters around all
+      blocks) there is a special "elsif" sort of word that is used for building if... else if...
+      chains. C doesn't need it and doesn't have it.</p>
+    <p>So why am I telling you all of this about the if... else if... chain if switch statements
+      are usually faster? Shouldn't you just be using switch all the time anyway? It is true
+      that in many cases, switch statements are faster. They also tend to be easier to read and
+      understand. However, to get their speed they have many restrictions. The if... else if...
+      chain does not have as many. Let's compare:</p>
+    <pre class="code">
+switch (number) {
+  case 1:
+    // Can only switch on integers.
+    break;
+
+  case 2:
+    // Cases must be constants.
+    break;
+
+  case 3:
+    // Can have a large number of cases and yet be fast.
+    break;
+
+  case 4:
+  case 5:
+    // Can have the same code for two cases.
+    break;
+
+  case 6:
+    // Cases not tested in any order.
+    break;
+
+  default:
+    // Has a default case for anything else.
+    break;
+}
+</pre>
+    <p>Now check out the if... else if... chain that mimics the switch statement above.</p>
+    <pre class="code">
+if (number == 3.14159) {
+  // Conditions can involve any type. Not just integers.
+}
+else if (number &gt; 2 * (i - 1)) {
+  // Conditions can be as complicated as you like. Not just comparisons to
+  // constants.
+}
+else if (number == 3) {
+  // The more conditions you test the slower it will get.
+}
+else if (number == 4 || number == 5) {
+  // You can have two conditions execute the same code.
+}
+else if (number == 6) {
+  // Conditions tested in a strictly top down order. Sometimes this is
+  // very important. You can check the most specific conditions first
+  // and then the more general ones later.
+}
+else {
+  // Here is where you put the default material that will execute if
+  // none of the conditions are true. As with the default case, this
+  // block is optional.
+}
+</pre>
+    <p>In general, if you can get away with a switch statement, use it. If you can't use a
+      switch then write an if... else if... chain.</p>
+    <h2>Summary</h2>
+    <ol id="summary-list">
+      <li>
+        <p>The switch statement has the format</p>
+        <pre class="code">
+switch (variable) {
+  case 1:
+    // Handle the case of variable == 1.
+    break;
+
+  case 2:
+    // Handle the case of variable == 2.
+    break;
+
+  case 3:
+    // Handle the case of variable == 3.
+    break;
+
+  dault:
+    // Handle all other cases.
+    break;
+}
+</pre>
+      </li>
+      <li>
+        <p>You can get the same sort of logic from a chain of nested if... else if...
+          statements.</p>
+        <pre class="code">
+if (variable == 1) {
+  // Handle the case of variable == 1.
+}
+else if (variable == 2) {
+  // Handle the case of variable == 2.
+}
+else if (variable == 3) {
+  // Handle the case of variable == 3.
+}
+else {
+  // Handle all other cases.
+}
+</pre>
+      </li>
+      <li>
+        <p>Switch statements are often easier to read and are usually faster. They should be
+          used when possible. However, they have several restrictions. For example, the cases
+          can only be integer constants. With an if... else if... chain the conditions can be as
+          complicated as you like. Also with an if... else if... chain the conditions are
+          evaluated in the order given. This can be important in some applications.</p>
+      </li>
+    </ol>
+    <address>&copy; Copyright 2003 by Peter C. Chapin.<br />
+Last Revised: <b>July 20, 2003</b></address>
+  </body>
+</html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE         : LESSON-22.htm
+     LAST REVISED : 2003-07-03
+     AUTHOR       : (C) Copyright 2003 by Peter Chapin
+     SUBJECT      : Strings. -->
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
+  <head>
+    <meta name="generator" content="HTML Tidy for Windows (vers 24 July 2007), see www.w3.org" />
+    <title>Lesson #22</title>
+    <meta name="Author" content="Peter C. Chapin" />
+    <!-- <meta name="keywords" lang="en-US" content="..."> -->
+    <meta name="ROBOTS" content="NOARCHIVE" />
+    <link rel="stylesheet" href="c-course.css" type="text/css" />
+  </head>
+  <body>
+    <h1>Lesson #22</h1>
+    <p class="subtitle">Strings</p>
+    <h2>Overview</h2>
+    <p>In this lesson I will cover the following topics</p>
+    <ol id="overview-list">
+      <li>
+        <p>What is a string.</p>
+      </li>
+      <li>
+        <p>How to display strings with <span class="code">printf</span> and <span class="code"
+            >puts</span> and how to read strings with <span class="code">scanf</span> and <span
+            class="code">gets</span>.</p>
+      </li>
+      <li>
+        <p>How to pass a string to a function and build a function that manipulates that
+          string.</p>
+      </li>
+    </ol>
+    <h2>Body</h2>
+    <h3>What is a string?</h3>
+    <p>Now that we've covered the basics of arrays and pointers you are ready to put that
+      information to work by learning about strings. A "string" is just a sequence of
+      characters. Many programs manipulate strings because many programs work with text in one
+      form or another. In fact there are programs that do virtually no "computations" in the
+      usual sense, but exist only to manipulate large quantities of text! Because of this,
+      knowing about strings is very important.</p>
+    <p>Sometimes you want to put a single word or part of a word in a string so that you can
+      modify it. At other times you might want to put an entire line or sentence in a
+      string&mdash;complete with spaces. At still other times you might want to store an entire
+      file in a string with '\n' characters separating each line. All of this is possible.</p>
+    <p>C's handling of strings is actually fairly primitive and simplistic. Strings are stored
+      in arrays of characters. Here is a basic example</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  char name[128+1];
+
+  // Get the user's name.
+  printf("What is your name? ");
+  scanf("%s", name);
+
+  // Print it out.
+  printf("I understand your name to be %s\n", name);
+  return 0;
+}
+</pre>
+    <p>Here I declare an array of 129 characters to hold the string. However, that doesn't mean
+      the user's name has to be 129 characters long. Most likely the user's name will be much
+      shorter than that. The <span class="code">scanf</span> function will store the characters
+      of the user's name into the array using <span class="code">name[0]</span> for the first
+      character, <span class="code">name[1]</span> for the second character, and so forth. Once
+      all of the characters have been stored <span class="code">scanf</span> will store a
+      special "null character" after the last character to mark the end of the string. The null
+      character has an ASCII code of zero and can be written as <span class="code"
+      >'\0'</span>.</p>
+    <p>In C, strings are normally assumed to be "null terminated". They may not take up the
+      entire array that has been provided for them, but you can always tell which part of the
+      array is the string and which part is just garbage because of the null character.</p>
+    <p>In my example I created an array large enough to hold a maximum of 128 characters worth
+      of string and 1 null character. That's why I wrote the declaration as <span class="code"
+        >char name[128+1]</span> instead of just <span class="code">char name[129]</span>. It
+      really doesn't make any difference to the compiler, but I think it's a bit clearer my
+      way.</p>
+    <p>My example uses <span class="code">scanf</span> with the %s format specifier to accept a
+      string from the standard input device. The %s format specifier will skip over "white
+      space" (spaces, tabs, etc) and then copies the next word that it finds into the array. So
+      if the user entered "Peter" the 'P' character would go into <span class="code"
+        >name[0]</span>, etc. If the user entered " Peter" (note the leading space) it would
+      work the same way. However, if the user entered "Peter Chapin" only the "Peter" would get
+      stored in the string. The " Chapin" (note the leading space) would remain on the input for
+      another call to <span class="code">scanf</span> to get. While this is sometimes exactly
+      what you want, it is not always what you want. Later I will show you how you can get
+      strings from the input with the spaces included.</p>
+    <p>Finally my example prints out the string with <span class="code">printf</span> using the
+      %s specifier. This prints only the characters in the string up to, but not including, the
+      null character. Even though the array can hold 128 characters, if there are only five
+      characters before the null character, only five characters will be printed. This is
+      almost always exactly what you want. For example, if the array name contained</p>
+    <pre>
+P  e  t  e  r  \0  x  Z  ?  ^Q  f  b  \0  etc...
+</pre>
+    <p>Only "Peter" would be printed. The null character will prevent <span class="code"
+        >printf</span> from bothering to look at the other characters in the array.</p>
+    <p>By the way, when I show an array of characters that is intended to hold a string, I
+      usually show the array elements from left to right (instead of from top to bottom) with no
+      punctuation. Some special characters I show as backslash sequences (such as \0 or \n) and
+      control characters I show as ^Letter. This notation makes talking about strings easier and
+      more natural. But be aware that what I'm really doing is showing the elements of an array
+      of characters.</p>
+    <p>Notice that with both <span class="code">scanf</span> and <span class="code"
+        >printf</span> I used <span class="code">name</span> as the additional argument. Since
+        <span class="code">name</span> is the name of an array without an index, the compiler
+      takes this to be a pointer to the beginning of the array. The <span class="code"
+        >scanf</span> function expects to be given a pointer so that it knows where to start
+      storing characters. Thus <span class="code">scanf</span> is happy. You don't need (or
+      want) the '&amp;' in front of <span class="code">name</span> in this case. Similarly when
+      you use %s with <span class="code">printf</span>, the <span class="code">printf</span>
+      function expects to get a pointer to the beginning of the null terminated string you want
+      to print. That is exactly what <span class="code">name</span> is so <span class="code"
+        >printf</span> is happy too.</p>
+    <p>Here is another, much more difficult way to print out a string.</p>
+    <pre class="code">
+int i;
+
+for (i = 0; name[i] != '\0'; i++) {
+  putchar(name[i]);
+}
+</pre>
+    <p>This for loop starts the index <span class="code">i</span> at zero. As long as the <span
+        class="code">name[i]</span> is not the null character it prints the single character
+        <span class="code">name[i]</span>. Then it advances <span class="code">i</span> to
+      handle the next character. This loop prints the string one character at a time. It works,
+      but <span class="code">printf</span> is certainly easier. Here's a pointer version of the
+      same loop.</p>
+    <pre class="code">
+char *p;
+
+for (p = name; *p; p++) {
+  putchar(*p);
+}
+</pre>
+    <p>This loop starts by loading the beginning address of the string into <span class="code"
+        >p</span>. It then runs as long as the thing pointed at by <span class="code">p</span>
+      is "true". Remember that any non-zero value is taken to be true. Only zero is false. But
+      since the null character is zero and all other characters have non-zero ASCII codes, <span
+        class="code">*p</span> is true if <span class="code">p</span> points at a non-null
+      character. Inside the loop I print out the character pointed at by <span class="code"
+        >p</span> and then <span class="code">p</span> is advanced to point at the next
+      character. Although this way of dealing with strings might be strange looking at first, it
+      is very common.</p>
+    <p>These examples also show you that a string is nothing more than an array of characters
+      with a null character at the end of the "good stuff". Once you load an array of characters
+      with your string, you can manipulate those characters by just manipulating the individual
+      array elements. You can use pointers to character to point into the string as well.</p>
+    <h3>The gets and puts functions</h3>
+    <p>Using <span class="code">scanf</span> to read a string is fine for some applications.
+      However, my experience has been that most applications that want to work with strings want
+      to read and process the space characters themselves. The <span class="code">scanf</span>
+      function will only put a single word into the string. Typically you want to work with an
+      entire line. The C standard library provides two functions that do this. The <span
+        class="code">gets</span> function reads an entire line and the <span class="code"
+        >puts</span> function prints out a line. The <span class="code">gets</span> function
+      reads up to and including the next '\n' character, but it does not put the '\n' into the
+      array. The <span class="code">puts</span> function adds a '\n' character onto the end of
+      whatever it prints. The two functions are designed to work together. Here's how it
+      looks.</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  char name[128+1];
+
+  printf("What is your name? ");
+  gets(name);
+
+  printf("I understand your name to be ");
+  puts(name);
+
+  return 0;
+}
+</pre>
+    <p>The <span class="code">gets</span> function just takes a pointer to the beginning of the
+      array where the string will be stored. It adds a null character to the end of the good
+      stuff as you would want. The <span class="code">puts</span> function works the same way
+      except that it outputs instead of inputs. In the program above, I could enter "Peter
+      Chapin" and both words would go into the array.</p>
+    <p>Actually I don't really need to use <span class="code">puts</span> above. I could still
+      have just done</p>
+    <pre class="code">
+printf("I understand your name to be %s\n", name);
+</pre>
+    <p>The fact that there are spaces in the array does not matter to <span class="code"
+        >printf</span>. The spaces are only something that <span class="code">scanf</span>
+      worries about.</p>
+    <h3>Don't go off the end of your arrays!</h3>
+    <p>If you compile the program above using the gcc compiler you will get a warning message.
+      The warning will say "gets is dangerous and should not be used". You might be wondering
+      what that means.</p>
+    <p>The <span class="code">gets</span> function has no idea how large the array is that
+      you've given it. All <span class="code">gets</span> has is the address of the beginning.
+      It just assumes the array is large enough to hold whatever input there is. If the user
+      types a very long line <span class="code">gets</span> will happily store that long line in
+      memory starting at the address you specified. If the line is long enough it will flow over
+      the end of the array and cause undefined things to happen. The problem with this is that
+      you are depending on the user of your program to not enter too much data at once. It is
+      bad to depend on users to do things correctly.</p>
+    <p>In fact, the situation is more serious than it appears. A very clever user who knows or
+      guesses just how your program is organized can prepare a line of input that contains
+      machine instructions embeded in it such that when it overflows your array it does so in
+      just the right way to cause those instructions to be executed. In short a malicious user
+      can force your program to do things you never intended. Many computer break-ins have
+      occured this way. It is a standard technique for hacking into systems. However, it doesn't
+      work if the programmer is careful. The <span class="code">gets</span> function is not
+      careful. The gcc compiler is telling you that you should stay away from <span class="code"
+        >gets</span> because programs that use it have security vulnerabilities.</p>
+    <p>For this course, this matter is not a big concern. The <span class="code">gets</span>
+      function is easy to use so we'll use it. However, if you were writing a serious program
+      you would probably want to use a more careful technique for getting input! The creators of
+      gcc are trying to improve the quality of network software by warning programmers that
+        <span class="code">gets</span> is bad news. It is a very valid warning.</p>
+    <h3>Passing strings to functions</h3>
+    <p>What's involved in passing a string to a function? Actually you already know how to do
+      it. Since a string is just an array of characters, you can treat it like any other array.
+      That means to pass it into a function you need to pass its address to the function. Here
+      is a function that reverses the characters in a string. It would take the string "Peter
+      Chapin" and make it into "nipahC reteP".</p>
+    <pre class="code">
+char *reverse_string(char *buffer)
+{
+  char *start = buffer;
+  char *end   = buffer;
+
+  // Find the null character at the end.
+  while (*end) end++;
+  if (start == end) return buffer;
+
+  // Now do the swap.
+  end--;
+  while (start &lt; end) {
+     char temp = *start;
+    *start     = *end;
+    *end       = temp;
+     start++;
+     end--;
+  }
+  return buffer;
+}
+</pre>
+    <p>You should study this example over until you understand it well. This function is very
+      typical of how C programs really look. It makes heavy use of pointers to manipulate a
+      string in an array of characters. This is what C lives for.</p>
+    <p>Let me explain this function in detail. First, it gets as its parameter a pointer to a
+      character. However, this pointer does not point at a single character. Instead the
+      function assumes it points at the first character of an array of characters. The size of
+      the array is not provided. The function assumes, as is traditional, that the end of the
+      string is marked by a null character. The actual size of the array allocated to hold the
+      string is not of any concern here. We don't even have to worry about overflowing it since
+      we aren't trying to extend the length of the string.</p>
+    <p>This function also returns a pointer to the same string that it has been given. While
+      this is not universal, it is common. It turns out that this is handy when one tries to use
+      several such functions together.</p>
+    <p>The function first declares two local pointers to character and initializes them to point
+      at the first character of the given string. Suppose this function is given the string
+      "Hello". Then we have</p>
+    <pre>
+H  e  l  l  o  \0
+^start
+^end
+</pre>
+    <p>Here I show the pointer start and the pointer end both pointing at the 'H'. It is very
+      helpful to draw pictures like this. When you are writing you own functions to operate on
+      strings you will want to make lots of pictures.</p>
+    <p>Next <span class="code">reverse_string</span> pushes <span class="code">end</span> down
+      the string so that it points at the null character just past the end of the string. Let's
+      look at how it does that</p>
+    <pre class="code">
+while (*end) end++;
+</pre>
+    <p>This says "while the thing pointed at by <span class="code">end</span> is not zero (not
+      the null character) increment <span class="code">end</span>". At first <span class="code"
+        >*end</span> is 'H'. Since 'H' is not zero <span class="code">end</span> is incremented
+      so that it points at the 'e'. The loop repeats and <span class="code">end</span> gets
+      incremented again, etc. The loop breaks when <span class="code">end</span> points at the
+      null character. Then we have</p>
+    <pre>
+H  e  l  l  o  \0
+^start
+               ^end
+</pre>
+    <p>Now I want to back <span class="code">end</span> up by one so that it points at the last
+      "real" character of the string. But before I do that, I want to check to make sure <span
+        class="code">end</span> moved at all. If I am given an empty string with just a null
+      character and nothing more <span class="code">start</span> and <span class="code"
+        >end</span> will point at the same place. In that case, the function is done already.
+      That is the reason for</p>
+    <pre class="code">
+if (start == end) return buffer;
+</pre>
+    <p>If that is not the situation, I back up <span class="code">end</span> by one. Now I
+      have</p>
+    <pre>
+H  e  l  l  o  \0
+^start
+            ^end
+</pre>
+    <p>Now what I want to do is exchange the 'H' and the 'o'. That happens inside my while loop.
+      I get</p>
+    <pre>
+o  e  l  l  H  \0
+^start
+            ^end
+</pre>
+    <p>Notice how the null character stays where it is. That is a must. Next I move the pointers
+      a bit closer together. I get</p>
+    <pre>
+o  e  l  l  H  \0
+   ^start
+         ^end
+</pre>
+    <p>Next I exchange these two characters. I get</p>
+    <pre>
+o  l  l  e  H  \0
+   ^start
+         ^end
+</pre>
+    <p>I move the pointers again</p>
+    <pre>
+o  l  l  e  H  \0
+      ^start
+      ^end
+</pre>
+    <p>Now the condition in the while loop is false. I only want to keep doing this as long as
+        <span class="code">start</span> is before <span class="code">end</span>. Since they are
+      now equal the loop will end. The algorthm is complete and the string is reversed. This
+      string happened to have an odd number of characters. Will this work if there are an even
+      number of characters?</p>
+    <p>Let's put this function to work. Here is a filter program that reverses every line in a
+      file.</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  char line_buffer[128+1];
+
+  // Read the standard input, one line at a time.
+  while (gets(line_buffer) != NULL) {
+    reverse_string(line_buffer);
+    puts(line_buffer);
+  }
+  return 0;
+}
+</pre>
+    <p>This simple looking program reads its standard input device one full line at a time using
+      the dangerous <span class="code">gets</span> function (why is it dangerous again?). Then
+      it passes a pointer to that string into <span class="code">reverse_string</span>. The
+        <span class="code">reverse_string</span> function modifies the array that pointer is
+      pointing at and then returns with the string suitably reversed. Finally the program uses
+        <span class="code">puts</span> to write the result to the standard output. Note that
+        <span class="code">gets</span> will strip off the '\n' on each line but <span
+        class="code">puts</span> will put it back. Because of this the '\n' does not participate
+      in the reversing process. That is a good thing in this case. Try it out!</p>
+    <h2>Summary</h2>
+    <ol id="summary-list">
+      <li>
+        <p>In C a string is stored in an array of characters with a null character ('\0') at the
+          end. Not all of the characters in the array might be used for the string. Typically
+          only the first part of the array contains the string and the characters after the '\0'
+          are just garbage. Note that when you declare an array to hold a string you need to
+          allow space for the null character. That is not done automatically.</p>
+      </li>
+      <li>
+        <p>Use the %s format specifier with <span class="code">printf</span> and <span
+            class="code">scanf</span> to display and read strings. The <span class="code"
+            >scanf</span> function will only read a word at a time into a string. You can read
+          an entire line at a time with <span class="code">gets</span> and print a line with
+            <span class="code">puts</span>. The <span class="code">gets</span> function removes
+          the '\n' from the string and the <span class="code">puts</span> function puts it back
+          on. The <span class="code">gets</span> function is dangerous because it has no idea
+          how much space has been allocated to hold the string. If the user enters too much
+          material and the given array overflows, undefined things will happen.</p>
+      </li>
+      <li>
+        <p>You can pass a string to a function the same way you pass any array to a function: by
+          giving the function a pointer to the first character. Typically inside of such
+          functions, pointers are used extensively to manipulate the characters of the string.
+          The size of the string is not normally given the function because the function can
+          find the end by looking for the null byte.</p>
+      </li>
+    </ol>
+    <address>&copy; Copyright 2003 by Peter C. Chapin.<br />
+Last Revised: <b>July 3, 2003</b></address>
+  </body>
+</html>

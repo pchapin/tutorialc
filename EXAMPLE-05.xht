@@ -1,0 +1,197 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE         : EXAMPLE-05.htm
+     LAST REVISED : 2003-06-17
+     AUTHOR       : (C) Copyright 2003 by Peter Chapin
+     SUBJECT      : Counting characters in a file. -->
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
+  <head>
+    <meta name="generator" content="HTML Tidy for Windows (vers 24 July 2007), see www.w3.org" />
+    <title>Example #5</title>
+    <meta name="Author" content="Peter C. Chapin" />
+    <!-- <meta name="keywords" lang="en-US" content="..."> -->
+    <meta name="ROBOTS" content="NOARCHIVE" />
+    <link rel="stylesheet" href="c-course.css" type="text/css" />
+  </head>
+  <body>
+    <h1>Example #5</h1>
+    <p class="subtitle">Counting Characters in a File</p>
+    <p>In this example, I will build a program that works with arrays to give you a better idea
+      of how arrays "look and feel" in real programs. This program will be called char_count. It
+      will be a filter program that reads a text file at its input and counts the number of
+      times each character occurs. It then prints out the top 10 most common characters and some
+      information about them.</p>
+    <p>The centerpiece of this program will be an array of 256 integers. These integers will
+      serve as counters. For example the 43rd element of the array will count the number of
+      times the character with an ASCII code of 43 has occurred in the file. The other array
+      elements will be handled similarly. Because the array has 256 elements, every possible
+      character can be handled including punctuation, control characters, and "extended"
+      characters with codes greater than 127. Here is the p-code of the program.</p>
+    <pre class="pcode">
+&lt;Set all counters to zero&gt;
+
+WHILE &lt;There is more in the file to process&gt; LOOP
+  &lt;Increment the appropriate counter&gt;
+END
+
+FOR &lt;Ten passes&gt; LOOP
+  &lt;Search for the largest counter and print information about it&gt;
+  &lt;Set the largest counter to zero so that it is no longer the largest&gt;
+END
+</pre>
+    <p>To make this program a bit more interesting, I will implement the three major sections of
+      p-code above as three different functions. The main function will then become just</p>
+    <pre class="code">
+int main(void)
+{
+  initialize();
+  read_input();
+  output_results();
+  return 0;
+}
+</pre>
+    <p>This style is fairly typical. It's nice to make main totally clear like this. Hide all
+      the nasty details in functions.</p>
+    <p>Ideally I would declare the array of counters in main and pass that array to the function
+        <span class="code">read_input</span> for filling and <span class="code"
+        >output_results</span> for analysis. However, we won't discuss passing arrays to
+      functions until <a href="LESSON-21.html">Lesson #21</a>. So I will work around that by
+      creating the array of counters as a global array so that all of my functions can access
+      it. This design is not perfect, but it will be acceptable for a program of this small size
+      and complexity.</p>
+    <p>Here is my array declaration</p>
+    <pre class="code">
+int counters[256];
+</pre>
+    <p>Here is my initialization function</p>
+    <pre class="code">
+void initialize(void)
+{
+  int i;
+
+  for (i = 0; i &lt; 256; i++) {
+    counters[i] = 0;
+  }
+}
+</pre>
+    <p>In theory since my array is global I don't need to set its elements to zero. Global
+      variables have static duration and static duration variables are set to zero initially by
+      default. Even so I feel that making a function that explicitly handles initialization is a
+      good idea. A future version of this program might need to do other things to properly
+      initialize itself and if an initialization function already exists it will be clear where
+      to add those other things. In fact, there is some sense in creating an explicit clean up
+      function even though in this case there is nothing to clean up.</p>
+    <pre class="code">
+void clean_up(void)
+{
+  return;
+}
+</pre>
+    <p>Then main becomes</p>
+    <pre class="code">
+int main(void)
+{
+  initialize();
+  read_input();
+  output_results();
+  clean_up();
+  return 0;
+}
+</pre>
+    <p>Although the idea of including a function that does nothing may seem silly, placeholders
+      like this can be very nice later on.</p>
+    <p>The <span class="code">read_input</span> function is similar to what we have done before.
+      Notice how I use <span class="code">ch</span> as an array index to access the appropriate
+      counter.</p>
+    <pre class="code">
+void read_input(void)
+{
+  int ch;
+
+  while ((ch = getchar()) != EOF) {
+    counters[ch]++;
+  }
+}
+</pre>
+    <p>Again it may seem silly to have such a simple function but again it will help when we
+      later try to enhance this program. For example a future version might want to explicitly
+      open and close files rather than rely on I/O redirection for its input. We will talk about
+      how to do that in <a href="LESSON-24.html">Lesson #24</a>. Enhancing this program to do
+      explicit file I/O would entail only modifying this one function (for the most part).
+      Simple programs tend to become complicated. It's nice to plan for that.</p>
+    <p>The <span class="code">output_results</span> function is more interesting. Here I have to
+      sweep over the counters array looking for the largest value. I think I will first write a
+      function that does that part. I will call it <span class="code"
+      >get_largest_index</span>.</p>
+    <pre class="code">
+/*
+ * int get_largest_index(void)
+ *
+ * This function sweeps over the counters array and look for the element
+ * that is the largest. It then returns the index into the array for
+ * that element. Note that this function returns an array index. It does
+ * not return the largest element directly!
+ *
+ */
+int get_largest_index(void)
+{
+  int i;
+  int max = counters[0];  // Guess that the zeroth element is the max.
+  int max_index = 0;      // The index of the maximum element.
+
+  // Sweep over the rest of the array.
+  for (i = 1; i &lt; 256; i++) {
+
+    // If this counter is bigger than our current max, remember it.
+    if (counters[i] &gt; Max) {
+      max = counters[i];
+      max_index = i;
+    }
+  }
+
+  return max_index;
+}
+</pre>
+    <p>Now I can use <span class="code">get_largest_index</span> in my <span class="code"
+        >output_results</span> function.</p>
+    <pre class="code">
+void output_results(void)
+{
+  int i;
+  int max_index;
+
+  // Print a nice header.
+  printf("Rank  ASCII  Ch  Count\n");
+  printf("----  -----  --  -----\n");
+
+  // I want to print the top ten characters.
+  for (i = 0; i &lt; 10; i++) {
+
+    // Find the largest and print information about it.
+    max_index = get_largest_index();
+    printf(
+      "%2d    %3d    %c   %d\n",
+      i + 1, max_index, max_index, counters[max_index]
+    );
+
+    // Erase this one so that the second largest becomes the largest.
+    counters[max_index] = -1;
+  }
+}
+</pre>
+    <p>Notice how each function is relatively small and simple. This is exactly what you want.
+      No matter how complex the program becomes, you should try to keep every function short and
+      sweet. For example, this program involves a nested for loop. For each character in the top
+      ten, I have to execute a for loop that sweeps over the array looking for the maximum
+      count. Yet because those two for loops are in different functions, that complexity is not
+      evident. The inner loop is hidden inside <span class="code">get_largest_index</span> where
+      it doesn't intimidate.</p>
+    <p>Notice also how every function can easily access the counters array without explicitly
+      declaring it. That's because the array is global. Once you learn how to pass arrays to
+      functions, you could (and should) modify this program so that the counters array is local
+      in main and is just handed down from one function to the next as necessary.</p>
+    <p>The final program is in <a href="samples/char_count.c">char_count.c</a>.</p>
+    <address>&copy; Copyright 2003 by Peter C. Chapin.<br />
+Last Revised: <b>June 17, 2003</b></address>
+  </body>
+</html>

@@ -1,0 +1,471 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- FILE         : LESSON-03.xht
+     LAST REVISED : 2016-01-11
+     AUTHOR       : (C) Copyright 2016 by Peter Chapin
+     SUBJECT      : Unix: File system structure; file permissions. -->
+
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
+  <head>
+    <title>Lesson #3</title>
+    <meta name="Author" content="Peter C. Chapin" />
+    <!-- <meta name="keywords" lang="en-US" content="..."> -->
+    <meta name="ROBOTS" content="NOARCHIVE" />
+    <link rel="stylesheet" href="c-course.css" type="text/css" />
+  </head>
+
+  <body>
+    <h1>Lesson #3</h1>
+    <p class="subtitle">Unix: File System Structure; File Permissions</p>
+
+    <h2>Overview</h2>
+    <p>In this lesson I will cover the following topics</p>
+    <ol id="overview-list">
+      <li><p>Absolute and relative pathnames.</p></li>
+      <li><p>Directory commands.</p></li>
+      <li><p>File permissions.</p></li>
+    </ol>
+    
+    <h2>Body</h2>
+
+    <h3>Absolute pathnames</h3>
+
+    <p>So far all the files you have manipulated on the Unix host have been in a single
+    "directory". Windows and Mac users organize files by putting them in "folders". With Unix
+    you can do the same thing except that people use the word "directory" instead of "folder". I
+    will use "directory" but the exact terminology does not matter to me. If you want to call
+    them folders, that is fine.</p>
+
+    <p>Directories can contain files and subdirectories. The subdirectories can contain more
+    files and other subdirectories. The ability to "nest" directories inside of other
+    directories is very important. It makes it possible for the system to store many thousands
+    of files and yet have them all organized in a reasonable way. Other operating systems
+    support these same features for the same reasons.</p>
+
+    <p>Directories have names just like files have names. The only exception is the top-level
+    directory, called the "root" directory. Its name is a single slash character. NOTE: In Unix
+    the root directory's name is a forward slash. In Windows it is the back slash. These are
+    different characters so if you are used to Windows, be careful.</p>
+    
+<pre>
+  /       Forward slash
+  \       Back slash
+</pre>
+
+    <p>There are many directories on the system. When you log in you are placed into your own
+    personal home directory. My home directory has a full name of /home/pchapin. Let's take a
+    closer look at this name.</p>
+
+<pre>
+  /               The root directory.
+  /home           A subdirectory named "home" of the root directory.
+  /home/pchapin   A subdirectory named "pchapin" of the "home" directory.
+</pre>
+
+    <p>The full name "/home/pchapin" is thus like a road map describing how to get to my home
+    directory. It says, "starting at the root, go into the directory named home and from there
+    look for the thing named "pchapin" (which happens in this case to be another directory)".
+    Because the full name gives the path for getting someplace it is called an "absolute
+    pathname". It is called absolute because it always starts at the root directory. The leading
+    slash tells you this.</p>
+
+    <p>Now consider the absolute pathname to a particular file in my home directory.</p>
+
+<pre>
+  /home/pchapin/afile.txt
+</pre>
+
+    <p>Starting at the root directory, go into the home subdirectory. From there go into the
+    pchapin subdirectory and look for the thing named "afile.txt" (which happens in this case to
+    be a file). Although my afile.txt is a file, there is really no way to know that by looking
+    at its absolute pathname. For all you can tell, I might have a subdirectory in my home
+    directory named "afile.txt".</p>
+    
+    <p>Absolute pathnames can be very long. For example:</p>
+    
+<pre>
+  /home/pchapin/programming/problem_1/backup/first_attempt/hello.c
+</pre>
+
+    <p>This pathname mentions several directories that are nested inside of each other, starting
+    at the root, that you must visit before you can locate the file hello.c. I have made the
+    names of the directories suggestive and realistic. Notice how one might put all files
+    related to a particular project in a single directory. This is a good thing to do and I
+    highly recommend it.</p>
+    
+    <h3>The working directory</h3>
+
+    <p>Absolute pathnames are nice because they spell everything out so there can be no
+    confusion about which file you are talking about. However, they can also be long and tedious
+    to type. For this reason the system keeps track of a "working directory" for every user
+    (really for every process). You can access files in your working directory by typing their
+    names directly. You don't need to use an absolute pathname to refer to them.</p>
+    
+    <p>Let's take another look at the prompt (your actual prompt might look different depending
+    on the configuration of the particular machine you are using)</p>
+
+<pre class="terminal">
+  /home/pchapin 1$
+</pre>
+
+    <p>The first word of this prompt is the current working directory. All plain file names that
+    I use will refer to files in the /home/pchapin directory. If I want to refer to a file in
+    some other directory that is fine. I could use an absolute pathname to do it.</p>
+    
+<pre class="terminal">
+  $ <span class="user-input">cp /usr/doc/somefile.txt somefile.txt</span>
+</pre>
+
+    <p>This command copies the file "somefile.txt" out of the "/usr/doc" directory and puts the
+    copy into my working directory under the name "somefile.txt".</p>
+    
+<pre class="terminal">
+  $ <span class="user-input">cp /usr/doc/somefile.txt afile.txt</span>
+</pre>
+
+    <p>This command is similar to the previous one except that the copy made in my working
+    directory has the name "afile.txt" instead of "somefile.txt".</p>
+
+    <h3>Relative pathnames</h3>
+
+    <p>I said that simple names refer to files in the working directory. It's actually a bit
+    more complicated (and flexible) than that. Let me explain using an example</p>
+    
+<pre class="terminal">
+  $ <span class="user-input">cp somefile.txt backup/afile.txt</span>
+</pre>
+
+    <p>This command copies somefile.txt out of the working directory and puts the copy into the
+    directory named "backup" that is below the working directory. The copy will be named
+    "afile.txt." The name backup/afile.txt is called a relative pathname. Like an absolute
+    pathname, it tells you how to locate a file. However, instead of using the root directory as
+    the starting point, it uses the working directory as the starting point. A simple name like
+    "afile.txt" all by itself is really a relative pathname that contains no subdirectory
+    specifiers.</p>
+
+    <p>Let me summarize the differences between absolute and relative pathnames.</p>
+    <dl>
+      <dt>Absolute pathnames</dt>
+      <dd>
+        <ol>
+          <li>Always start with a slash.</li>
+          <li>Indicate the file's location starting from the root directory.</li>
+          <li>Refer to the same file no matter what the working directory.</li>
+        </ol>
+      </dd>
+
+      <dt>Relative pathnames</dt>
+      <dd>
+        <ol>
+          <li>Never start with a slash.</li>
+          <li>Indicate the file's location starting from the working directory.</li>
+          <li>Refer to different files as the working directory changes.</li>
+        </ol>
+      </dd>
+    </dl>
+
+    <p>A simple name like "afile.txt" is a relative pathname that refers to a file in the
+    working directory.</p>
+
+    <h3>The special "." and ".." directories</h3>
+
+    <p>Every directory on the system has two special subdirectories. The "." directory
+    represents the working directory. The ".." directory represents the directory which contains
+    the working directory. Here are some examples.</p>
+    
+<pre class="terminal">
+  $ <span class="user-input">cp afile.txt ../afile.txt</span>
+</pre>
+
+    <p>This command copies afile.txt to the directory that contains the working directory. If
+    the working directory was /home/pchapin at the time, this command would (attempt) to copy
+    afile.txt to the /home directory. It would have the same effect as</p>
+
+<pre class="terminal">
+  $ <span class="user-input">cp afile.txt /home/afile.txt</span>
+</pre>
+
+    <p>except that the second command uses an absolute pathname.</p>
+    <p>Another example:</p>
+
+<pre class="terminal">
+  $ <span class="user-input">cp /usr/doc/afile.txt ./bfile.txt</span>
+</pre>
+
+    <p>This command copies the file /usr/doc/afile.txt to the working directory under the name
+    "bfile.txt". The dot in ./bfile.txt represents a relative pathname to the working
+    directory.</p>
+
+    <p>The "." and ".." directories are relative pathnames. Their meaning changes as the working
+    directory changes. You can use them as components of pathnames just like any other
+    directory.</p>
+    
+<pre class="terminal">
+  $ <span class="user-input">cp /usr/doc/afile.txt ../../bfile.txt</span>
+</pre>
+
+    <p>This command copies the file /usr/doc/afile.txt to a new place. Where? The first ".."
+    means go up one level in the directory structure ("up" means towards the root directory and
+    "down" means away from the root directory). Suppose the working directory was /home/pchapin.
+    Then the ".." means "go to /home". The second ".." means go up another level. From /home we
+    would go to the root directory. So the command (attempts) to copy the file to a file named
+    bfile.txt in the root directory. It would have the same effect as</p>
+    
+<pre class="terminal">
+  $ <span class="user-input">cp /usr/doc/afile.txt /bfile.txt</span>
+</pre>
+
+    <h3>Typing shortcuts</h3>
+
+    <p>Many commands that take a file and somehow move it some place else are perfectly happy if
+    you give them a directory as the destination. To see what I mean, first look at this
+    command</p>
+    
+<pre class="terminal">
+  $ <span class="user-input">cp afile.txt backup/afile.txt</span>
+</pre>
+
+    <p>Here I'm trying to copy a file from the working directory into a subdirectory named
+    backup. Notice that I want to give the copy the same name as the original. In that case, I
+    don't really have to mention the file name.</p>
+    
+<pre class="terminal">
+  $ <span class="user-input">cp afile.txt backup</span>
+</pre>
+
+    <p>The cp command will notice that backup is actually a directory and it will assume that I
+    want to copy afile.txt into that directory under the same name. This is a very handy
+    feature. The mv command works the same way.</p>
+    
+<pre class="terminal">
+  $ <span class="user-input">mv afile.txt backup</span>
+</pre>
+
+    <p>Here I'm moving afile.txt out of my working directory and into the subdirectory named
+    backup. In fact, you can copy or move several files at once between directories in this
+    way.</p>
+    
+<pre class="terminal">
+  $ <span class="user-input">cp first.c second.c third.c backup</span>
+</pre>
+
+    <p>Since the last argument to cp is the name of a directory, this command makes sense
+    (otherwise it would be hard to understand!). It copies the three named files into the backup
+    subdirectory, giving them the same names in the process.</p>
+    
+    <p>Since the shell expands wildcards into a list of file names before trying to execute a
+    command, you might really want to type something like</p>
+    
+<pre class="terminal">
+  $ <span class="user-input">cp *.c backup</span>
+</pre>
+
+    <p>To copy all .c files into the backup subdirectory.</p>
+
+    <h3>Directory commands</h3>
+
+    <p>These commands are all very fine, but you are probably wondering how you create and use
+    your own directories. There are three commands you need to know.</p>
+    
+    <dl>
+      <dt>cd</dt>
+      <dd>
+        <p>Use the cd command (change directory) to modify the working directory. For
+        example</p>
+        
+<pre class="terminal">
+  /home/pchapin 1$ <span class="user-input">cd ..</span>
+  /home 2$
+</pre>
+
+        <p>By giving the cd command the special ".." directory, I changed the working directory
+        to be the one that contained my old working directory. The prompt changed to reflect
+        this. Here is another example, this time using an absolute pathname.</p>
+        
+<pre class="terminal">
+  /home 2$ <span class="user-input">cd /usr/bin</span>
+  /usr/bin 3$
+</pre>
+
+        <p>You would change the working directory if you planned to work with many of the files
+        in that directory. That way you could use short, relative pathnames to manipulate those
+        files and save yourself a lot of typing.</p></dd>
+      
+      <dt>mkdir</dt>
+      <dd>
+        <p>Use the mkdir (make directory) command to create a new directory.</p>
+        
+<pre class="terminal">
+  /home/pchapin 1$ <span class="user-input">mkdir programming</span>
+  /home/pchapin 2$ <span class="user-input">cd programming</span>
+  /home/pchapin/programming 3$
+</pre>
+
+        <p>The first command creates a programming directory beneath my current working
+        directory. Note that "programming" is a relative pathname. The next command changes to
+        that directory so that I can work with files in it more easily. The prompt changes to
+        reflect my new working directory.</p></dd>
+      
+      <dt>rmdir</dt>
+      <dd>
+        <p>The rmdir (remove directory) command deletes directories. Use this command to erase a
+        directory that you no longer need.</p>
+        
+<pre class="terminal">
+  /home/pchapin/programming 1$ <span class="user-input">cd ..</span>
+  /home/pchapin 2$ <span class="user-input">rmdir programming</span>
+</pre>
+
+        <p>To remove a directory with rmdir the directory must be empty and it must not be
+        anyone's working directory.</p></dd>
+
+    </dl>
+
+    <h3>File permissions</h3>
+
+    <p>Unix is a multi-user system. Since several people can use the system at once it allows
+    you to control who can access your files and how. Although you probably won't need to mess
+    with your file's permission settings during this course, you should at least know the basics
+    about the subject if you are to be a knowledgable Unix user.</p>
+
+    <p>You can see the permissions for a file using the "ls -l" command. The permissions are in
+    the left hand column of the output. To interpret the permissions you also need to notice the
+    file's owner and associated group. Those are given in the two middle columns. For example a
+    file might show:</p>
+
+<pre>
+  Permissions     Owner           Group           Name
+  -rw-r--r--      pchapin         users           afile.txt
+</pre>
+
+    <p>The permissions are given by nine bits of information, divided into three sections of
+    three bits. In the permissions above these three sections are:</p>
+    
+<pre>
+  rw-     Permissions that apply to the owner.
+  r--     Permissions that apply to the group.
+  r--     Permissions that apply to everyone else.
+</pre>
+
+    <p>The first dash means that this file is an ordinary file (as opposed to a directory,
+    socket, pipe, device special file, etc). The 'r' permission is for reading the file and the
+    'w' permission is for writing to the file. In my example above the owner (pchapin) can read
+    and write the file. Anyone in the group users can read the file and, for that matter, so can
+    everyone else.</p>
+
+    <p>Every normal user on the system is in the group "users". In that respect the users group
+    is sort of like the public. This might seem a little silly. Keep in mind, however, that
+    additional groups could be defined. For example, the administrator could create a new group
+    and put a few, but not all, users into that group (it is possible for a user to be in
+    several groups at once). Then file and directory permissions could be set using the group
+    permissions as a way of allowing certain resources to be shared among some users without
+    giving access to those resources to everyone.</p>
+
+    <p>I've mentioned the r and w permissions. You might be wondering what the last permission
+    bit is. That bit is used to allow execute access. For example, suppose the permissions on a
+    file were rwxr-x---. This would allow the file's owner full access (read, write, and
+    execute). People in the same group as the file would be able to read and execute the file,
+    but not modify it. Everyone else on the system would have no access at all.</p>
+
+    <p>Here are a few common configurations of permission bits and their meaning</p>
+    
+<pre>
+  rw-r--r--       Everyone has access. Only the owner can modify.
+  rwxr-xr-x       Same as above, except this is a program.
+  rw-rw----       Full access for the owner and group only.
+  rwxrwx---       Same as above, except this is a program.
+  rw-------       Only the owner has access.
+  rwx------       Same as above, except this is a program.
+  r--r--r--       Read only. Not even the owner can modify.
+  --x--x--x       Execute only. This file can't be copied, just run.
+  rw-rw-rw-       Everyone has full access. This is probably bad.
+</pre>
+
+    <p>You can use "ls -l" to view permissions. To change permissions, you can use the "chmod"
+    command. See the man page for chmod for more information. You do not need to worry about how
+    chmod works in this course, but if you are interested in playing with it, that is fine
+    too.</p>
+    
+    <h3>Directory permissions</h3>
+
+    <p>Directories have permissions just like files. When you do "ls -l" you will see the
+    subdirectories with a 'd' as the character to the left of the permission bits (instead of a
+    dash). The permission bits themselves are interpreted in much the same way.</p>
+    
+    <table border="1">
+      <tr>
+        <td valign="top">r</td>
+        <td>Means you can read the directory. This is necessary to get a listing of files in
+        that directory with ls.</td>
+      </tr>
+      <tr>
+        <td valign="top">w</td>
+        <td>Means you can write to the directory. This is necessary to create new files or
+        remove old ones in the directory. You can delete files that you don't have access to if
+        you can write to the directory where they are stored.</td>
+      </tr>
+      <tr>
+        <td valign="top">x</td>
+        <td>Means you can "look up" names in the directory. For example if you refer to a name
+        like /usr/doc/somefile.txt you need x permission to /, /usr, and /usr/doc in order to
+        look up the next enclosed name.</td>
+      </tr>
+    </table>
+    
+    <p>I mentioned that the Unix host is configured so that only you have access to your files.
+    Even if you create files in your home directory with public access, the public will not be
+    able to access them. This is because your home directory was created with rwx-----
+    permissions. Since nobody else has r or x permission to your home directory they is no way
+    they can reference the files it contains. The permissions on the files themselves don't
+    matter.</p>
+    
+    <h3>The Superuser</h3>
+
+    <p>In any multi-user system there is always one user that is above the law. In order to fix
+    problems that arise there must be a special, administra- tive user for which the file and
+    directory permissions don't apply. In the Unix universe that user has the name "root". Thus
+    even though the permissions on your home directory block all users but you, the user named
+    root can still access your files.</p>
+
+    <p>The password that applies to the root user is called, naturally, the root password. Just
+    like the root of a tree, the root password gives you access to the entire system. There are
+    many operations that only root can do, thus preventing an ordinary user from causing havock
+    either accidently or maliciously (accidents are usually a bigger concern day to day).</p>
+
+    <p>The system administrator, of course, has the root password. Without it, he or she could
+    not configure the system. However, the administrator should not do normal things while
+    logged in as root. Under traditional Unix, root is all powerful---an undesirable design from
+    a computer security point of view---thus a mistake done as root could have disastrous
+    consequences. Administrators should avoid being root unless it is absolutely necessary. Even
+    system administrators spend most of their time logged in as an ordinary user.</p>
+
+    <h2>Summary</h2>
+
+    <ol id="summary-list">
+      <li><p>An absolute pathname always starts with a slash. It lists all the directories you
+      must traverse, starting at the root directory, to get to a file. Absolute pathnames
+      specify a file without regard to the current working directory. Relative pathnames never
+      start with a slash. They give a (possibly empty) list of directories you must traverse,
+      starting at the working directory, to get to a file. They are often much shorter for the
+      files you actually want to work with.</p></li>
+      
+      <li><p>Use cd to change the working directory, mkdir to create a new directory, and rmdir
+      to remove a directory. Typically you put all the files that pertain to a particular
+      project in a directory you make for that purpose. When you want to work on that project,
+      you change to that directory so that all the files can be accessed with short relative
+      names.</p></li>
+      
+      <li><p>Every file has an owner. The files you create are owned by you. Every file is in a
+      group. The files you create will be in the default group of users (of which every ordinary
+      user is a member). File permissions can be viewed with the "ls -l" command. They consist
+      of a read permission, a write permission, and an execute permission for the owner, the
+      group, and everyone else. Each permission can be on or off. Directories have permissions
+      too. By default the permissions on your home directory allow only the owner (you) access
+      to the files contained in that directory.</p></li>
+    </ol>
+    
+    <address>&copy; Copyright 2016 by Peter C. Chapin.<br />
+    Last Revised: <b>January 11, 2016</b></address>
+  </body>
+</html>

@@ -1,0 +1,453 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE         : LESSON-14.htm
+     LAST REVISED : 2003-07-16
+     AUTHOR       : (C) Copyright 2003 by Peter Chapin
+     SUBJECT      : Functions: Terminology and basic structure. -->
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
+  <head>
+    <meta name="generator" content="HTML Tidy for Windows (vers 24 July 2007), see www.w3.org" />
+    <title>Lesson #14</title>
+    <meta name="Author" content="Peter C. Chapin" />
+    <!-- <meta name="keywords" lang="en-US" content="..."> -->
+    <meta name="ROBOTS" content="NOARCHIVE" />
+    <link rel="stylesheet" href="c-course.css" type="text/css" />
+  </head>
+  <body>
+    <h1>Lesson #14</h1>
+    <p class="subtitle">Functions: Terminology and basic structure.</p>
+    <h2>Overview</h2>
+    <p>In this lesson I will cover the following topics</p>
+    <ol id="overview-list">
+      <li>
+        <p>What is a function and why would you use one?</p>
+      </li>
+      <li>
+        <p>The difference between a function definition and a function declaration.</p>
+      </li>
+      <li>
+        <p>The meaning of "pass by value".</p>
+      </li>
+    </ol>
+    <h2>Body</h2>
+    <h3>What is a function?</h3>
+    <p>I could give you a mathematical definition of a function using words like "domain" and
+      "range" and "mapping". However, I'll skip that and jump right to a more practical way of
+      looking at functions&mdash;at least from a programming point of view.</p>
+    <p>Functions are like black boxes. They take inputs, do something, and then spit out
+      results. Here is a picture.</p>
+    <pre class="figure">
+                            +----------+
+             x   -----&gt;     |          |
+                            |          |
+             y   -----&gt;     |  func()  |     -----&gt; result
+                            |          |
+             z   -----&gt;     |          |
+                            +----------+
+</pre>
+    <p>I show a function named <span class="code">func</span> that takes three inputs named
+        <span class="code">x</span>, <span class="code">y</span>, and <span class="code"
+        >z</span> and returns a result named <span class="code">result</span>. Technically
+      functions only return one result but there are tricks you can use to, in effect, get them
+      to return several results.</p>
+    <p>The function performs some operation using the input values. Exactly how it does what it
+      does is of no concern to the user of the function. In that respect it is like a black box.
+      When you use a function you are only concerned about providing it with appropriate inputs,
+      understanding what operation it performs, and knowing the meaning of its result. What goes
+      on inside the box is not important.</p>
+    <p>When you write a function you also need to understand the meaning of the inputs, what
+      operation is to be performed, and the meaning of the result. However, you don't need to
+      worry about where the inputs are coming from and where the result is going. You only need
+      to worry about making the function do what it is supposed to do. In this way, functions
+      break up the work of creating a program. Like so</p>
+    <table border="1" style="text-align: center;">
+      <tr>
+        <th>Function User</th>
+        <th>Function Creator</th>
+      </tr>
+      <tr>
+        <td>Does not worry about how it works.</td>
+        <td>Does not worry about how it will be used.</td>
+      </tr>
+      <tr>
+        <td>Only thinks about how to make use of the function.</td>
+        <td>Only thinks about how to make the function work.</td>
+      </tr>
+    </table>
+    <p>The "interface" to the function is an agreement between the user and the creator. The
+      interface consists of</p>
+    <ol>
+      <li>A description of the function's inputs and their meaning.</li>
+      <li>A description of what the function is supposed to do.</li>
+      <li>A description of the function's results and their meaning.</li>
+    </ol>
+    <p>After reading and understanding the interface, the user of a function knows everything
+      he/she needs to know about how to use the function effectively. After reading and
+      understanding the interface, the creator of a function knows exactly what he/she must make
+      the function do. The interface is like a contract between the user and the creator (the
+      creator is also called the "implementer" in some circles).</p>
+    <h3>Why functions?</h3>
+    <p>Functions are very important. So far your programs have consisted of a single function
+      named <span class="code">main</span>. However, larger programs are always composed of many
+      functions. Sometimes there are literally thousands of functions in a program! The act of
+      programming is, to a large extent, the act of writing various functions.</p>
+    <p>Each function by itself is small and simple. This makes it a lot easier to write an
+      individual function correctly. The functions use each other, however, so the final program
+      is still large and complex. Yet when you work with the program you don't have to worry
+      about 99.99% of it at any one time. Most of the time, you only need to worry about one,
+      small function. Without a facility like this, it would be nearly impossible to write a
+      large program. All programming languages have this feature.</p>
+    <p>Actually, even the programs you have written so far have made use of functions. In
+      particular, you have used <span class="code">printf</span> and <span class="code"
+        >scanf</span> from the C standard library. These functions were written by someone else
+      (most likely in C), but you are able to use them without knowing anything about how they
+      work internally. This is another positive aspect of functions: you can share them. All C
+      compilers come with a "standard" library of functions. However, you can buy (or download)
+      additional libraries to suit your needs. If you can't find a suitable library, you can
+      always write your own. C has very little built into it. The language depends on libraries
+      of functions to get things done.</p>
+    <p>Occasionally students ask me if C is good for graphical programming. The language itself
+      has no facilities for graphical programming at all. Yet with a good library of graphical
+      functions, it is easy to write graphical programs. Ironically the fact that the language
+      has very little built into it is an advantage. It allows libraries the room to try various
+      improvements. There is no one way to do graphical programming in C. How it works, what you
+      can do, and how easily, all depend on the library you are using. Different libraries can
+      cater to different needs.</p>
+    <p>So why use functions? Here are the reasons.</p>
+    <ol>
+      <li>
+        <p>Functions allow you to break a large program into smaller parts that can be more
+          easily understood. Without this ability it would be impossible to create a large
+          program.</p>
+      </li>
+      <li>
+        <p>Functions allow you to share and reuse code. You can build on the work and expertise
+          of others by using functions they wrote that you might not have been able to create on
+          your own.</p>
+      </li>
+      <li>
+        <p>Functions allow you to extend the language. By creating libraries for specific
+          purposes you can, in effect, add more features to C and make the language suitable for
+          new types of applications.</p>
+      </li>
+    </ol>
+    <p>Those are three very strong reasons for using functions! From now on you will use
+      functions a lot.</p>
+    <h3>Okay, time for an example</h3>
+    <p>Let's take an example from one of the earlier sample programs. I've played around with a
+      few programs that test numbers to see if they are prime. The ability to check a number for
+      primehood might be useful in other programs. Perhaps we should write a function to do
+      that. Here is one way it might look.</p>
+    <pre class="code">
+int is_prime(int number)
+{
+  int i;
+
+  // Very small numbers are errors. Errors are not prime.
+  if (number &lt; 2) return 0;
+
+  // Otherwise, just check all numbers less than number for divisability.
+  for (i = 2; i &lt; number; i++) {
+    if (number % i == 0) {
+      return 0;
+    }
+  }
+
+  // If I got here the number must be prime.
+  return 1;
+}
+</pre>
+    <p>This is called a "function definition". It consists of a "function header" followed by a
+      "function body". The body is the part inside the curly braces. The body defines exactly
+      what the function does. The header is the part that looks like</p>
+    <pre class="code">
+int is_prime(int number)
+</pre>
+    <p>It is the part of the interface that the compiler cares about. The first thing on the
+      line (<span class="code">int</span>) is the type of the function's result. This function
+      returns an integer. The second thing (<span class="code">is_prime</span>) is the
+      function's name. The third thing (<span class="code">int number</span>) is a declaration
+      of the function's "parameters". The parameters are the function's inputs. In this case the
+      function takes only one parameter, which I am calling <span class="code">number</span> and
+      it is of type integer.</p>
+    <p>There is another part to the function's interface that does not show up here. Namely: a
+      description of the meaning of the parameter, what the function does, and the meaning of
+      the result. This information is not part of the header, because the compiler isn't
+      concerned about it. However, the user of the function is very concerned about it! Here is
+      that part:</p>
+    <blockquote>
+      <p>This function checks to see if its parameter is a prime number or not. It returns zero
+        (false) if the parameter is not prime and non-zero (true) if it is. Numbers less than 2
+        are not considered prime.</p>
+    </blockquote>
+    <p>Without this information it would be impossible for the user to understand how to use the
+      function. Notice that the description above does not say a word about <em>how</em> the
+      function does what it does. The user is not interested in "how". The user is only
+      interested in "what".</p>
+    <p>For example, you can tell by looking at the function that it returns 1 if it is given a
+      prime number. Yet the description above merely says "non-zero". This means that a future
+      version of this function might, perhaps, return something different. The implementor is
+      reserving the right to upgrade and change the way the function works. As long as the user
+      depends on the more vauge "non-zero" description, the user's program will continue to work
+      even after the function has been upgraded. This is very important: you don't want to
+      depend on the undocumented behavior of a function. That behavior is likely to change with
+      the next release.</p>
+    <p>When you write your own functions, you must provide the description as a comment in your
+      program. Without proper documentation, a function is useless. The description is not
+      required by the compiler, but it is required by me.</p>
+    <p>How would <span class="code">is_prime</span> be used? Here's an example:</p>
+    <pre class="code">
+int main(void)
+{
+  int my_number;
+
+  // Get a value from the user.
+  printf("Enter a number: ");
+  scanf("%d", &amp;my_number);
+
+  // Print out an appropriate message.
+  if (is_prime(my_number)) {
+    printf("The number, %d, is prime!\n", my_number);
+  }
+  else {
+    printf("The number, %d, is not prime!\n", my_number);
+  }
+
+  return 0;
+}
+</pre>
+    <p>Notice how simple this program looks? It asks for a number, uses <span class="code"
+        >is_prime</span> to check it, and prints out a message telling the user what happened.
+      What could be more straightforward? All the hard work has been pushed into the function.
+      When you write the main program, you don't need to worry about how <span class="code"
+        >is_prime</span> works. You only need to know that it does work---and how to use it.
+      Similarly when you write <span class="code">is_prime</span>, you don't need to worry about
+      how it will be used. You can focus your mind exclusively on making it work properly and
+      honoring its interface. This is the separation of concerns I was talking about before. It
+      is extremely important!</p>
+    <p>What's more, you now have a function you can use to test a number for primehood. Maybe
+      you'll write another program later where you will want to do that. If so, you don't need
+      to think at all about how to make that test. Just include the <span class="code"
+        >is_prime</span> function and use it. Furthermore if someone else you know needs to test
+      numbers for primehood you could just give them <span class="code">is_prime</span> (or sell
+      it to them) and they could use it as well. Cool, huh?</p>
+    <p>Of course, the <span class="code">is_prime</span> I show above is pretty simple minded.
+      Who would want it? Maybe nobody would want that version. But that might not always be
+      true. You could enhance <span class="code">is_prime</span> using some of the techniques I
+      talked about in my earlier example. Or... you could use even more sophisticated
+      techniques. With a little study it would be possible to build a version of <span
+        class="code">is_prime</span> that was exceedingly fast without changing its interface at
+      all. Thus any program that uses <span class="code">is_prime</span> could be upgraded to
+      the very fast version without otherwise being modified. The ability to replace a function
+      with a new and improved version is also a big advantage to using functions.</p>
+    <h3>But wait! How does the main program know about <span class="code">is_prime</span>?</h3>
+    <p>Let me now show you the complete example</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+/*
+ * int is_prime(int)
+ *
+ * This function tests its parameter to see if it is prime. It returns
+ * "false" if it is not and "true" if it is. This function treats any
+ * number less than 2 as not prime.
+ *
+ */
+int is_prime(int number)
+{
+  int i;
+
+  // Very small numbers are errors. Errors are not prime.
+  if (number &lt; 2) return 0;
+
+  // Otherwise, just check all numbers less than number for divisability.
+  for (i = 2; i &lt; number; i++) {
+    if (number % i == 0) {
+      return 0;
+    }
+  }
+
+  // If we got here the number must be prime.
+  return 1;
+}
+
+
+/*==================================*/
+/*           Main Program           */
+/*==================================*/
+
+int main(void)
+{
+  int my_number;
+
+  // Get a value from the user.
+  printf("Enter a number: ");
+  scanf("%d", &amp;my_number);
+
+  // Print out an appropriate message.
+  if (is_prime(my_number)) {
+    printf("The number, %d, is prime!\n", my_number);
+  }
+  else {
+    printf("The number, %d, is not prime!\n", my_number);
+  }
+
+  return 0;
+}
+</pre>
+    <p>In this example, I have put the function definition above <span class="code">main</span>.
+      This is often a good place for it. The compiler will want to see <span class="code"
+        >is_prime</span> before you try to use it in main. If the compiler sees you using a
+      function it never heard of, bad things might happen (in C++ it is an error. In C it works
+      only if the function returns an integer). Notice how I have also included a comment block
+      on the function that describes it. That comment block is an essential part of the
+      function. It provides the part of the interface that the user needs to know but that the
+      compiler doesn't care about. Including such comment blocks is part of the VTC style.</p>
+    <p>It turns out that I can optionally put the function after <span class="code">main</span>
+      as well. However, if I do that I need to place a "declaration" of the function before
+      main. The declaration is just the function's header with a semicolon at the end.</p>
+    <pre class="code">
+int is_prime(int number);
+</pre>
+    <p>This line informs the compiler that <span class="code">is_prime</span> is a function and
+      tells the compiler what it needs to know about the function. The actual definition of the
+      function can be elsewhere.</p>
+    <p>When you write a function declaration it is acceptable to leave out the name of the
+      paramter. This is often done.</p>
+    <pre class="code">
+int is_prime(int);
+</pre>
+    <p>The full program thus becomes</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+int is_prime(int);
+
+/*==================================*/
+/*           Main Program           */
+/*==================================*/
+
+int main(void)
+{
+  int my_number;
+
+  // Get a value from the user.
+  printf("Enter a number: ");
+  scanf("%d", &amp;my_number);
+
+  // Print out an appropriate message.
+  if (is_prime(my_number)) {
+    printf("The number, %d, is prime!\n", my_number);
+  }
+  else {
+    printf("The number, %d, is not prime!\n", my_number);
+  }
+
+  return 0;
+}
+
+
+/*
+ * int is_prime(int)
+ *
+ * This function tests its parameter to see if it is prime. It returns
+ * "false" if it is not and "true" if it is. This function treats any
+ * number less than 2 as not prime.
+ *
+ */
+int is_prime(int number)
+{
+  int i;
+
+  // Very small numbers are errors. Errors are not prime.
+  if (number &lt; 2) return 0;
+
+  // Otherwise, just check all numbers less than Number for divisability.
+  for (i = 2; i &lt; number; i++) {
+    if (number % i == 0) {
+      return 0;
+    }
+  }
+
+  // If we got here the number must be prime.
+  return 1;
+}
+</pre>
+    <p>Notice how I've replaced the function definition with a declaration and moved the full
+      definition below main. This is a common method for laying out programs. The important
+      thing is that the compiler sees the declaration or definition of a function before you try
+      to use it. This is exactly what you are doing when you <span class="code">#include
+        &lt;stdio.h&gt;</span>. You are showing the compiler declarations of various functions
+      in the standard library before you try to use them.</p>
+    <p>Notice something else: I called the parameter of <span class="code">is_prime</span>
+      "number" and yet in <span class="code">main</span> I'm giving it a variable named
+      "my_number". Is that correct?</p>
+    <h3>Pass by value!</h3>
+    <p>This topic is so important that I need to start a new section to describe it. In C,
+      function arguments are "passed by value". The "argu- ment" you give to a function when you
+      use it is copied and the copy is used to initialize the parameter. In my example above, a
+      copy of <span class="code">my_number</span> is made and that copy initializes <span
+        class="code">number</span>. When <span class="code">is_prime</span> is executing, any
+      changes it makes to <span class="code">number</span> will have no effect on the original
+      value of <span class="code">my_number</span>. This is sometimes a handy thing. At other
+      times it is awkward. The important thing is for you to understand what is happening!</p>
+    <p>I say again: the arguments you give to a function when you call it are <em>copied</em>.
+      Those copies are used to initialize the function's corresponding parameters. If the
+      function modifies one of its parameters while it runs, those modifications do not affect
+      the original arguments.</p>
+    <p>Don't forget this!</p>
+    <p>Some languages have a feature called "pass by reference". It works differently. C does
+      not have pass by reference so you should not worry about it. When you study a language
+      that does support pass by reference, you will need to pay close attention to how it works.
+      For now, just remember that in C function arguments are <em>always</em> passed by
+      value.</p>
+    <h3>What about errors?</h3>
+    <p>In <span class="code">is_prime</span> I just return "false" if I'm given a value less
+      than 2. In previous programs, I treated such values as errors and printed an appropriate
+      message. The program above will just say that such a value is not prime.</p>
+    <p>What you should do in a function when you see an error situation is not always clear. In
+      general, if you plan on ever using your function in a different program, you should
+        <em>not</em> print out an error message in your function. A message that is appropriate
+      for one program may not be appropriate for another. Instead such functions usually return
+      a special value called an "error code" to indicate that something went wrong. It then
+      becomes up to the caller of the function to check the value it returns to see if it is the
+      error code. The caller can then deal with the error or perhaps return an error code of its
+      own to its caller!</p>
+    <p>On the other hand if your function will never be used in another program it is often
+      acceptable to have the function deal with the error on the spot. The problem is that
+      functions you think are specific to your application have a way of becoming general
+      purpose. Knowing exactly how to deal with errors in your functions is difficult and much
+      has been written on the subject. This is a matter that you will encounter many times in
+      the future as you expand your programming skills.</p>
+    <h2>Summary</h2>
+    <ol id="summary-list">
+      <li>
+        <p>A function is a reusable chunk of code. In general a function accepts inputs, called
+          "parameters," does something interesting and worthwhile, and finally returns a result.
+          The user of a function does not need to worry about how it works. The implementor of a
+          function does not need to worry about how it will be used. Functions give you a way of
+          sharing your work with others. They can be upgraded without forcing the rest of your
+          program to change. They provide you with a way of breaking your program down into
+          small, managable parts.</p>
+      </li>
+      <li>
+        <p>A function declaration is just the header of the function followed by a semicolon.
+          The header contains the return type, the name, and the declaration of the parameters.
+          A function definition is the header followed by the function's body inside curly
+          braces. The body is where you specify exactly what the function does. The compiler
+          must see either the definition or a declaration for a function before you try to use
+          it.</p>
+      </li>
+      <li>
+        <p>In C you can pass any appropriately typed variable into a function (in other words,
+          if the function takes an integer parameter, you can send it any integer variable you
+          like). The variable you give to the function, called its "argument" is copied and the
+          copy is used to initialize the corresponding "parameter" in the function's definition.
+          This is called "pass by value" and it is the only way arguments are passed to
+          functions in C.</p>
+      </li>
+    </ol>
+    <address>&copy; Copyright 2003 by Peter C. Chapin.<br />
+Last Revised: <b>July 16, 2003</b></address>
+  </body>
+</html>

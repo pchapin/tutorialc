@@ -1,0 +1,399 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- FILE         : LESSON-04.xht
+     LAST REVISED : 2016-01-11
+     AUTHOR       : (C) Copyright 2016 by Peter Chapin
+     SUBJECT      : The "Hello, World" program. -->
+
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
+  <head>
+    <title>Lesson #4</title>
+    <meta name="Author" content="Peter C. Chapin" />
+    <!-- <meta name="keywords" lang="en-US" content="..."> -->
+    <meta name="ROBOTS" content="NOARCHIVE" />
+    <link rel="stylesheet" href="c-course.css" type="text/css" />
+  </head>
+  <body>
+    <h1>Lesson #4</h1>
+    <p class="subtitle">The "Hello, World" Program</p>
+
+    <h2>Overview</h2>
+
+    <p>In this lesson I will cover the following topics</p>
+    <ol id="overview-list">
+      <li><p>How to compile the "Hello, World" program.</p></li>
+      <li><p>An introduction to style issues and the VTC style guide.</p></li>
+      <li><p>Commenting.</p></li>
+    </ol>
+    
+    <h2>Body</h2>
+    
+    <h3>Compilers</h3>
+
+    <p>Programs are nothing more than a sequence of instructions that tell the machine what to
+    do. Computers are very stupid and only do <em>exactly</em> what they are told. The challenge
+    of programming is to come up with the right instructions to get the effect you want and to
+    make it easy to modify those instructions later to fix errors or get different effects.</p>
+
+    <p>Programmers specify the instructions they want the computer to follow using a programming
+    language. Computers really only understand one language: machine language. Programs written
+    in machine language are just a bunch of numbers. Each number corresponds to one simple
+    instruction. Modern computers can execute billions of these instructions every second. Thus
+    even though each instruction is very simple, computers can do complicated work quickly.</p>
+    
+    <p>Humans don't like machine language. It is very difficult to write and to understand. To
+    prevent us from having to program a computer directly in machine language, many other
+    languages have been devised. However, since the machine only understands its machine
+    language, some way is necessary to convert a program from a language humans can deal with to
+    machine language. The program that does this conversion is called a "compiler". To write C
+    programs you need a C compiler.</p>
+
+    <h3>"Hello, World!"</h3>
+
+    <p>In <a
+    href="http://www.amazon.com/Programming-Language-Brian-W-Kernighan/dp/0131103628/">Kernighan
+    and Ritchie's famous book about C</a> the first program they show just prints "Hello, World"
+    on the terminal. Despite the simplicity of such a program it is critically important that
+    you start by getting the "Hello, World" program to work. Doing so requires that you edit
+    files, run the compiler, and execute the result. These are all important activities that you
+    will do often in the future. Whenever you learn a new language or start using a new system,
+    the first program you should write should be "Hello, World".</p>
+
+    <p>Here is the "Hello, World" program in C:</p>
+
+<pre class="code">
+  #include &lt;stdio.h&gt;
+
+  int main( void )
+  {
+      printf( "Hello, World!\n" );
+      return 0;
+  }
+</pre>
+    
+    <p>Before I explain what is going on in this program, let me describe how to compile it on
+    the Unix host.</p>
+    
+    <ol>
+      <li><p>Connect to the Unix system and use pico to edit the file "hello.c". All C programs
+      must be in files with names that end with the .c extension. This convention is followed on
+      all systems that support C.</p></li>
+      
+      <li><p>Type the program above into pico. You could copy the program out of this message
+      and paste it into your terminal window. However, I recommend that you type it out. That
+      will start teaching your fingers what it feels like to type C. Maybe that sounds silly,
+      but believe me when I say it makes a difference.</p></li>
+      
+      <li><p>Exit pico and save the file (use ^X). Then at the prompt run the C compiler like
+      this</p>
+      
+<pre class="terminal">
+  $ <span class="user-input">cc -o hello hello.c</span>
+</pre>
+        
+      <p>This command tells the compiler to process the file hello.c and to put the resulting
+      output (-o) into the file named hello. If you didn't make any typos you should get another
+      prompt. The C compiler prints no messages if it compiles the file successfully. If you do
+      get error messages, you must have typed something wrong. Load hello.c back into pico and
+      check it over.</p></li>
+
+      <li><p>Once you get the program compiled without errors, run it by just typing</p>
+      
+<pre class="terminal">
+  $ <span class="user-input">hello</span>
+</pre>
+        
+      <p>You should see the text "Hello, World!" appear on the terminal. You have just created
+      your first C program!</p></li>
+    </ol>
+    
+    <h3>"Hello, World" examined</h3>
+
+    <p>Let's take a closer look at the "Hello, World" program. I repeat the program below with
+    line numbers. The line numbers are not part of the program; I include them only to make
+    talking about it easier. Sometimes, especially at first, when I show programs in these
+    lessons I will include line numbers.</p>
+    
+<pre class="code">
+  1:
+  2: #include &lt;stdio.h&gt;
+  3:
+  4: int main( void )
+  5: {
+  6:     printf( "Hello, World!\n" );
+  7:     return 0;
+  8: }
+  9:
+</pre>
+    
+    <p>Here are some points.</p>
+
+    <p>C is case sensitive. The C language, like Unix, treats upper and lower case letters as
+    distinct. The words main, Main, and MAIN, are all different. Most things in C are all
+    lowercase. Be sure you type them correctly.</p>
+    
+    <p>C is free formatted. Spaces and line breaks can occur anywhere provided the compiler can
+    recognize the individual "words" (technically they are called "tokens") of the program. This
+    version of "Hello, World" would also work:</p>
+    
+<pre class="code">
+  int main( void ) { printf( "Hello, World!\n" ); return 0; }
+</pre>
+    
+    <p>So would this one:</p>
+
+<pre class="code">
+  int
+  main
+  (
+  void
+  )
+  {
+  printf
+  (
+  "Hello, World!\n"
+  )
+  ;
+  return
+  0
+  ;
+  }
+</pre>
+    
+    <p>The compiler is not interested in the spacing you use in your program. It is only
+    interested in the sequence of tokens that you write.</p>
+    
+    <p>The <span class="code">#include</span> statement (line 2) is special. Lines that start
+    with a '#' are treated differently than the rest of the program. They are called
+    "preprocessing directives" and they are handled by the compiler just before the program is
+    actually compiled.</p>
+    
+    <p>The inclusion of stdio.h directs the compiler to locate and read over the standard header
+    file, stdio.h. It is in a system directory, but you don't need to worry about its precise
+    location. The file stdio.h contains information about the standard library input-output
+    (I/O) functions. The compiler needs to read this information before it will understand the
+    use of <span class="code">printf</span> in line 6.</p>
+    
+    <p>The program starts with function <span class="code">main</span> (line 4). Every C program
+    that you write must contain a function named main. Line 4 is a declaration for that
+    function. The function itself is between the curly braces on lines 5 and 8. When the program
+    starts, it begins executing the instructions in <span class="code">main</span>. Line 4 says
+    that <span class="code">main</span> takes no parameters (void) and returns an integer. We
+    will discuss functions in detail later. As you will see at that time it is possible to build
+    a program that uses many functions. For now, don't worry about the details of <span
+    class="code">main</span>. Just know that you need to have a main defined as I've done it
+    here.</p>
+
+    <p>The <span class="code">printf</span> statement on line 6 causes the output. The C
+    language does not have I/O built into it. Instead you have to use other functions to do I/O.
+    Thankfully Standard C compilers come with a library of useful functions that are defined as
+    part of the standard. The <span class="code">printf</span> function is one of them. It takes
+    its "argument" (the stuff inside the parentheses) and prints it onto the terminal.</p>
+
+    <p>The sequence '\n' is special. It represents the "new line" character. Printing a '\n'
+    causes the output to go to the next line. If you didn't do this, the system would print its
+    next prompt on the same line as the "Hello, World!" (Try it!). There are several other
+    backslash "escape sequences" defined. Some of them are quite useful.</p>
+
+    <p>The return statement on line 7 ends the program. In general, whenever main returns, the
+    program ends. The zero is the integer value main is returning. (Remember that main is
+    defined to return an integer). Traditionally a return of zero from main means that the
+    program worked properly. A non-zero return traditionally means that the program encountered
+    an error. Where is this value being returned to? It is going back to the environment where
+    the program was started. You can view the returned value like this:</p>
+    
+<pre class="terminal">
+  $ <span class="user-input">hello</span>
+  Hello, World!
+  $ <span class="user-input">echo $?</span>
+  0
+</pre>
+    
+    <p>We don't really care about this returned value very much. However, you should return a
+    zero from main whenever your program completes normally. Tradition is important.</p>
+
+    <h3>Programming style</h3>
+
+    <p>The compiler doesn't care about the spacing you use in your program as long as it can
+    tell the individual tokens apart. However, I do care about the spacing you use in your
+    programs! Inappropriately formatted programs are very difficult to read and understand.
+    Writing a program is a social act. Most programs are read and modified by many people
+    throughout their lifetime. It is very important to write programs that are easy to
+    understand. Thus proper formatting is a must.</p>
+    
+    <p>Everyone tends to develop his/her own style when it comes to formatting programs.
+    Everyone tends to believe his/her style is the best. In fact there are many reasonable ways
+    to format your programs. When you are programming for a group or as part of a larger
+    organization, consistency is often more important than any particular detail of style.
+    Consequently many organizations have created a "style guide" that dictate how their
+    programmers should format their programs. That way all programs created by an organization
+    will have a similar look and everyone who works with those programs will have an easier time
+    understanding them.</p>
+    
+    <p>At VTC we have followed this trend and have created a style guide that you must follow
+    when writing programs for our classes. Just as with any organization, a consistent style
+    makes it easier for us to talk about each other's work. Also we at VTC want to expose you to
+    the reality of style guides so that when/if you encounter one later you will not be
+    surprised.</p>
+    
+    <p>You might want to bookmark <a href="../c-style.html">the current style guide</a> for
+    future reference. Some of the things in that guide might not make sense to you right now. I
+    will point out the details you need to know as we go along.</p>
+
+    <p>The "Hello, World" program demonstrates several aspects of VTC's required style. Let me
+    point them out now.</p>
+
+<pre class="code">
+  #include &lt;stdio.h&gt;
+      
+  int main( void )
+  {
+  ^ The brace opening a function is the first character on a line by itself.
+      printf( "Hello, World!\n" );
+      ^ Material inside curly braces is indented.
+      return 0;
+      ^ Material inside curly braces is indented *consistently*
+  }
+  ^ The brace closing a function is lined up with the opening brace.
+</pre>
+    
+    <p>Consistent indentation is of paramount importance.</p>
+    
+    <p>During this course I will provide you with occasional example programs to illustrate
+    various things. All of the example programs I will send will conform to the VTC style guide.
+    If you submit a program that contains violations of the style guide, I will take off
+    points!</p>
+
+    <h3>Comments</h3>
+
+    <p>Real programs are long and complicated. To make a program more understandable you can
+    insert comments into it that the compiler ignores. In your comments you can explain the bits
+    and pieces of your program to the next person who has to read it. Often that "next person"
+    is yourself several weeks, months, or even years later. ("Now... why did I do that?") In C
+    comments are any text that appears between <span class="code" >/*</span> and <span
+    class="code">*/</span> sequences.</p>
+    
+<pre class="code">
+  /* This is a comment. */
+</pre>
+    
+    <p>In addition, if you are using a newer C compiler, you can also start a comment with a
+    <span class="code">//</span> sequence. Such comments end at the end of the line. You do not
+    have to explicitly mark the end of them. For example:</p>
+    
+<pre class="code">
+  // Output a greeting.
+  printf( "Hello, World!\n" );
+</pre>
+    
+    <p>Many people find these "slash-slash" style comments to be easier to type. However, they
+    won't work with older compilers. If you want your program to work on as wide a variety of
+    compilers as possible, you should stick with the older style comments. I tend to use
+    slash-slash comments to document a single line of code or a group of closely related lines.
+    I use the "slash-star" comments to create large comment blocks.</p>
+
+    <p>Making good comments is an art. You want the comments to elaborate on the program, not
+    just repeat what it says. Compare:</p>
+    
+<pre class="code">
+  // Print "Hello, World"
+  printf( "Hello, World!\n" );
+
+  // Let the user know we are alive.
+  printf( "Hello, World!\n" );
+</pre>
+    
+    <p>The first comment is a waste. It just says the same thing the C says. The second comment
+    adds information. It explains not what the line below it does, but <em>why</em> we want it
+    done.</p>
+    
+    <p>I have found that students typically do not write very good comments at first. Many
+    students seem to feel that since the comments are ignored by the compiler they aren't really
+    part of the program. That is wrong. The comments are an <em>essential</em> part of the
+    program. A program without them is incomplete.</p>
+    
+    <p>When you write a program your audience is not really the compiler. The real audience of
+    your work is all the other programmers who will one day examine it. You write your comments
+    to them. As I said, programming is a social act. You must comment your programs before I
+    will consider them finished.</p>
+
+    <p>Some students understand that commenting is important. However, they then make the
+    mistake of commenting everything. That is also wrong. You can "over-comment." The result is
+    just as difficult to understand as an uncommented program. Make your comments useful and
+    meaning, but don't overdo them.</p>
+    
+    <p>The VTC style guide doesn't have too much to say about comments. However, it does require
+    that every program have a comment block at the top. That comment block must contain at least
+    the following things: your name with contact information, the name of the file, an
+    appropriate date, and a brief description of what the program does. You can also include a
+    longer description of the program if appropriate. To adhere to the VTC style guide, my
+    "Hello, World" program should really look like this:</p>
+    
+<pre class="code">
+  /*! \file   hello.c
+   *  \brief  Program that demonstrates printf's abilities.
+   *  \date   January 2016
+   *  \author Peter C. Chapin &lt;PChapin@vtc.vsc.edu&gt;
+   *
+   * This program just displays "Hello, World!" on the terminal. It is used
+   * to exercise the compiler and to make sure that I can actually get a C
+   * program to work!
+   *
+   */
+
+  #include &lt;stdio.h&gt;
+
+  int main( void )
+  {
+      printf( "Hello, World!\n" );
+      return 0;
+  }
+</pre>
+
+    <p>The backslash prefixed keywords above (such as \file) are not strictly necessary but they
+    are used by a third party tool (<a href="http://www.stack.nl/~dimitri/doxygen/">Doxygen</a>)
+    that extracts comments into nicely formatted HTML documentation. You may want to use that
+    tool at some point so it would be helpful to follow its conventions now.</p>
+    
+    <p>It may seem rather excessive to require such an extensive comment at the top of such a
+    small program. In fact, it is. However, the "Hello, World" program is unusually small. Most
+    programs are much larger and more complicated. In that case a summarizing comment block at
+    the top is a must.</p>
+    
+    <p>One final note about comments: Please try to make them spelled correctly and
+    grammatically correct. Good writing is a must and comments are no exception. Sometimes
+    students interested in technical subjects believe that they don't need to worry about
+    writing. That is false. Comments in programs are difficult to understand if they are
+    ungrammatical. I won't nit-pick about the writing in your comments. However, I may take off
+    points if I see flagrant violations of the standard rules of grammar.</p>
+
+    <h2>Summary</h2>
+
+    <ol id="summary-list">
+      <li><p>The C compiler on the Unix host is named "cc". To compile a program in the file
+      hello.c, use a command such as</p>
+      
+<pre class="terminal">
+  $ <span class="user-input">cc -o hello hello.c</span>
+</pre>
+        
+      <p>This command puts the executable result into the file "hello".</p></li>
+      
+      <li><p>Although C is a free formatted language, you should try to adopt a style that makes
+      your programs easy to read and understand. The compiler will not be confused by an ugly
+      program but humans, including yourself, will be. Be sure to indent lines appropriately so
+      that their relationship to each other is clear at a glance. This issue is very important
+      to me and I will look for it when I grade your programs.</p></li>
+      
+      <li><p>The compiler ignores your comments, yet they are still an essential part of your
+      program. Be sure to include a comment block at the top of each program that specifies the
+      name of the file, your name, a date, and a brief description of the program. Use comments
+      in the body of your program to describe why you are doing things (and not just what you
+      are doing).</p></li>
+    </ol>
+
+    <address>&copy; Copyright 2016 by Peter C. Chapin.<br />
+    Last Revised: <b>January 11, 2016</b></address>
+  </body>
+</html>

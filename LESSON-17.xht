@@ -1,0 +1,442 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- FILE         : LESSON-17.htm
+     LAST REVISED : 2003-07-15
+     AUTHOR       : (C) Copyright 2003 by Peter Chapin
+     SUBJECT      : Spreading a program across multiple files. -->
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
+  <head>
+    <meta name="generator" content="HTML Tidy for Windows (vers 24 July 2007), see www.w3.org" />
+    <title>Lesson #17</title>
+    <meta name="Author" content="Peter C. Chapin" />
+    <!-- <meta name="keywords" lang="en-US" content="..."> -->
+    <meta name="ROBOTS" content="NOARCHIVE" />
+    <link rel="stylesheet" href="c-course.css" type="text/css" />
+  </head>
+  <body>
+    <h1>Lesson #17</h1>
+    <p class="subtitle">Spreading a Program Across Multiple Files</p>
+    <h2>Overview</h2>
+    <p>In this lesson I will cover the following topics</p>
+    <ol id="overview-list">
+      <li>
+        <p>How and why programs are built from multiple files.</p>
+      </li>
+      <li>
+        <p>The meaning of "source code", "object code", and other related terms.</p>
+      </li>
+      <li>
+        <p>The difference between internal and external linkage.</p>
+      </li>
+    </ol>
+    <h2>Body</h2>
+    <h3>Why multiple files?</h3>
+    <p>So far all of the programs we have talked about have been entirely contained in a single
+      .c file. This is practical and appropriate for small programs but it is not a satisfactory
+      way to organize large programs. If many people are working on the same program it is much
+      easier if each programmer can edit and maintain their own .c file(s). The final program
+      can then be built from all the various .c files together. Often you will use libraries
+      written by people you don't even know. These libraries might come in one (or more) .c
+      files of their own. Rather than cutting and pasting all the functions in such a library
+      into each of your own programs, it is much easier to just build your programs from all the
+      various .c files involved.</p>
+    <p>Even if you are the only person working on your program, you will still want to use
+      several .c files if the program is reasonably large. It is extremely tedious to edit
+      enormous files and the compiler will be very slow in processing such files. By putting
+      different parts of your program in different files you make each file much more managable.
+      In addition you can use files to help organize your program. Perhaps you put all the
+      functions that do computations in one file and all the functions that do I/O in another
+      file. Then when you are looking for a particular function you can find it more easily.</p>
+    <p>A "small" serious program is likely to consist of 10,000 to 50,000 lines of C spread out
+      over 10 or 20 .c files. Much larger programs are common. I understand that Windows 2000 is
+      over 10 million lines of C spread over thousands of files. Although this first course
+      won't, by itself, make you into a professional C programmer, you should have the skills
+      once we are finished to grapple with an existing "small" program. That means you need to
+      know something about how programs are divided into different files.</p>
+    <h3>Okay, so how does it work?</h3>
+    <p>Let me play with my old example of a prime number testing program. I will put the
+      function <span class="code">is_prime</span> in a separate file. First here is the file
+      containing <span class="code">is_prime</span>. I will call this file prime.c.</p>
+    <pre class="code">
+int is_prime(int number)
+{
+  int i;
+
+  // Very small numbers are errors. Errors are not prime.
+  if (number &lt; 2) return 0;
+
+  // Otherwise, just check all numbers less than Number for divisability.
+  for (i = 2; i &lt; number; i++) {
+    if (number % i == 0) {
+      return 0;
+    }
+  }
+
+  // If I got here the number must be prime.
+  return 1;
+}
+</pre>
+    <p>This file only contains <span class="code">is_prime</span>. It does not contain main. It
+      also doesn't need to <span class="code">#include &lt;stdio.h&gt;</span> since it does not
+      use any of the I/O functions that are declared there.</p>
+    <p>Now here is the file containing main. I will call it prime-check.c</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+int is_prime(int);
+
+int main(void)
+{
+  int my_number;
+
+  // Get a value from the user.
+  printf("Enter a number: ");
+  scanf("%d", &amp;my_number);
+
+  // Print out an appropriate message.
+  if (is_prime(my_number)) {
+    printf("The number, %d, is prime!\n", my_number);
+  }
+  else {
+    printf("The number, %d, is not prime!\n", my_number);
+  }
+
+  return 0;
+}
+</pre>
+    <p>This file contains <span class="code">main</span>, but does not contain <span
+        class="code">is_prime</span>. However, to keep the compiler happy I have included a
+      declaration of <span class="code">is_prime</span> just before main. Otherwise the compiler
+      might misinterpret how <span class="code">is_prime</span> is to be used.</p>
+    <p>To build this program now requires several steps.</p>
+    <pre class="terminal">
+$ <span class="user-input">cc -c prime.c</span>
+$ <span class="user-input">cc -c prime-check.c</span>
+$ <span class="user-input">cc -o prime-check prime-check.o prime.o</span>
+</pre>
+    <p>The first command compiles prime.c. The -c option prevents the compiler from trying to
+      build the final executable file (think: -c for "compile only"). Such an attempt would fail
+      because there is no main in prime.c. After the first command there would be a prime.o in
+      your working directory.</p>
+    <p>The second command compiles prime-check.c in a manner similar to the way I did prime.c.
+      As with the first command, no executable file is made. Instead the compiled file is stored
+      in prime-check.o.</p>
+    <p>The final command combines the two .o files into a final executable file named
+      prime-check. The final executable can now be run without either the .c files or the .o
+      files being present. As before it stands by itself as a complete program.</p>
+    <p>Actually the cc program is a bit smarter than I'm letting on here. In fact, you could
+      build your program by just doing</p>
+    <pre class="terminal">
+$ <span class="user-input">cc -o prime-check prime-check.c prime.c</span>
+</pre>
+    <p>Since I mention more than one .c file on the command line, cc understands this to mean
+      that it should compile both of them and combine the result into the final output file. The
+      disadvantage to doing this is that cc will always compile both files. However, if you make
+      a change to just one of them, there is no need to rebuild the other .o file. Suppose I
+      just change prime.c---perhaps to enhance the is_prime function. I can build a new version
+      of prime-check like this</p>
+    <pre class="terminal">
+$ <span class="user-input">cc -c prime.c</span>
+$ <span class="user-input">cc -o prime-check prime-check.o prime.o</span>
+</pre>
+    <p>There is no need to recompile prime-check.c since I have not changed it.</p>
+    <p>Actually I can also do this</p>
+    <pre class="terminal">
+$ <span class="user-input">cc -o prime-check prime-check.o prime.c</span>
+</pre>
+    <p>In this case I'm specifying a .o file to cc and a .c file. The cc program understand that
+      it needs to compile the .c file and combine the resulting .o file with prime-check.o to
+      make the final output.</p>
+    <p>Now imagine a large project consisting of many .c files. When you change one of them you
+      only need to recompile that one file and then recombine all the .o files to form a new
+      executable. Linking the .o files together is fairly quick and compiling a single .c file
+      is, obviously, faster than compiling a bunch of them. In fact, it will be significantly
+      faster than compiling the program as stored in one, huge .c file. This is one advantage to
+      breaking your program into separate files. It will build more quickly after you make a
+      change.</p>
+    <h3>Header files</h3>
+    <p>Notice how I had to include a declaration of <span class="code">is_prime</span> in
+      prime-check.c? This is normal. Since the definition of <span class="code">is_prime</span>
+      is now in another file and since the compiler only looks at one file at a time, it is now
+      necessary to include a declaration of <span class="code">is_prime</span> in prime-check.c
+      so that the compiler understands that the function exists. You could easily enough use
+      prime.c in a different program, but you would also have to include a declaration of <span
+        class="code">is_prime</span> in that other program as well.</p>
+    <p>To simplify this you would create a header file that contains just the declaration.
+      Traditionally header files end with a .h. Here is what prime.h looks like</p>
+    <pre class="code">
+int is_prime(int);
+</pre>
+    <p>Now you include this header file in your prime-check.c file. Here is the revised version
+      of prime-check.c</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+#include "prime.h"
+
+int main(void)
+{
+  int my_number;
+
+  // Get a value from the user.
+  printf("Enter a number: ");
+  scanf("%d", &amp;my_number);
+
+  // Print out an appropriate message.
+  if (is_prime(my_number)) {
+    printf("The number, %d, is prime!\n", my_number);
+  }
+  else {
+    printf("The number, %d, is not prime!\n", my_number);
+  }
+
+  return 0;
+}
+</pre>
+    <p>Notice how I've replaced the declaration of <span class="code">is_prime</span> with <span
+        class="code">#include "prime.h"</span>. When the compiler processes prime-check.c it
+      will go and read prime.h as if you had typed its contents directly into prime-check.c.
+      Thus, in effect, this example is exactly like the earlier one. The declaration of <span
+        class="code">is_prime</span> occurs before it is used just as desired.</p>
+    <p>Creating a header file that contains declarations of all the functions in a .c file is
+      the normal procedure. Since most .c files contains many functions it is much easier to
+      include a header than it is to manually type all the necessary declarations. In programs
+      that are composed of many .c files, there are typically many .h files as well.</p>
+    <p>I'm sure you've noticed the similarlity between the two lines</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+#include "prime.h"
+</pre>
+    <p>In fact, when you use functions in the standard library you are using functions defined
+      in separate files. The file stdio.h contains declarations for all the I/O functions in the
+      standard library. Just as with <span class="code">is_prime</span>, the compiler wants to
+      see those declarations before you start using those functions. Instead of you having to
+      type those declarations in yourself, you can just include an appropriate header file.</p>
+    <p>The angle brackets around stdio.h tell the compiler that this is a "standard" header file
+      and that it should look in the "standard" places for it. Typically the standard place for
+      header files is the directory /usr/include. However, the quotation marks around prime.h
+      tell the compiler that it is a "user defined" header and that it should look in the
+      working directory for it instead.</p>
+    <p>Keep in mind that doing <span class="code">#include &lt;stdio.h&gt;</span> does NOT cause
+      the definitions of <span class="code">printf</span>, etc to become part of your program.
+      It merely allows the compiler to see the declarations of those functions. The actual
+      definitions of <span class="code">printf</span> are stored in a special library file
+      elsewhere. A library file is an archive of many .o files that were created when the
+      various .c files comprising the standard library were compiled. The compiled .o files from
+      the standard library are combined with your program by cc only to make the final
+      executable file.</p>
+    <p>Students are sometimes surprised to learn that the standard library functions like <span
+        class="code">printf</span> and <span class="code">scanf</span> were written in C and
+      compiled with the same C compiler they are using. Don't be. Such is the nature of C. The
+      standard library is just another library. As you will see shortly, you can create your own
+      libraries. The compiler can't really tell the difference. If you wanted to, you could even
+      write your own version of <span class="code">printf</span> and arrange to use your version
+      all the time instead of the one that comes with the compiler. I don't suggest doing that
+      unless you know what you are doing!</p>
+    <h3>Some terminology</h3>
+    <p>Before going any further I need to introduce some terminology. So far in this course I've
+      talked about .c files and now I'm talking about .o files. Programmers, however, use
+      different words to talk about these files.</p>
+    <p>The stuff you write is called the "source code" of the program. If you ask someone for a
+      program's "source" you are asking for the .c files (and .h files) that were used to create
+      it. Program source code is very valuable. By inspecting the source code of a program you
+      can learn how it does things. You can locate bugs, security loopholes, and undocumented
+      features. With a program's source you can modify the program and borrow (or steal,
+      depending on your point of view) its ideas.</p>
+    <p>When you compile a source file, the output of the compiler is a file containing machine
+      instructions. This is called the "object code". In the Unix environment such files end
+      with .o (for "object"). In the Windows world they typically (but not always) end with
+      .obj. The object files are binary files and are not intended for direct manipulation by
+      people.</p>
+    <p>After the compiler creates the object code, another program, called a linker, combines
+      various object files together to form the final "executable code". Some of the object
+      files comprising a program are created by the programmer. Other object files are taken out
+      of special libraries of object files. That is how the standard library is handled. In a
+      large program there might be hundreds of object files and each object file might contain
+      the compiled code from many functions. Yet when the linking is done the end user only
+      needs the single executable file. The source code and object code does not need to be on
+      hand to run the program.</p>
+    <p>The cc program that we've been using is not really a compiler. It is really a front end
+      program that coordinates all of this activity. When you say</p>
+    <pre class="terminal">
+$ <span class="user-input">cc -o hello hello.c</span>
+</pre>
+    <p>The cc program runs the compiler to translate hello.c to hello.o (actually the file has a
+      very strange name and is put into the /tmp directory but that is not important to my
+      discussion). Then cc runs the linker to create the executable file hello by combining
+      hello.o with the necessary object files from the standard library. Finally cc deletes
+      hello.o to clean things up a bit.</p>
+    <p>When you say</p>
+    <pre class="terminal">
+$ <span class="user-input">cc -c hello.c</span>
+</pre>
+    <p>The cc program only runs the compiler and does not delete hello.o when it is
+      finished.</p>
+    <p>When you say</p>
+    <pre class="terminal">
+$ <span class="user-input">cc -o hello hello.o</span>
+</pre>
+    <p>The cc program runs only the linker. It is possible to run the compiler and linker
+      yourself manually, but it is somewhat complicated to do so because there are many options
+      you must provide. The cc front end program makes life much easier.</p>
+    <h3>Linkage</h3>
+    <p>When you create a program using several files there needs to be a way to "connect" names
+      in one file with names in another. The compiler processes only one file at a time. Yet
+      when the program is linked together the linker must understand the relationship between
+      the named entities in the various files. The concept of "linkage" defines this issue.
+      There are two types of linkage:</p>
+    <ol>
+      <li>
+        <p>If a name has "internal linkage" then that name can only be used in the source file
+          where it appears. If there happens to be something with the same name in a different
+          source file, the two entities have nothing to do with each other. They are totally
+          independent. In this respect internal linkage is a similar concept to that of local
+          variables.</p>
+      </li>
+      <li>
+        <p>If a name has "external linkage" then that name refers to the same entity no matter
+          what source file the name appears in. In this respect external linkage is a similar
+          concept to that of global variables.</p>
+      </li>
+    </ol>
+    <p>Let's look at some examples to clarify things. Here are the contents of a file named
+      file1.c:</p>
+    <pre class="code">
+void f(void);
+  // Functions have external linkage by default.
+
+int main(void)
+{
+  f();   // Call function f in another file.
+  return 0;
+}
+</pre>
+    <p>Here are the contents of a file named file2.c:</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+void f(void)
+{
+  printf("Hello, World\n");
+  return;
+}
+</pre>
+    <p>Here is a two file example where the main program calls a function named <span
+        class="code">f</span> that is located in a separate file. We have already looked at
+      examples like this. It works because functions have external linkage by default. Thus
+      there is only one function <span class="code">f</span> in the entire program. The <span
+        class="code">f</span> being used in main must refer to the same <span class="code"
+        >f</span> defined in file2.c.</p>
+    <p>The rules for global variables are a little different, but this example should clarify.
+      Here are the contents of file1.c:</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+void f(void);    // Declare f.
+int number = 0;  // Declare and define number here.
+
+int main(void)
+{
+  f();  // Call f.
+  printf("number = %d\n", number);
+
+  return 0;
+}
+</pre>
+    <p>Here are the contents of file2.c:</p>
+    <pre class="code">
+extern int number;  // Declare number. It is defined elsewhere.
+
+void f(void)
+{
+  number = 1;  // Change the Number in another file.
+}
+</pre>
+    <p>In this example, there is only one global integer named <span class="code">number</span>.
+      It has been defined in file1.c where it receives its initial value. In file2.c a special
+      "extern" declaration exists so that the compiler is made aware of the name (remember the
+      compiler only processes one file at a time). However, the compiler will not set aside any
+      memory for <span class="code">number</span> in file2.c. It assumes that has already been
+      done some place else (in this case in file1.c). The variable <span class="code"
+        >number</span> is a simple global variable that can be used by any function in the
+      program. It can even be used by functions in other files because it has external
+      linkage.</p>
+    <p>Now let's look at internal linkage. Here are the contents of file1.c:</p>
+    <pre class="code">
+#include &lt;stdio.h&gt;
+
+static int number = 0;  // Internally linked global.
+static void f(void);    // Internally linked function.
+
+int main(void)
+{
+  f();  // Call the f in this file.
+  printf("number = %d\n", number);
+
+  return 0;
+}
+
+static void f(void)
+{
+  number = 1;
+}
+</pre>
+    <p>In this case the declarations of <span class="code">number</span> and of <span
+        class="code">f</span> are preceeded with the word <span class="code">static</span>. This
+      is misleading. When <span class="code">static</span> is applied to a local variable it
+      changes the duration of that variable from automatic duration to static duration. However,
+      when <span class="code">static</span> is applied to a global variable it does not change
+      the duration (global variables always have static duration). Instead it changes the
+      linkage from external to internal. Personally, I think it was a bad idea to reuse the word
+      "static" for this purpose. It only serves to confuse people. Probably it was done to avoid
+      introducing another keyword into the language. However, I think it is a design flaw in
+      C.</p>
+    <p>In any case, the global variable number can now only be used by the functions in file1.c.
+      Functions in file2.c could not use that variable (although they might have their own
+      internally linked variable named <span class="code">number</span>---or even access a
+      externally linked variable named <span class="code">number</span>). Similar comments apply
+      to the internally linked function <span class="code">f</span>.</p>
+    <h2>Summary</h2>
+    <ol id="summary-list">
+      <li>
+        <p>Programs are typically made from many .c files. This is done to make it easier for
+          many people to work on a single program and to share and organize your functions. To
+          compile a program made of two .c files named first.c and second.c do something like
+          this</p>
+        <pre class="terminal">
+$ <span class="user-input">cc -o first first.c second.c</span>
+</pre>
+        <p>This puts the final program into the executable file named first.</p>
+      </li>
+      <li>
+        <p>The "source code" of a program is the .c and .h files that the programmer(s) created.
+          The source code is compiled into machine instructions and is called "object code"
+          after it has been compiled.</p>
+      </li>
+      <li>
+        <p>Functions have external linkage by default. You don't have to do anything special to
+          use a function from another file aside from declaring it. Typically you put function
+          declarations in header files to make them easy to include in the source files that
+          need them.</p>
+      </li>
+      <li>
+        <p>If you put the keyword <span class="code">static</span> in front of a function
+          declaration you are changing the linkage of that function to internal. In that case it
+          can only be used by other functions in the same source file.</p>
+      </li>
+      <li>
+        <p>Global variables should be defined in only one place. If you need to access a global
+          variable from another file, you should declare that variable with the keyword <span
+            class="code">extern</span> in front of it. Such declarations should not contain any
+          initializers.</p>
+      </li>
+      <li>
+        <p>Global variables that you only need to use in a single file should have the keyword
+            <span class="code">static</span> put in front of their declarations. This changes
+          their linkage to internal linkage. Despite how it sounds it does not modify the
+          variable's duration (globals always have static duration).</p>
+      </li>
+    </ol>
+    <address>&copy; Copyright 2003 by Peter C. Chapin.<br />
+Last Revised: <b>July 15, 2003</b></address>
+  </body>
+</html>
