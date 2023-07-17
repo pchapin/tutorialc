@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <title>Lesson #12</title>
+  <meta name="Author" content="Peter Chapin"/>
+  <!-- <meta name="keywords" lang="en-US" content="..."> -->
+  <meta name="ROBOTS" content="NOARCHIVE"/>
+  <link rel="stylesheet" href="c-course.css" type="text/css"/>
+</head>
+<body>
+<h1>Lesson #12</h1>
+<p class="subtitle">Basic Testing and Debugging Techniques</p>
+<h2>Overview</h2>
+<p>In this lesson I will cover the following topics</p>
+<ol id="overview-list">
+  <li>
+    <p>The purpose of testing.</p>
+  </li>
+  <li>
+    <p>Black box vs white box testing.</p>
+  </li>
+  <li>
+    <p>The use of debugging printfs to locate bugs.</p>
+  </li>
+</ol>
+<h2>Body</h2>
+<h3>The purpose of testing</h3>
+<p>Once you have gotten your program to compile (sometimes not an easy thing to do) you are ready
+  to try it out. Before releasing your program to the world, you need to test it. Programs rarely
+  work properly the first time. Complex programs never do.</p>
+<p>People sometimes think that the purpose of testing is to verify that a program is correct. That
+  is wrong. The purpose of testing is to find bugs. If you run a test on your program and the test
+  does not find a bug, then the test failed. You are a good programmer if your programs always
+  work. You are a good tester if you can cause programs to malfunction. Testing and programming
+  are inherently in conflict. This means that programmers often make poor testers. Programmers
+  don't want to hurt their programs. Yet testing is about making software suffer.</p>
+<p>This attitude tends to surprise some people. But it really isn't all that surprising. Doctors
+  use the same approach. If you get tested for HIV infection the test is said to be "positive" if
+  you are infected. Of course that is not good news. You want the test to be negative. Yet from
+  the point of view of testing, the test was a success if it finds infection. It's the same with
+  software testing. If you run a test and the program malfunctions, the test was positive. You
+  found a bug. That is not good news, of course, but it does mean that your testing was
+  worthwhile.</p>
+<p>All complex software has bugs. In theory, programmers should greet bug reports with happiness.
+  Each bug report gives them the opportunity to fix the bug and make the program better. The
+  proper response when a user tells you about a bug in your software is, "thank you". Even if the
+  problem is not really a bug in your software but just a misunderstanding on the part of the
+  user, a bug may still be present. Perhaps your user interface is confusing (I'd call that an
+  interface bug). Maybe your documentation is misleading (documentation bug). Maybe the user isn't
+  qualified to use the program (training or marketing bug). No matter what the problem is, it's a
+  bug of some kind and the user's report gives you the opportunity to fix it.</p>
+<p>When you test your own software don't pull your punches. Make your tests hard. Make your
+  program squirm. Make it writh. And when your program fails, give a sinister laugh, wring your
+  hands, and then torture it some more. Once you've identified and fixed all the bugs you find
+  this way you'll have a top quality program.</p>
+<p>Some years ago the luggage company, American Tourister, ran a TV ad that showed a gorilla
+  throwing a few suitcases around. The gorilla slammed the suitcases against the side of its cage,
+  jumped up and down on them, and did all manner of horrible things to them. The suitcases worked
+  fine afterward. The ad closed by saying, "You might not be this hard on your suitcases, but
+  aren't you glad to know they can take it?" That is exactly what software testing is about. Beat
+  on your program. Make sure it can take it. The end user will be grateful.</p>
+<h3>Black box testing</h3>
+<p>You can test software without knowing anything about how it was written. If you know the
+  specification for a piece of software you have all the information you need. If you know what
+  the software is supposed to do, you can construct tests to verify that it actually does it. This
+  approach to testing is called "black box" testing because you treat the software like a black
+  box. You know what it's supposed to produce but you have no idea about its inner workings.</p>
+<p>Serious black box testing starts with the specification of the program. Highlight every line in
+  the specification that says things like, "the output is..." or, "the result should be..." Then
+  come up with a test case to exercise that situation. Verify that the output is as it should be.
+  Try inputs that are illegal or out of bounds and see what happens. Try inputs that seem to be
+  legal but that don't make any sense. Try inputs that are perfectly reasonably, just very large.
+  It is sometimes quite easy to get programs to screw up.</p>
+<p>You can do a little black box testing on any piece of software you have around. Consider your
+  word processor. Let's check out the section that handles margin settings. First, read the word
+  processor's documentation and verify that all the features it claims it has actually work as
+  documented. In addition, try things like</p>
+<ol>
+  <li>The normal case: left and right margins at one inch.</li>
+  <li>How about zero sized margins? What does that do?</li>
+  <li>How about negative sized margins? Does the program freak out?</li>
+  <li>Make the left margin so large that it overlaps the right margin.</li>
+  <li>Make the left margin larger than the width of the document window.</li>
+  <li>???</li>
+</ol>
+<p>With a little thought you can probably come up with some other interesting cases to try. After
+  you've throughly explored margins, move on to some other feature. It takes time. Good testing is
+  hard and requires thought. Yet if you do test your word processor carefully, you'll probably
+  find a bug before too long. Most major programs have lots of bugs.</p>
+<p>The good thing about black box testing is that anybody can do it. Most software vendors release
+  "beta" test versions of their software for ordinary users to exercise. Beta software is usually
+  pretty close to correct&mdash;it has already passed the vendor's internal "alpha" testing phase&mdash;but
+  it may still have quite a few bugs in it. However, by exposing the software to a large number of
+  people the vendor hopes to find and fix many more bugs. The idea is not to necessarily fix every
+  bug, but to at least fix the ones users are likely to encounter when they use the program.</p>
+<h3>White box testing</h3>
+<p>To do white box testing you need access to the original source code of the program itself. The
+  idea here is to design your test cases taking into account how the program is structured and
+  organized. For example, you should come up with enough test cases so that every line of your
+  program gets exercised. Black box testers can't do that because they don't necessarily know
+  about all the various parts of your program. In particular, a black box tester might not know
+  about all the error conditions your program checks. However, with access to the program source,
+  you can see all the error checks. Design test cases to verify that all your different error
+  handling works. (As a side note: testing error handling is hard because it's not always very
+  feasible to generate every possible error condition on demand. Consequently many programs tend
+  to screw up while they are handling errors).</p>
+<p>Actually it turns out that just exercising every line of code is not enough. It is possible to
+  write a program such that it has bugs and yet such that a set of test cases that exercise every
+  line works fine. In fact, it is almost impossible to be 100% sure that your program is bug free.
+  Even if your program has never failed, there might still be a bug in it that you haven't
+  encountered yet. Some people dream of the day when it will be possible to prove software correct
+  mathematically. This is not that day.</p>
+<p>However, it turns out that a good way to test your software is to use McCabe's metric for
+  software complexity. Count the number of if statements, cases in switch statements, and loops.
+  Compound conditions (that use || or &amp;&amp;) should have each of their subconditions counted
+  separately. Say the total is N. You need to come up with N+1 test cases that together exercise
+  every line in your program and that exercise both directions of every condition. Let's look at
+  the prime number testing example again.</p>
+<pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  int number;
+  int i;
+
+  printf("Enter a number: ");
+  scanf("%d", &amp;number);
+
+  for (i = 2; i &lt; number; i++) {
+    if (number % i == 0) {
+      printf("The number, %d, is not prime.\n", number);
+      return 1;
+    }
+  }
+
+  printf("The number, %d, is prime!\n", number);
+  return 0;
+}
+</pre>
+<p>This program has one loop and one if statement. Thus we need to come up with 2+1 = 3 test
+  cases. Those three cases need to exercise every line of code and every direction of each
+  condition. I believe these three will do it:</p>
+<ol>
+  <li>The for loop never executes. Choose <span class="code">number</span> &lt;= 2 initially.</li>
+  <li>The for loop executes, but the if statement never triggers. Make <span class="code"
+  >number</span> a prime.
+  </li>
+  <li>The for loop executes and the if statement triggers. Make <span class="code"
+  >number</span> a non-prime.
+  </li>
+</ol>
+<p>For this simple program that about does it. Yet even here you can see the virtue of white box
+  testing. A block box tester might not realize the significance of choosing <span
+      class="code">number</span> &lt;= 2.</p>
+<p>P.S. The program above has a bug. If you enter 1 you will be told that it is a prime number.
+  However, that is wrong.</p>
+<p>McCabe's rule is handy and useful, but it isn't perfect. Remember: no matter how much you test
+  a program you can never be sure that it is bug free. The best you can say is that all
+  <em>known</em> bugs have been fixed. Most likely there are others lurking in your program.</p>
+<h3>Fixing bugs</h3>
+<p>Finding bugs is one thing. Fixing them is another. When the program is simple it is often easy
+  to figure out why it doesn't work. However, most of the time it is not clear why the program
+  isn't working. Here's how it usually goes.</p>
+<ol>
+  <li>
+    <p>You get a bug report about your program. Perhaps you found the bug yourself or perhaps
+      someone on the testing team found it.</p>
+  </li>
+  <li>
+    <p>If someone other than you found the bug, you should first try to reproduce it. Fixing bugs
+      you can't see is extremely difficult. If you can't reproduce the bug your first priority is
+      to work with the person who reported the bug to figure out just how you can reproduce
+      it.</p>
+  </li>
+  <li>
+    <p>Sometimes you will get a blinding flash of insight at this point and you will just
+      <em>know</em> what the problem is. That doesn't usually happen.</p>
+  </li>
+  <li>
+    <p>Try to figure out just when the program goes wrong. Sometimes the manifestation of a bug
+      occurs long after the error actually occured. Your goal is to be able to point your finger
+      at one line in your program and say, "here the incorrect thing happens." This step is often
+      difficult.</p>
+  </li>
+  <li>
+    <p>Often how to fix the problem is obvious once you know exactly where it occurs. Alas,
+      sometimes that is not true. Sometimes you might be able to point at the spot where bad
+      things happen, but not have any idea <em>why</em> they are happening. Such bugs are the most
+      difficult to handle.</p>
+  </li>
+  <li>
+    <p>If all else fails and if you have a general idea of where the bug is located, try cleaning
+      your program up. Improve the style, update the comments, and reorganize sections that seem
+      awkward. Bugs most often show up in poorly organized programs. Cleaning up such programs
+      often mysteriously fixes bugs. Believe me: it actually works!</p>
+  </li>
+</ol>
+<h3>Debugging printfs</h3>
+<p>Let me focus right now on step #4: locating where things go wrong. One of the easiest ways to
+  find out what your program is doing is to insert extra "debugging" <span
+      class="code">printf</span> statements in it to print out the values of various variables.
+  With a little thought you can get a lot of valuable information about how the program is working
+  (or not working) using this technique.</p>
+<p>As a simple example, consider one of the filter programs from the exercises in Lesson #9. Here
+  is the program that only prints the first 40 characters from each line of input. I modified this
+  version so that it fails to print the '\n' character when it sets the <span
+      class="code">char_count</span> variable to zero. As a result of this error the output of the
+  program is on one long line. Try it out and see the effect for yourself.</p>
+<pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  int ch;
+  int char_count = 0;  // The number of characters I have passed.
+
+  // Read the charactes at stdin, one character at a time.
+  while ((ch = getchar()) != EOF) {
+
+    // If I have come to the end of the line, get ready for the next.
+    if (ch == '\n') {
+      char_count = 0;
+    }
+
+    // Otherwise, print this character only if I am supposed to.
+    else {
+      if (char_count &lt; 40) {
+        putchar(ch);
+        char_count++;
+      }
+    }
+  }
+
+  return 0;
+}
+</pre>
+<p>Now imagine that you wrote this program yourself and, for whatever reason, just can't find the
+  error by inspection. Instead you might wonder if the program is ever setting <span class="code">char_count</span>
+  to zero. To check for that you could edit the if statement like this</p>
+<pre class="code">
+if (ch == '\n') {
+  printf("(debug: processing incoming newline)");
+  char_count = 0;
+}
+</pre>
+<p>This way the program will tell you explicitly whenever it sees a newline character in <span
+    class="code">ch</span>. The nature of text printed makes it clear that the message is for
+  debugging purposes only. In the final program the <span class="code">printf</span> would be
+  removed. Try running the program with this extra <span class="code">printf</span> installed.
+  Does the output make more sense? It would be much easier to interpret what is happening with the
+  help of this extra information. If the debugging message never appeared that would tell you
+  something too. In this case it would tell you that the condition in the if statement is never
+  true. That isn't what you would have expected, but knowing that would make it easier to track
+  down the real problem.</p>
+<p>Inserting debugging <span class="code">printf</span>s into your program is sometimes called
+  "instrumenting the program for debugging." If you are trying to track down a difficult bug you
+  will probably want to include quite a few debugging <span class="code"
+  >printf</span>s. That is fine. This technique, although crude, is often highly effective. It is
+  one of the oldest debugging techniques in the book, but it is still used frequently.</p>
+<h2>Summary</h2>
+<ol id="summary-list">
+  <li>
+    <p>The purpose of testing is to find bugs. The purpose of testing is <em>note</em> to prove
+      that the program is correct. In fact, testing attempts to do just the opposite---prove that
+      the program is wrong. If you take this attitude when you do your testing, your testing will
+      be more effective and, in the long run, your programs will have fewer bugs.</p>
+  </li>
+  <li>
+    <p>Black box testing is when the tester has no idea how the program works internally. Instead
+      the tester only knows what the program is supposed to do. White box testing is when the
+      tester does know how the program is organized and uses that information to design test
+      cases. When doing white box tests, McCabe's rule is a good guide to selecting test cases.
+      McCabe's rule states that you should have N+1 test cases where N is the number of conditions
+      in the program. The test cases should be such that every line of code is exercised and every
+      condition is forced in both directions. Following McCabe's rule will not gaurentee a correct
+      program, but it will find more bugs than other, less formal approaches usually do.</p>
+  </li>
+  <li>
+    <p>A tried and true technique for locating the exact place where a bug occurs is to add extra
+      "debugging printf" statements to the program. The output produced by these extra statements
+      can provide you with quite a bit of information about what the program is doing (or not
+      doing).</p>
+  </li>
+</ol>
+<address>&copy; Copyright 2003 by Peter C. Chapin.<br/> Last Revised: <b>July 20, 2003</b>
+</address>
+</body>
+</html>

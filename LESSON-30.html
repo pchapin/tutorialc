@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <title>Lesson #30</title>
+  <meta name="Author" content="Peter Chapin"/>
+  <!-- <meta name="keywords" lang="en-US" content="..."> -->
+  <meta name="ROBOTS" content="NOARCHIVE"/>
+  <link rel="stylesheet" href="c-course.css" type="text/css"/>
+</head>
+<body>
+<h1>Lesson #30</h1>
+<p class="subtitle">typedef, const, and type conversions</p>
+<h2>Overview</h2>
+<p>In this lesson I will cover the following topics</p>
+<ol id="overview-list">
+  <li>
+    <p>Using typedef to introduce new type names.</p>
+  </li>
+  <li>
+    <p>Using const.</p>
+  </li>
+  <li>
+    <p>Type conversion operators (casts).</p>
+  </li>
+</ol>
+<h2>Body</h2>
+<h3>typedef</h3>
+<p>As you have seen, C programs make use of many data types. There are the built in types like
+  <span class="code">int</span>, <span class="code">long</span>, and <span class="code"
+  >double</span>. There are also arrays of those things and pointers to those things. Yet you can
+  also define structure types of all kinds as well. The typedef statement lets you define a new,
+  descriptive name for an existing type. It does not create a new type, only a new type name. Here
+  is an example</p>
+<pre class="code">
+typedef int counter;
+</pre>
+<p>This statement introduces <span class="code">counter</span> as a synonym for the type <span
+    class="code">int</span>. After the compiler has seen this typedef statement you can then
+  declare variables to be of type <span class="code">counter</span>.</p>
+<pre class="code">
+counter  x, y, z;       // Three counter variables.
+counter *p;             // A pointer to a counter.
+counter  counts[128];   // An array of counters.
+
+counter advance(counter in);
+  // A function taking a counter and returning a counter.
+
+struct example {
+  char    name[64];
+  counter quantity;
+};
+  // A structure containing a counter as a member.
+</pre>
+<p>In short you can use <span class="code">counter</span> anywhere the compiler expects to find a
+  type name. Since I used typedef to make <span class="code">counter</span> synonymous with <span
+      class="code">int</span>, the above declarations are identical to</p>
+<pre class="code">
+int  x, y, z;
+int *p;
+int  counts[128];
+
+int advance(int in);
+
+struct example {
+  char name[64];
+  int  quantity;
+};
+</pre>
+<p>However, typedef does not do a simple text substitution. Consider this example</p>
+<pre class="code">
+typedef char *pchar;
+  // "pchar" now means the type "pointer to char".
+
+pchar p1, p2;
+  // Declares two variables of type "pointer to char".
+
+char *p1, p2;
+  // Declares p1 to be a pointer and p2 to be a plain character.
+</pre>
+<p>The compiler understands the typedef name as the name of a type and handles declarations
+  accordingly. It does not just substitute one string for another the way the preprocessor does.
+  Thus using typedef is much preferred over using #define to get a similar effect.</p>
+<pre class="code">
+#define PCHAR char *
+
+PCHAR p1, p2;
+  // Only declares p1 to be a pointer.
+</pre>
+<p>Let's look at a couple of more examples using the <span class="code">pchar</span> typedef name
+  I defined above.</p>
+<pre class="code">
+pchar *p;         // p is a pointer to a pointer to character.
+pchar  array[10]; // array is an array of 10 pointers to char.
+</pre>
+<p>Now check this out</p>
+<pre class="code">
+typedef pchar pArray[10];
+</pre>
+<p>This introduces the name <span class="code">pArray</span> as the name of the type "Array of 10
+  pointers to character". Then I can write</p>
+<pre class="code">
+pArray array;     // array is an array of 10 pointers to char.
+</pre>
+<p>Notice how the size of the array is part of its type and thus remembered by typedef. Notice
+  also how I was able to use one typedef name to define another. And why not? Once a typedef name
+  is defined, the compiler treats it like any other type.</p>
+<p>At this point you might be wondering how you can know the format of a typedef statement. There
+  is a very easy rule for it. First write down the declaration of a variable of the desired type.
+  Then put the word "typedef" in front of that declaration. The name you used for the variable
+  becomes the new type name. Here's an example: suppose I wanted to create a type name <span
+      class="code">buffer</span> that represents an array of 128 characters. First I declare such
+  an array, using <span class="code">buffer</span> as the name of the array.</p>
+<pre class="code">
+char buffer[128];
+</pre>
+<p>Now I just put typedef in front of that.</p>
+<pre class="code">
+typedef char buffer[128];
+</pre>
+<p>Ta da! The name <span class="code">buffer</span> is now a name for the type "array of 128
+  characters". I can now do this</p>
+<pre class="code">
+buffer line1, line2;
+</pre>
+<p>to declare two such arrays.</p>
+<h3>That's neat, but so what?</h3>
+<p>It turns out that in C you never need to use typedef. There is no context where you can't just
+  write out the type, no matter how complex it might be. So why have typedef? Here are some
+  reasons:</p>
+<ol>
+  <li>
+    <p>You can create type names that reflect what you are trying to do and then declare variables
+      with those names as a way of documenting your program and making it easier to read. This
+      allows you to cut down on comments! For example</p>
+    <pre class="code">
+typedef int loop_index;
+
+...
+
+loop_index i, j, k;
+</pre>
+    <p>It's a safe bet that <span class="code">i</span>, <span class="code">j</span>, and <span
+        class="code">k</span> are going to be used as loop indicies.</p>
+  </li>
+  <li>
+    <p>You can modify the program in some cases by just changing the typedef statement. Suppose,
+      for example, that you decide your loops need long integer indicies rather than plain integer
+      indicies. If you defined the typedef above (and used it consistently) then you can just
+      change it to</p>
+    <pre class="code">
+typedef long loop_index;
+</pre>
+    <p>and recompile. In this respect the typedef statement is similar to using preprocessor
+      macros. However, unlike the preprocessor the compiler understands typedef and can handle it
+      more consistently and naturally, as I explained above.</p>
+  </li>
+  <li>
+    <p>Types can become very complicated in C. Although we have not explored the full depth of C's
+      type system in this course, I can give you an example to illustrate. Here is the declaration
+      of the <span class="code">signal</span> function from the standard library:</p>
+    <pre class="code">
+void (*signal(int, void (*)(int)))(int);
+</pre>
+    <p>This declares <span class="code">signal</span> to be of the type "function taking int and
+      (pointer to function taking int and return void) returning (pointer to function taking int
+      and returning void)". If that doesn't make sense to you, don't worry. It baffles many
+      practicing C programmers too. And this is not a made-up example. It is a real function that
+      is part of the standard library.</p>
+    <p>Declarations like this can be made much more readable by using typedef names.</p>
+    <pre class="code">
+typedef void signal_handler(int);
+</pre>
+    <p>The name <span class="code">signal_handler</span> is now a name for the type "function
+      taking int and returning void".</p>
+    <pre class="code">
+signal_handler *signal(int, signal_handler *);
+</pre>
+    <p>This declaration of <span class="code">signal</span> is the same as the really nasty one I
+      showed above. However, it makes a lot more sense. Although you never need to use typedef
+      names in C for this purpose (in C++ there are situations where things are so nasty that you
+      have to use typedef to avoid syntax errors) doing so can greatly improve readability.</p>
+  </li>
+</ol>
+<h3>typedef and structures</h3>
+<p>Actually one of the most popular use of typedef names is with structures. You probably noticed
+  that constantly putting "struct" in front of a structure name is rather tedious.</p>
+<pre class="code">
+struct example f(struct example *p)
+{
+  struct example temp;
+
+  ...
+</pre>
+<p>Here I'm trying to write a function named <span class="code">f</span> that takes a pointer to a
+  <span class="code">struct example</span> as a parameter, returns a <span
+      class="code">struct example</span> and uses a local variable of type <span class="code"
+  >struct example</span>. This can be cleaned up quite a bit with an application of typedef.</p>
+<pre class="code">
+typedef struct example example;
+</pre>
+<p>This looks rather strange because it seems to be using the same name twice. Isn't that a
+  conflict? Actually it isn't because structure "tags" and type names are in different
+  "namespaces" in the compiler. The compiler won't confuse <span class="code">struct
+        example</span> with a variable named <span class="code">example</span> or with a type
+  named <span class="code">example</span>. Now my function becomes</p>
+<pre class="code">
+example f(example *p)
+{
+  example temp;
+
+  ...
+</pre>
+<p>Much nicer.</p>
+<h3>const</h3>
+<p>C allows you to declare things to be constants using the <span class="code">const</span>
+  keyword. This feature was borrowed from C++ when C was standardized in the late 1980s. At that
+  time C++ was quite young, but it had already enhanced C in various ways. When the ANSI C
+  standard was created, the standards group borrowed some ideas from C++ and made them part of
+  standard C. The const feature was one of them.</p>
+<p>Actually const is very necessary in C++ because it interacts with some of C++'s more elaborate
+  features (that were not put into C) in very important ways. In C the const feature is not really
+  necessary, but it is nice to use anyway. Here's how it looks.</p>
+<pre class="code">
+const int MAX = 10;
+</pre>
+<p>This declares <span class="code">MAX</span> to be a constant integer. Because it is a constant,
+  its value can't be changed. Thus whenever you declare a const, you must initialize it. The
+  following is illegal.</p>
+<pre class="code">
+const int MAX;
+
+MAX = 10;       // Error! Can't modify a const.
+</pre>
+<p>Actually the compiler will object to the declaration of the constant without an initializer.
+  Declaring constants without initializing them just doesn't make sense.</p>
+<p>Notice how I'm using all uppercase letters for constants. That is fairly traditional; I suggest
+  that you do the same.</p>
+<h3>Why use const?</h3>
+<p>You can use const to create nice names for raw numbers in much the same way as you can use
+  object-like macros in the preprocessor. In fact, before const existed in C the preprocessor was
+  the only way to create such names. After const was added to C, many C programmers continued to
+  use the preprocessor since that was what they were used to. However, the compiler knows about
+  const and thus the problems with scope are not an issue.</p>
+<pre class="code">
+const int MAX = 10;
+
+...
+
+void f(void)
+{
+  double MAX;
+    // Not a problem. This declaration hides the global const.
+
+  ...
+</pre>
+<p>For this reason, using const is probably better than using object-like macros. (This is
+  especially true in C++ where const is handled a bit differently and more efficiently).</p>
+<p>By the way... in this course I have consistently used the word "variable" to describe data
+  objects that you declare. I do this because many of you may have heard the term "variable"
+  before in earlier courses. In addition, many texts use the word "variable". However, the reality
+  is that "variable" is an inaccurate term. Take a look at this declaration</p>
+<pre class="code">
+const int MAX = 10;
+</pre>
+<p>Would you say that <span class="code">MAX</span> is a "constant variable?" That doesn't make
+  any sense! The fact is that some "variables" don't vary. The name is rather misleading. A more
+  accurate term is "object". In the example above I would say that <span
+      class="code">MAX</span> is a "constant integer object". Some objects are modifiable and some
+  objects aren't. Yet they are all objects just the same.</p>
+<p>Sometimes when you start talking about objects people jump to the conclusion that you are
+  talking about objects in an "object-oriented" language. It is true that the objects manipulated
+  by such a language are objects. But the integers, characters, and doubles manipulated by a C
+  program are objects too. In fact, the C standard uses the term "object" consistently throughout
+  its text&mdash;and for good reason. That term is accurate and clear.</p>
+<p>Some of you may end up taking Object Oriented Programming, the follow-up course to this one,
+  with me. If so, you will see that in that course I will shift my language a bit and drop the
+  word "variable" from my vocabulary. I will talk only about objects because that is more accurate
+  and because that way I don't have to talk about constant variables.</p>
+<h3>const and pointers</h3>
+<p>The const "qualifier" (as it is called) interacts with pointers in a very rich way. I won't say
+  too much about it here. This is a topic that we will cover more in Object Oriented Programming.
+  However, to get a feeling for the issues, take a look at the following declarations.</p>
+<pre class="code">
+const char *p;
+  // p points to a constant character. The pointer is NOT const.
+
+char * const p = "Hello, World!";
+  // p is a constant pointer that points at normal characters.
+
+const char * const p = "Hello, World!";
+  // p is a constant pointer that points at constant characters.
+</pre>
+<p>The most common and interesting situation is the first one: a non-constant pointer to constant
+  things. Now take a look at this</p>
+<pre class="code">
+char *p1;
+const char *p2;
+
+...
+
+p2 = p1;  // Fine
+p1 = p2;  // Error
+</pre>
+<p>I can't put a pointer to const into a plain pointer because if I were allowed to do that I
+  might be able to later modify constant objects by accessing them via the plain pointer.</p>
+<pre class="code">
+*p1 = 'X';  // Fine because p1 points at non-constant characters.
+</pre>
+<p>However, I can put a plain pointer into a pointer to const. By doing so I sacrifice the right
+  to modify the non-constant objects via that new pointer, but that's fine. It won't cause an
+  undefined error.</p>
+<p>These rules are very significant and important, but you'll have to wait until Object Oriented
+  Programming for all the details!</p>
+<h3>Type conversion operators</h3>
+<p>Normally it is highly desirable to avoid mixing types in expressions. For example</p>
+<pre class="code">
+x = 2 * y / (z - 1);
+</pre>
+<p>If <span class="code">x</span>, <span class="code">y</span>, and <span class="code"
+>z</span> are all integers this expression is easy to interpret. If, for example, <span
+    class="code">y</span> was a double then the behavior is less clear. What happens in that case
+  is this</p>
+<ol>
+  <li>
+    <p>The compiler does <span class="code">z - 1</span> using integer subtraction since <span
+        class="code">z</span> is an integer and so is 1.</p>
+  </li>
+  <li>
+    <p>The compiler upgrades 2 to 2.0 (that is: converts it to double) and multiplies 2.0 and
+      <span class="code">y</span> using floating point multiplication in double precision.</p>
+  </li>
+  <li>
+    <p>The compiler upgrades the result of <span class="code">z - 1</span> to double and computes
+      the final result using floating point division in double precision.</p>
+  </li>
+  <li>
+    <p>The compiler converts the resulting double back into an integer and stuffs it into <span
+        class="code">x</span>.</p>
+  </li>
+</ol>
+<p>The actual order might vary from what I described above. For example the compiler might compute
+  <span class="code">2.0 * y</span> before <span class="code">z - 1</span>. But my point is that
+  there are several automatic type conversions going on in the expression. If those conversions
+  occur at unexpected time or yield unexpected results you might get a very unexpected answer. To
+  avoid these problems, you should not mix types in expressions unless absolutely necessary. It
+  can be argued that if you have an expression in your program with mixed types, it means that you
+  declared one of the variables inappropriately or that your program is designed poorly. This is
+  not always true, but it often is.</p>
+<p>There are two types of conversions that the compiler is likely to do automatically. The first
+  is "widening conversions" where the target type can hold all the values of the source type.
+  These conversions are generally safe and hold few opportunities for surprises. For example, the
+  conversion of int to long is a widening conversion.</p>
+<p>The other type is called a "narrowing conversion". It occurs where the target type can't hold
+  all the values of the source type. Thus it might be impossible to put the source value into the
+  target variable. Many compilers produce warning messages when you do a narrowing conversion. If
+  you see such a warning (something like "Possible lose of significance") you should look into it.
+  Perhaps you should redeclare the target object so that its type is wider. Or perhaps in your
+  situation you can argue that at that particular point in the program the value in the source
+  object will fit into the target object despite the different types. In any case, narrowing
+  conversions are worrisome and you should do your best to avoid them. In my example above I am
+  doing a narrowing conversion when I stuff the double result of the expression into the integer
+  <span class="code"
+  >x</span>.</p>
+<p>The compiler uses rather elaborate rules for defining what conversions it will apply
+  automatically and when. I won't bore you with all the details. You really don't need to know
+  them. The rules are designed to offer the fewest surprises with the most natural usage. However,
+  there are times when you have to force the compiler to do conversions it would not normally do.
+  Even when the compiler does a conversion automatically that you approve of, you can make your
+  intentions explicit in your program as a way of documenting your program. (It will also turn off
+  any warning messages the compiler might be producing). To do these things, you need to use a
+  type conversion operator. In C these operators have traditionally been called "casts".</p>
+<p>Here's how it looks:</p>
+<pre class="code">
+int  x;
+long y;
+
+...
+
+x = y;  // Compiler produces warning. Dangerous conversion!
+</pre>
+<p>Some compilers will warn you about the assignment because it is not always true that a long
+  will fit into an int. For example, on machines using the Alpha processor longs are 64 bits and
+  ints are 32 bits. Thus there is a real chance that the value being put into x above is
+  corrupted. Assuming that you really intend to do this, you can turn off the warning like
+  this</p>
+<pre class="code">
+x = (int)y;
+</pre>
+<p>Putting a type name in parentheses creates a cast operator that can convert its operand into
+  the named type. In this case <span class="code">(int)</span> converts <span
+      class="code">y</span> into an integer. The compiler would have done this conversion
+  automatically anyway, but since you are making it explicit you are effectively saying, "I know
+  this is a conversion, but it's okay". You are telling the compiler to not bother warning you.
+</p>
+<p>You can also use type casts to do conversions the compiler would otherwise not allow. For
+  example</p>
+<pre class="code">
+char buffer[128];
+int  address;
+
+address = buffer;
+</pre>
+<p>Here I'm trying to put a pointer into an integer. This is usually bad. But if I really mean to
+  do this I can force the issue</p>
+<pre class="code">
+address = (int)buffer;
+</pre>
+<p>It now becomes up to me to be sure integers on this machine can properly hold addresses. If
+  they can, fine. If they can't my program will malfunction. However, I may very well know that
+  addresses and integers are compatible (as they are on many systems). In that case, this approach
+  allows me to do some very interesting operations. Keep in mind, however, that a program that
+  engages in otherwise illegal conversions may not run properly on machines other than the one on
+  which it was developed.</p>
+<p>Suppose I want to store an integer into my array of characters. Suppose also that on your
+  machine a character is one byte and an integer is four bytes. That's fine. I want my integer to
+  overlay the first four characters in the array. This doesn't work</p>
+<pre class="code">
+buffer[0] = 123456;
+</pre>
+<p>This just hacks the integer down to character size (tossing away significant bits) and stuffs
+  the result into a single array element. I might get a warning about this, but in any case it
+  doesn't have the effect I'm after.</p>
+<pre class="code">
+*(int *)buffer = 123456;
+</pre>
+<p>This is more like it. Here I'm converting <span class="code">buffer</span> (which has type
+  "pointer to character") to the type "pointer to integer". Then I use the indirection operator to
+  access the integer that pointer is pointing at. I store 123456 into that integer. Of course
+  <span class="code">buffer</span> is not really pointing at an integer, but because of my use of
+  a cast I can force the compiler to act as if it was.</p>
+<p>Code like this is very unusual and very system dependent. Often programmers use tricks with
+  casts to cover up a bad design or other problems. However, there are certainly times when casts
+  are necessary---particularly when you are trying to interact with low level hardware devices. C
+  is know as a hacker's language and it's ability to do odd things with casts is one of the
+  reasons.</p>
+<h2>Summary</h2>
+<ol id="summary-list">
+  <li>
+    <p>You can introduce a new, descriptive name for an existing type with typedef. To do this,
+      declare a variable of the desired type and put the word "typedef" in front of the
+      declaration. The name you used for the variable becomes the name of the new type.</p>
+    <p>Introducing new type names helps to document the program, make the program easier to
+      modify, and simplifies complicated declarations.</p>
+  </li>
+  <li>
+    <p>You can put the word "const" in front of a declaration to declare objects that are
+      constants. Such objects must be initialized when they are declared since you can't give them
+      a value afterwards. Typically constants are given names in all uppercase letters.</p>
+  </li>
+  <li>
+    <p>The compiler often converts variables of one type into another type in order to make sense
+      out of the expressions you write. Some of these conversions are safe and some are unsafe.
+      You can control which conversions occur and when using cast operators. A type cast operator
+      is the name of a type enclosed in parentheses. It coverts its operand to the type specified.
+      For example</p>
+    <pre class="code">
+x = (int)y;
+</pre>
+    <p>Causes <span class="code">y</span> to be converted to an integer and the result put into
+      <span class="code">x</span>. Casts can be used to make the automatic conversions explicit or
+      to do conversions that the compiler would not normally allow. Keep in mind, however, that if
+      you use a cast to force a normally illegal conversion your program may do odd things or may
+      only work on certain machines.</p>
+  </li>
+</ol>
+<address>&copy; Copyright 2003 by Peter C. Chapin.<br/> Last Revised: <b>July 14, 2003</b>
+</address>
+</body>
+</html>

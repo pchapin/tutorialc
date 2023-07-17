@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <title>Lesson #26</title>
+  <meta name="Author" content="Peter Chapin"/>
+  <!-- <meta name="keywords" lang="en-US" content="..."> -->
+  <meta name="ROBOTS" content="NOARCHIVE"/>
+  <link rel="stylesheet" href="c-course.css" type="text/css"/>
+</head>
+<body>
+<h1>Lesson #26</h1>
+<p class="subtitle">Structures: Defining, Accessing, Initializing</p>
+<h2>Overview</h2>
+<p>In this lesson I will cover the following topics</p>
+<ol id="overview-list">
+  <li>
+    <p>What a structure is.</p>
+  </li>
+  <li>
+    <p>Accessing structure members.</p>
+  </li>
+  <li>
+    <p>Initializing structures.</p>
+  </li>
+</ol>
+<h2>Body</h2>
+<h3>What is a structure?</h3>
+<p>Except for the slight digression about file I/O the last several lessons have really all been
+  about arrays. It is true that a lot of what we've covered has been about pointers, but in C
+  arrays and pointers are very closely related. We are now ready to talk about the other major way
+  that you can group related data items: structures.</p>
+<p>Let me first review the essential aspects of an array.</p>
+<ol>
+  <li>
+    <p>All the items in an array have the same type.</p>
+  </li>
+  <li>
+    <p>Although the array has a name, each item by itself does not. Instead you access the array's
+      items using an integer index.</p>
+  </li>
+  <li>
+    <p>The items are called "elements."</p>
+  </li>
+</ol>
+<p>A structure is basically the opposite of this.</p>
+<ol>
+  <li>
+    <p>The items in a structure can have different types.</p>
+  </li>
+  <li>
+    <p>Each item in a structure has its own name that you can use to refer to that item.</p>
+  </li>
+  <li>
+    <p>The items are called "members."</p>
+  </li>
+</ol>
+<p>Before you can use any structures in your program you need to tell the compiler what they are
+  going to contain. The "definition" of a structure tells the compiler what that structure's
+  members are going to be and assigns a name to the structure overall. Once the compiler has seen
+  the definition of a particular type of structure you can then start creating variables of that
+  structure type. Here is an example</p>
+<pre class="code">
+/* This structure type holds together all the interesting bits of
+   information about a customer account. */
+struct account_information {
+  char last_name[32];        // The customer's last name as a string.
+  char first_name[32];       // The customer's first name as a string.
+  int  account_number;       // A unique account number.
+  int  account_balance;      // The account balance in cents.
+  int  preferred_customer;   // =1 if this is a preferred customer.
+};
+
+void f(void)
+{
+  // Declare a variable of type "struct account_information".
+  struct account_information my_account;
+
+  // Give that variable a value.
+  strcpy(my_account.last_name, "Chapin");
+  strcpy(my_account.first_name, "Peter");
+  my_account.account_number     = 12345678;
+  my_account.account_balance    = 0;
+  my_account.preferred_customer = 1;
+
+  ...
+</pre>
+<p>The definition of structure <span class="code">account_information</span> is first. When the
+  compiler sees that definition it merely takes note of the details. No memory is allocated
+  because there are no <span class="code">account_information</span> variables created (yet). My
+  example structure is intended to contain all the information pertaining to a customer account.
+  Each member is like a field of a database.</p>
+<p>Notice that the members of <span class="code">account_information</span> each have their own
+  name. Notice also how they can be of different types. In fact, members can even be arrays. You
+  can put any type of variable into a structure: even other structures. This makes it possible to
+  define rather complicated variables that can hold large quantities of data in a well organized
+  manner. The whole point of structures is to make it easy for you to keep related data in one
+  place. Your program will be much easier to understand if all pieces of information that go
+  together are, in fact, "under the same roof".</p>
+<p>In function <span class="code">f</span> I create a variable of type <span class="code"
+>struct account_information</span>. Each time you define a structure you are effectively
+  introducing a new type into the language. Just as you can declare variables of type <span
+      class="code">int</span> or <span class="code">double</span>, you can also declare variables
+  to be of any structure type that has been defined. The variable <span
+      class="code">my_account</span> actually contains its own copy of the structure members. If I
+  had declared other variables of type <span class="code">struct
+        account_information</span> they would have had independent copies of the members. In other
+  words, the <span class="code">first_name</span> member of <span class="code"
+  >my_account</span> could hold a different value than the <span class="code"
+  >first_name</span> member of some other <span class="code">struct
+        account_information</span>.</p>
+<p>After I declare <span class="code">my_account</span> I then wrote some statements that put
+  values into <span class="code">my_account</span>'s members. Notice how I use a dot ('.') to
+  separate the name of the structure variable from the name of the member. The combined name
+  refers to that particular member of that particular structure variable. For example <span
+      class="code">my_account.account_balance</span> represents the value of the <span
+      class="code">account_balance</span> member of the <span class="code"
+  >my_account</span> variable. It is an integer. The '.' operator is often called the "member
+  selection operator". Notice that when you use the '.' operator you must provide it with the name
+  of a structure variable on the left. Do not provide it with the name of a structure type! The
+  following is illegal:</p>
+<pre class="code">
+account_information.account_balance = 1;
+</pre>
+<p>It doesn't make sense. Just where is that value of 1 being put? There is no variable named
+  <span class="code">account_information</span>. That is the name of a structure type. The
+  statement above would be similar to something like <span class="code">int = 1</span> and
+  hopefully you can see right away the problem with that.</p>
+<p>In my example above, <span class="code">last_name</span> and <span class="code"
+>first_name</span> are names of arrays. Thus the expression <span class="code"
+>my_account.last_name</span> is the name of an array without an index. The compiler regards this,
+  as usual, as a pointer to the first element of the array. The fact that this array happens to be
+  a member of the <span class="code">my_account</span> variable does not change that. Thus the
+  statement</p>
+<pre class="code">
+strcpy(my_account.last_name, "Chapin");
+</pre>
+<p>is perfectly reasonable. It copies the literal string "Chapin" into the <span
+    class="code">last_name</span> array that is a member of the <span class="code"
+>my_account</span> variable.</p>
+<h3>Structure memory layout</h3>
+<p>It might be helpful in your understanding of structures to know something about how the
+  compiler organizes them in memory. Below is a diagram showing how the <span class="code"
+  >my_account</span> variable might be layed out. Keep in mind that the precise sizes of the
+  members depends on the system you are using, but the sizes I indicate below are typical.</p>
+<pre class="figure">
+Offset
+        +-----+--
+ 0      |     | Start of the last_name array of characters
+        +-----+
+        |     |
+
+          ...
+
+        |     |
+        +-----+--
+32      |     | Start of the first_name array of characters.
+        +-----+
+        |     |
+
+          ...
+
+        |     |
+        +-----+--
+64      |     | Start of the account_number integer.
+        +-----+
+        |     |
+        +-----+
+        |     |
+        +-----+
+        |     |
+        +-----+--
+68      |     | Start of the account_balance integer.
+        +-----+
+        |     |
+        +-----+
+        |     |
+        +-----+
+        |     |
+        +-----+--
+72      |     | Start of the preferred_customer integer.
+        +-----+
+        |     |
+        +-----+
+        |     |
+        +-----+
+        |     |
+        +-----+
+</pre>
+<p>The <span class="code">my_account</span> variable requires 76 bytes of memory. The first 32
+  bytes are set aside for the <span class="code">last_name</span> array. The next 32 bytes are set
+  aside for the <span class="code">first_name</span> array. The next twelve bytes are set aside
+  for the three integers <span class="code">account_number</span>, <span
+      class="code">account_balance</span>, and <span class="code">perferred_customer</span>. To
+  make things clearer I put the offset into the structure down the side of the picture. Although I
+  don't know the actual memory address that will be used for <span class="code"
+  >my_account</span>, I can say that the <span class="code">first_name</span> array, for example,
+  will be at an address 32 bytes past the address of the beginning of the structure.</p>
+<p>Actually, it is not always clear how the compiler will lay out your structures. The ANSI C
+  standard does require certain things. The first member will definitely be at offset zero. The
+  members will be layed out in the same order in which you declare them. However, the compiler is
+  allowed to put "holes" in your structure if it wants. It might do this to cause certain members
+  to line up at certain offsets. Some processors can access data faster if it is aligned in this
+  manner.</p>
+<p>For most applications you don't really need to worry about structure layout. I'm presenting it
+  here mostly just to give you a better idea of what a structure is. Remember: every variable of a
+  structure type has its own copy of the members. If I declared another variable of type <span
+      class="code">struct account_information</span>, that other variable would also take 76 bytes
+  and have its own memory areas for <span class="code"
+  >last_name</span>, <span class="code">first_name</span>, and so forth.</p>
+<h3>Structures are "first class" variables</h3>
+<p>Arrays don't really exist in the C language. You can't compare two arrays with the <span
+    class="code">==</span> operator and you can't assign one array to another with the assignment
+  operator. However, structures do exist.</p>
+<pre class="code">
+struct account_information first, second;
+  // Declare two account_information structures.
+
+...
+
+first = second;
+  // Copy all the members of second into first.
+</pre>
+<p>You can assign one structure to another and it does what you would expect. It copies all the
+  members of the source structure into the corresponding members of the destination structure.
+  Notice that in this case <span class="code">struct account_information</span> contains arrays as
+  two of its members. This does not cause a problem. The arrays are copied along with all the
+  other members as desired. Thus even though you can't do <span
+      class="code">first.last_name = second.last_name</span> to copy the <span class="code"
+  >last_name</span> member only (you would have to use <span class="code">strcpy</span>), you can
+  use the assignment operator to copy the entire structure just fine.</p>
+<p>You might also think that you can use the <span class="code">==</span> operator to compare two
+  structures.</p>
+<pre class="code">
+if (first == second) {
+  // The two account informations are the same.
+}
+</pre>
+<p>However, that doesn't work. You might guess that such an operation would be true only if all
+  the members are the same. However, the compiler doesn't assume that meaning. Instead attempts to
+  compare structures with the usual comparison operators are errors. If you want to do something
+  like this, you would have to write a function.</p>
+<p>I will say more about how structures work with functions in the next lesson.</p>
+<h3>More accessing information</h3>
+<p>Since structures can contain arrays you might be wondering how you would refer to a single
+  element of a member array. Here is an example.</p>
+<pre class="code">
+struct account_information my_account;
+
+...
+
+if (my_account.first_name[0] == 'P') { ... }
+</pre>
+<p>The expression <span class="code">my_account.first_name[0]</span> refers to the zeroth
+  character of the <span class="code">first_name</span> array inside the <span class="code"
+  >my_account</span> variable. To understand why this is the correct interpretation, consult an
+  operator precedence chart. Notice that structure member reference and array element reference
+  have the same precedence. Notice also that they associate from left to right. Thus without any
+  additional parentheses the expression becomes</p>
+<pre class="code">
+(my_account.first_name)[0]
+</pre>
+<p>The <span class="code">first_name member</span> of <span class="code">my_account</span> is
+  accessed and then the array reference is made. This is just what you would want. My point here
+  is that structure access can be analyzed using the same rules as any other operation. Let's take
+  a look at another example.</p>
+<pre class="code">
+struct time {
+  int seconds;
+  int minutes;
+  int hours;
+};
+
+struct example {
+  char *p;
+  struct time now;
+};
+
+struct example var;
+</pre>
+<p>This example first defines a <span class="code">struct time</span> that holds the data required
+  to represent time as three integer members. It next defines a silly structure <span
+      class="code">example</span> that contains a pointer, and a variable of type <span
+      class="code">struct time</span>. Finally it creates a variable of type <span
+      class="code">struct example</span> named <span class="code">var</span>. Now consider the
+  following statements.</p>
+<pre class="code">
+*var.p = 'x';
+</pre>
+<p>This is legal. The structure selection operator has higher precedence than the indirection
+  operator. As a result the above is really</p>
+<pre class="code">
+*(var.p) = 'x';
+</pre>
+<p>Since the <span class="code">p</span> member of <span class="code">var</span> is a pointer, it
+  makes sense to apply the indirection operator to that pointer. This statement stores the
+  character 'x' into the memory location pointed at by the <span class="code"
+  >p</span> member of <span class="code">var</span>. I certainly hope that pointer has been given
+  a meaningful value first!</p>
+<p>This is also legal.</p>
+<pre class="code">
+if (var.now.seconds == 0) { ... }
+</pre>
+<p>The structure selection operator associates from left to right so the above is really</p>
+<pre class="code">
+if ((var.now).seconds == 0) { ... }
+</pre>
+<p>But <span class="code">var.now</span> is a variable of type <span class="code">struct
+        time</span>. Thus it makes sense to access the <span class="code">seconds</span> member of
+  that variable. Since the <span class="code">seconds</span> member is an integer, it makes sense
+  to compare it to zero.</p>
+<h3>Initializing structures.</h3>
+<p>Just as you can initialize a integer variable or an array when you declare it, you can also
+  initialize a structure. The syntax is very similar to the array initialization syntax. Here is
+  an example using <span class="code">struct account_information</span> again.</p>
+<pre class="code">
+struct account_information my_account = {
+  "Chapin", "Peter", 12345678, 0, 1
+};
+</pre>
+<p>As with arrays, the initializers for the members go between braces. The difference is that with
+  a structure each initializer is potentially of a different type. Notice that the initializers
+  must come in the same order as that in which the members were declared. This example initializes
+  <span class="code">my_account</span> to the same values that were put into <span class="code">my_account</span>
+  in my very first example. Notice also that I'm using the special method of initializing
+  character arrays here. I'm using a string literal to intialize the <span
+      class="code">last_name</span> and <span class="code"
+  >first_name</span> members. This prevents me from having to write</p>
+<pre class="code">
+struct account_information my_account = {
+  { 'C', 'h', 'a', 'p', 'i', 'n', '\0' },
+  { 'P', 'e', 't', 'e', 'r', '\0' },
+  12345678, 0, 1
+};
+</pre>
+<p>However, the above is also legal. You can initilize a member array by using a brace enclosed
+  list nested inside the braces used to initialize the structure itself. You can use the same
+  method to initialize a member that is also a structure.</p>
+<h2>Summary</h2>
+<ol id="summary-list">
+  <li>
+    <p>A structure variable contains many other variables, called members, inside of it. The
+      members each have their own name and type. To use structures, you first have to provide the
+      compiler with a structure definition. Then you can declare variables to be of that structure
+      type. Each structure variable you declare has its own independent copy of the members.</p>
+  </li>
+  <li>
+    <p>You access the members of a structure using the '.' operator. To the left of the dot you
+      put the name of the structure variable. To the right of the dot you put the name of the
+      member inside the structure variable that you wish to access. If the member is an array or
+      another structure you can apply the <span class="code">[]</span> operator or the '.'
+      operator to that member as well.</p>
+  </li>
+  <li>
+    <p>Structures can be initialized using a brace enclosed list of initializers very much like
+      the way arrays are initialized.</p>
+  </li>
+</ol>
+<address>&copy; Copyright 2003 by Peter C. Chapin.<br/> Last Revised: <b>July 8, 2003</b>
+</address>
+</body>
+</html>

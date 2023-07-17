@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <title>Lesson #8</title>
+  <meta name="Author" content="Peter Chapin"/>
+  <!-- <meta name="keywords" lang="en-US" content="..."> -->
+  <meta name="ROBOTS" content="NOARCHIVE"/>
+  <link rel="stylesheet" href="c-course.css" type="text/css"/>
+</head>
+<body>
+<h1>Lesson #8</h1>
+<p class="subtitle">Compound Conditions and for Loops</p>
+<h2>Overview</h2>
+<p>In this lesson I will cover the following topics</p>
+<ol id="overview-list">
+  <li>
+    <p>Compound conditions using the &amp;&amp;, ||, and ! operators.</p>
+  </li>
+  <li>
+    <p>The for loop.</p>
+  </li>
+  <li>
+    <p>Off by one errors when looping.</p>
+  </li>
+</ol>
+<h2>Body</h2>
+<h3>Compound conditions</h3>
+<p>In the last lesson I showed you how you could test a condition and use the result of that test
+  to execute different parts of your program. Often you will want to create fairly complicated
+  conditions. Sometimes you can use nested if statements to get the effect that you want. For
+  example, supposed you wanted to print "Hello, World!" only if the value of x was 10 and the
+  value of y was 20. You could do something like this</p>
+<pre class="code">
+if (x == 10) {
+  if (y == 20) {
+    printf("Hello, World!\n");
+  }
+}
+</pre>
+<p>Here the body of the outer if statement executes only if <span class="code">x ==
+        10</span> is true. What is in that body is another if statement. If <span class="code">y
+        == 20</span> is also true then there is output. If either condition is false, the
+  innermost <span class="code">printf</span> gets skipped.</p>
+<p>While this works, it is awkward and potentially hard to read. A much nicer option is to use the
+  <span class="code">&amp;&amp;</span> operator. When you see <span class="code"
+  >&amp;&amp;</span>, say "and".</p>
+<pre class="code">
+if (x == 10 &amp;&amp; y == 20) {
+  printf("Hello, World!\n");
+}
+</pre>
+<p>This says "if x equals 10 AND y equals 20 then print." Check the precedence chart. The
+  condition above will only work if the precedence of <span class="code">==</span> is higher than
+  that of <span class="code">&amp;&amp;</span>.</p>
+<p>To go along with "and" there is also an "or" operator. Here is how that looks.</p>
+<pre class="code">
+if (x == 10 || y == 20) {
+  printf("Hello, World!\n");
+}
+</pre>
+<p>Here the output is printed if either <span class="code">x == 10</span> is true OR <span
+    class="code">y == 20</span> is true. If both are true the overall condition is still true. The
+  <span class="code">||</span> operator is called "inclusive" OR because of this. ("Exclusive" OR
+  would be false if both conditions were true as in: "You can have cookies or you can have ice
+  cream." The <span class="code">||</span> operator in C does not work that way). Note that the
+  <span class="code">||</span> operator is typed with two vertical bars with no spaces between
+  them. The vertical bar character is on the same key as the backslash character.</p>
+<p>In addition to <span class="code">&amp;&amp;</span> and <span class="code">||</span>, C also
+  has a NOT operator. For example</p>
+<pre class="code">
+if (!(x == 10)) {
+  printf("Hello, World!\n");
+}
+</pre>
+<p>This causes "Hello, World" to be printed if it is not the case that <span class="code"
+>x</span> equals 10. Of course I could have written that as just</p>
+<pre class="code">
+if (x != 10) {
+  printf("Hello, World!\n");
+}
+</pre>
+<p>and that would have been more straightforward. However, the <span class="code">!</span>
+  operator is sometimes useful in complicated conditions.</p>
+<p>Let me show you a more realistic example of how these operators might be used. Consider the
+  problem of testing for leap years.</p>
+<pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  int year;
+
+  // Get the year from the user.
+  printf("What year is it? ");
+  scanf("%d", &amp;year);
+
+  // Is it a leap year? If so, print a message.
+  if (year % 4 == 0) {
+    printf("It's a leap year!\n");
+  }
+
+  return 0;
+}
+</pre>
+<p>In this simple program I'm checking to see if the year is evenly divisible by four (no
+  remainder after division). Such years are leap years. But wait! That rule isn't quite right. It
+  turns out that years that are evenly divisible by 100 aren't leap years despite the first rule.
+  Maybe I need to say</p>
+<pre class="code">
+if (year % 4 == 0 &amp;&amp; !(year % 100 == 0)) {
+  printf("It's a leap year!\n");
+}
+</pre>
+<p>This says, "if the year is evenly divisible by four AND it is NOT the case that the year is
+  evenly divisible by 100 then print." I think using the <span class="code">!</span> operator here
+  actually makes it easier to read the condition than switching the <span
+      class="code">==</span> to <span class="code">!=</span> would.</p>
+<p>Actually this rule isn't quite right either. Years that are evenly divisible by 400 are leap
+  years anyway, despite rule #2. In other words, a year is a leap year "if the year is evenly
+  divisible by 4 AND NOT evenly divisible by 100 OR if the year is evenly divisible by 400."</p>
+<pre class="code">
+if (year % 4 == 0 &amp;&amp; !(year % 100 == 0) || year % 400 == 0) {
+  printf("It's a leap year!\n");
+}
+</pre>
+<p>I didn't put in any extra parentheses here to control which is done first, the <span
+    class="code">&amp;&amp;</span> or the <span class="code">||</span> operator. If you consult
+  the precedence chart you will see that <span class="code">&amp;&amp;</span> is done first.
+  However, this is an obscure fact that many programmers don't know. In a case like this I would
+  just add some more parentheses to make the condition easier to understand.</p>
+<pre class="code">
+if ((year % 4 == 0 &amp;&amp; !(year % 100 == 0)) || year % 400 == 0) {
+  printf("It's a leap year!\n");
+}
+</pre>
+<p>It might be surprising to know that quite a few programs do not compute leap years
+  properly.</p>
+<p>Getting compound conditional statements right is tricky. Typically people depend on how it
+  sounds when read in English. That works pretty well, but English is often ambiguous and that can
+  cause problems. For example, the word "or" is used in both an inclusive and exclusive way.
+  However, the <span class="code">||</span> operator is only inclusive. I often make mistakes
+  getting compound conditions right. As a result I am always extra careful when I write them to
+  make sure they are correct. After a while you will get to know your own strengths and weaknesses
+  and take them into account as you program.</p>
+<p>I find it useful to know the following rules:</p>
+<pre>
+!(a &amp;&amp; b)   is the same as   !a || !b
+!(a || b)   is the same as   !a &amp;&amp; !b
+</pre>
+<p>These are called "DeMorgan's Theorems" and they are very handy. If you think about them, they
+  make perfect sense.</p>
+<pre class="code">
+if (!(a == b &amp;&amp; c == d)) { ...
+
+if (a != b || c != d) { ...
+</pre>
+<p>The two conditions above are identical. The first says that it is not the case that both of the
+  smaller conditions are true. In that case, one of the smaller conditions must be false. In other
+  words either the first one is false or the second one is false (or maybe both are false). Now
+  maybe you find my explaination confusing. Frankly, I do too. That's why I often make mistakes
+  writing compound conditionals and why I find it handy to have an algebraic formula that I can
+  use on them. On the other hand, if algegra is not your speed that's fine too. You can live
+  without it in this case.</p>
+<h3>The for loop</h3>
+<p>Computers are dumb. But because they are dumb they don't mind doing the same thing over and
+  over again. They never get bored and they never loose their concentration. This is good. That
+  way we can get computers to do those repetative tasks that we would rather not do. Many programs
+  exist exactly for this reason.</p>
+<p>Consequently every programming language has a way of executing the same instructions over and
+  over again. Such activity is called "looping". In C there are actually three different looping
+  statements. We will look at the first and most important here. We will look at the other two in
+  the next lesson.</p>
+<p>Here is a program that prints out the numbers from 1 to 10.</p>
+<pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  int i;
+
+  // Print out the numbers from 1 to 10.
+  for (i = 1; i &lt;= 10; i++) {
+    printf("%d\n", i);
+  }
+
+  return 0;
+}
+</pre>
+<p>The for loop probably looks a bit intimidating. Let's take a closer look.</p>
+<pre>
+   for (i = 1;                  i &lt;= 10;                i++) {
+        ^ Initialization        ^ Loop condition        ^ End expression
+</pre>
+<p>The stuff inside the parentheses of the for statement defines the loop. Here is how it
+  works.</p>
+<ol>
+  <li>
+    <p>The initialization expression is done first and only once.</p>
+  </li>
+  <li>
+    <p>The loop condition is checked. If true, the body of the loop executes (one time). If false,
+      the loop ends and the program continues after the closing brace of the loop.</p>
+  </li>
+  <li>
+    <p>The end expression is computed.</p>
+  </li>
+  <li>
+    <p>Go back to step 2.</p>
+  </li>
+</ol>
+<p>In this example this is what happens.</p>
+<pre>
+a) The value of 1 is assigned to i.
+b) Is i &lt;= 10? Yes. The loop body executes and the value of i is printed.
+c) The value of i is incremented. Now it is 2.
+d) Is i &lt;= 10? Yes. The loop body executes and the value of i is printed.
+e) The value of i is incremented. Now it is 3.
+f) Is i &lt;= 10? Yes. The loop body executes and the value of i is printed.
+g) The value of i is incremented. Now it is 4.
+h) Is i &lt;= 10? Yes. The loop body executes and the value of i is printed.
+</pre>
+<p>and so forth. Eventually <span class="code">i</span> is incremented to 11. When that happens
+  the loop condition will fail and the loop ends. The 11 is never printed because the loop will
+  end before it gets a chance to do that.</p>
+<p>Printing out numbers from 1 to 10 isn't too exciting. Let's print out all the numbers from 1 to
+  1000000.</p>
+<pre class="code">
+for (i = 1; i &lt;= 1000000; i++) {
+  printf("%d\n", i);
+}
+</pre>
+<p>See how easy that was! If you try running this program you probably won't want to wait for it
+  to print everything. You can abort the output by typing ^C (you might have to type it several
+  times).</p>
+<p>The for loop is very flexible. The initialization expression, loop condition, and end
+  expression are all totally general. Suppose you wanted to count down instead of up</p>
+<pre class="code">
+for (i = 10; i &gt;= 1; i--) {
+  printf("%d\n", i);
+}
+</pre>
+<p>This gives i an initial value of 10, loops as long as <span class="code">i &gt;=
+      1</span>, decrementing <span class="code">i</span> as it goes. What if you wanted to count
+  up by two at a time?</p>
+<pre class="code">
+for (i = 1; i &lt;= 10; i += 2) {
+  printf("%d\n", i);
+}
+</pre>
+<p>Here I'm doing <span class="code">i += 2</span> at the end of each loop pass. That has the
+  effect of advancing <span class="code">i</span> by two instead of just one. This loop prints out
+  the values 1, 3, 5, 7, 9. After the 9 is printed, <span class="code">i</span> is made into 11.
+  Since 11 &lt;= 10 is false the loop ends without printing the eleven.</p>
+<p>It is even possible for the various expressions in a for loop to be unrelated!</p>
+<pre class="code">
+for (i = 34; a == b; j = 3 * k) {
+  printf("Huh?");
+}
+</pre>
+<p>This loop really doesn't make much sense. It first sets <span class="code">i</span> to 34. Then
+  it asks, "is <span class="code">a</span> equal to <span class="code">b</span>?" If so, it runs
+  the body of the loop (the one <span class="code">printf</span> statement). Afterwards it then
+  computes a new value for <span class="code">j</span> by multiplying <span class="code">k</span>
+  by 3. Then it asks again "is <span class="code">a</span> equal to <span class="code">b</span>?"
+  Since nothing that has happened so far has changed <span class="code">a</span> or <span
+      class="code">b</span>, the answer is probably still yes. Thus this loop either won't run at
+  all or runs forever. Such an example is pretty strange. I'm just showing it to you so that you
+  realize that you can put anything you want in there!</p>
+<p>I find that understanding for loops is much easier if I use the phrase "as long as" when I read
+  the loop condition and "as we go" when I read the end expression. Let's look at my first example
+  again</p>
+<pre class="code">
+for (i = 1; i &lt;= 10; i++) {
+  // etc...
+}
+</pre>
+<p>I would read this as "for <span class="code">i</span> set equal to one, as long as <span
+    class="code">i</span> is less than or equal to 10, incrementing <span class="code"
+>i</span> as we go..." Sometimes students try to write that loop this way</p>
+<pre class="code">
+for (i = 1; i == 10; i++) {
+  // etc...
+}
+</pre>
+<p>Students familiar with BASIC, for example, tend to do this. That's because in BASIC for loops
+  work a bit differently and people get used to that. However, in C this loop never executes. It
+  first sets <span class="code">i</span> to 1. Then it asks, "is <span
+      class="code">i</span> equal to 10?" Of course not! You just set it to 1! Since the loop
+  condition is false right away, the loop ends at once.</p>
+<p>IMPORTANT: Depending on how you set it up a for loop might not execute at all or it might
+  execute forever.</p>
+<p>Loops that execute forever ("infinite" loops) are actually sometimes useful. Keep in mind that
+  "forever" does not really mean until after the stars go dark. It just means for as long as the
+  program is allowed to run. A typical server program executes forever and probably is built
+  around a giant infinite loop. However, infinite loops are usually bugs. When they happen your
+  program will get "stuck" either doing apparently nothing or doing something undesirable without
+  stopping.</p>
+<h3>Off by one!</h3>
+<p>As I've mentioned in earlier lessons, being off by one is a very common error. It shows up most
+  often in loops. Suppose I wanted to loop exactly 10 times. Take a look at the following
+  choices.</p>
+<ol>
+  <li>
+    <p>
+      <span class="code">for (i = 1; i &lt; 10; i++) { ...</span>
+    </p>
+  </li>
+  <li>
+    <p>
+      <span class="code">for (i = 0; i &lt; 10; i++) { ...</span>
+    </p>
+  </li>
+  <li>
+    <p>
+      <span class="code">for (i = 1; i &lt;= 10; i++) { ...</span>
+    </p>
+  </li>
+  <li>
+    <p>
+      <span class="code">for (i = 0; i &lt;= 10; i++) { ...</span>
+    </p>
+  </li>
+</ol>
+<p>Of these four loops only two of them actually execute 10 times. Can you tell which? Let's look
+  at them more closely.</p>
+<ol>
+  <li>
+    <p>This loop only runs 9 times. When <span class="code">i</span> is made into 10, the loop
+      condition will fail (10 &lt; 10 is false) and so the loop will end without the body
+      executing that last time. In particular, the body of the loop executes with <span
+          class="code">i</span> ranging from 1 to 9.</p>
+  </li>
+  <li>
+    <p>This works. Here <span class="code">i</span> starts at 0. As with part (1) it only goes to
+      9, but the range 0 to 9 contains 10 values.</p>
+  </li>
+  <li>
+    <p>This also works. Here the loop condition specifies that the loop should run when <span
+        class="code">i</span> is still 10. The value of <span class="code">i</span> has to be 11
+      to end the loop. Thus the loop body executes while <span class="code"
+      >i</span> is in the range 1 to 10.</p>
+  </li>
+  <li>
+    <p>This loop runs 11 times. In particular it runs while <span class="code">i</span> is in the
+      range from 0 to 10.</p>
+  </li>
+</ol>
+<p>Getting this sort of thing wrong is a very common error. If your loops don't execute often
+  enough you will typically leave the last bit of data unprocessed. This annoys users who,
+  naturally, expect that all of their data will be processed. If your loops run too often you will
+  typically try to process data that isn't there. This causes all manner of bad effects. Don't do
+  it!</p>
+<p>In general, if you just want to run a loop a certain number of times, I recommend that you
+  start it at zero and use version (2) above. Normal people start counting at one, but it turns
+  out to be more natural in the computer world to start at zero. Get in the habit of doing it.</p>
+<h3>Some terminology</h3>
+<p>By the way, the variable, <span class="code">i</span>, that I've been using in my examples is
+  typically called a "loop index variable". It is an ordinary variable that you need to declare
+  like any other. However, if you hear people talking about the "loop index" I want you to know
+  what that term means.</p>
+<p>The variable names that I've been using in my examples are usually pretty bad. That's because
+  my examples are taken in isolation. In a real program you should not use variables named <span
+      class="code">a</span> or <span class="code">b</span>. Instead you should choose names that
+  reflect the meaning of the variable with respect to your problem. However, loop index variables
+  are a special case. There is a long standing tradition that dates all the way back to the 1950s
+  for giving such variables names like <span
+      class="code">i</span>, <span class="code">j</span>, and <span class="code">k</span>. You may
+  follow that tradition without sacrificing any clarity in your program. However, if you want you
+  could write your loops like this</p>
+<pre class="code">
+for (loop_index = 0; loop_index &lt; 10; loop_index++) {
+  printf("%d\n", loop_index);
+}
+</pre>
+<p>It's a little more wordy but it is quite clear at least.</p>
+<h2>Summary</h2>
+<ol id="summary-list">
+  <li>
+    <p>You can use the <span class="code">&amp;&amp;</span> operator for AND, the <span
+        class="code">||</span> operator for OR, and the <span class="code">!</span> operator for
+      NOT in order to create complicated conditions. For example, the body of the following if
+      statement executes if both of the smaller conditions are true.</p>
+    <pre class="code">
+if (x == y &amp;&amp; x &gt; z) { ...
+</pre>
+  </li>
+  <li>
+    <p>You can use a for loop to cause your program to execute the same code over and over again.
+      To set up a for loop you must fill in three things: how to initialize the loop, what
+      condition must be true to run the loop, and what calculation should be done at the end of
+      each loop pass. For example, the following loop executes 10 times.</p>
+    <pre class="code">
+for (i = 0; i &lt; 10; i++) { ...
+</pre>
+  </li>
+  <li>
+    <p>It is easy to write loops that execute once too often or once not often enough. To avoid
+      this, pay close attention to the condition you use to control the loop. For example, the
+      loop above runs when <span class="code">i == 9</span>, but not when <span
+          class="code">i == 10</span>. If the condition were changed to <span class="code">i
+            &lt;= 10</span> the loop would run when <span class="code">i == 10</span> and not stop
+      until <span class="code">i</span> was made into 11.</p>
+  </li>
+</ol>
+<address>&copy; Copyright 2003 by Peter C. Chapin.<br/> Last Revised: <b>July 21, 2003</b>
+</address>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <title>Example #8</title>
+  <meta name="Author" content="Peter Chapin"/>
+  <!-- <meta name="keywords" lang="en-US" content="..."> -->
+  <meta name="ROBOTS" content="NOARCHIVE"/>
+  <link rel="stylesheet" href="c-course.css" type="text/css"/>
+</head>
+<body>
+<h1>Example #8</h1>
+<p class="subtitle">Splitting Files</p>
+<p>This example will illustrate how to use some of the standard library's file and string handling
+  functions. I will write a program that splits a file into small pieces. Such a program is at
+  times very useful. Suppose, for example, that you wanted to copy a large file to floppy disk(s).
+  If the file is larger than will fit on a single disk, you might want to split the file into
+  pieces so that you can copy each piece to a separate floppy. Obviously when you copy the
+  individual pieces back to a hard disk later you will need a way to join them into a single file
+  again but the cat command on Unix or the copy command on Windows can do this. Another
+  application might be sending a large file through the mail. Some mail systems don't allow very
+  large attachments. If you are faced with such a system, you might split your large file into
+  smaller pieces and send each piece in a separate message.</p>
+<p>I will call this program "filesplit". It will first ask the user for the name of the file to
+  split. Then it will ask the user for the base name of the output files. The program will append
+  ".001", ".002", ".003", etc to the end of output file base name to get the name of each piece.
+  Finally, the program will ask the user for the size, in bytes, of each piece.</p>
+<p>I can embody these ideas in some rough p-code.</p>
+<pre class="pcode">
+&lt;Get input file's name&gt;
+&lt;Get output base name&gt;
+&lt;Get size of each piece&gt;
+&lt;Process the input, writing several output pieces as necessary&gt;
+</pre>
+<p>Obviously the last step needs a lot more refinement.</p>
+<p>The trick here is to realize that the output file needs to be open and closed inside some sort
+  of loop that reads the entire input file. That's because as we read the input file (the size of
+  which we don't know ahead of time), we will have to count the bytes that we find and do opens
+  and closes on the output file "on demand". Perhaps this refinement of that processing step will
+  do</p>
+<pre class="pcode">
+&lt;Set byte counter to zero&gt;
+&lt;Set piece counter to one&gt;
+&lt;Set open flag to NO&gt;
+WHILE &lt;The next character from the input file is not EOF&gt; LOOP
+  IF &lt;open flag is NO&gt; THEN
+    &lt;Compute name of next piece&gt;
+    &lt;Advance piece counter&gt;
+    &lt;Open output file&gt;
+    &lt;Set open flag to YES&gt;
+  END
+  &lt;Write byte to output file&gt;
+  &lt;Advance byte counter&gt;
+  IF &lt;Byte counter equals maximum&gt; THEN
+    &lt;Close output file&gt;
+    &lt;Set byte counter to zero&gt;
+    &lt;Set open flag to NO&gt;
+  END
+END
+</pre>
+<p>Step through this logic in your mind to convince yourself that it is basically correct. Most of
+  the time neither of the two IF statements trigger. In most cases, each byte that is read is
+  directly written into the output file. Only when the last byte of a piece is written is that
+  output file closed. In that case the open flag is set to NO so that, should there be additional
+  data in the input file, the next output file is opened on the next loop pass. There are ways to
+  do this that don't use an open flag variable, but I can't think of any that don't require me to
+  put the output file opening operation in two places. In general it is better to avoid
+  duplicating functionality because it makes updating the program more difficult (of course, one
+  could put the output file opening operating in a function and call it from two places).</p>
+<p>My p-code above seems fine, but it needs more refinement. What happens if there are errors
+  opening the output file? Also what happens if there is an error writing to the output file? The
+  second case can happen if the disk runs out of space---something that is a concern for a program
+  like this because presummably the user will be running this program on large files. Also, we
+  need to deal with the fact that the last output file might be open when the main loop ends (or
+  it might not if the input file happened to be an integral number of pieces long).</p>
+<p>Here is a more refined version of the program.</p>
+<pre class="pcode">
+&lt;Get input file's name&gt;
+&lt;Get output base name&gt;
+&lt;Get size of each piece&gt;
+IF &lt;The size makes no sense&gt; THEN
+  &lt;Print an error message and die&gt;
+END
+
+IF &lt;I can't open the input file&gt; THEN
+ &lt;Print an error message and die&gt;
+END
+
+&lt;Set byte counter to zero&gt;
+&lt;Set piece counter to one&gt;
+&lt;Set open flag to NO&gt;
+
+WHILE &lt;The next character from the input file is not EOF&gt; LOOP
+  IF &lt;open flag is NO&gt; THEN
+    &lt;Compute name of next piece&gt;
+    &lt;Advance piece counter&gt;
+    IF &lt;I can't open the output file&gt; THEN
+      &lt;Print an error message and die&gt;
+    END
+    &lt;Set open flag to YES&gt;
+  END
+  &lt;Write byte to output file&gt;
+  IF &lt;The write failed&gt; THEN
+    &lt;Print an error message and die&gt;
+  END
+  &lt;Advance byte counter&gt;
+  IF &lt;Byte counter equals maximum&gt; THEN
+    &lt;Close output file&gt;
+    &lt;Set byte counter to zero&gt;
+    &lt;Set open flag to NO&gt;
+  END
+END
+
+IF &lt;Open flag is YES&gt; THEN
+  &lt;Close the output file&gt;
+END
+</pre>
+<p>This program responds to errors by terminating itself immediately. That certainly is the right
+  thing to do if the input file doesn't open since, at that point, the program hasn't really done
+  anything yet. But is that the right thing to do when one of the output files doesn't open? An
+  alternative would be to first delete all the pieces created so far to clean up the mess.
+  However, I think it makes sense to leave the pieces created so far in case the user finds the
+  partial split useful. The user can remove the pieces when he or she desires. I do think it is
+  important, however, to be sure all files are properly closed before we terminate the program.
+  Although returning from main will close all files opened with <span class="code">fopen</span>
+  automatically, I have argued in previous lessons for explicitly closing them anyway. It's a good
+  habit to get into.</p>
+<p>Another issue is that closing a file might fail. In particular, when you close an output file,
+  the last portion of the file that has been buffered in memory is then written to disk. If the
+  disk fills up at that time, you will get a failure indication from fclose. This is a rare event.
+  The disk probably won't fill up and even if it does, it is unlikely to do so as the last few
+  thousand bytes of the file are being written. (The disk will most likely fill up somewhere in
+  the middle of one of the pieces, not at the very end). Nevertheless since this program does
+  bother to check for errors on the file writes---in anticipation of possible problems with
+  running out of disk space---it seems that it should also check for errors when closing the
+  output files.</p>
+<p>Here is a further refinement of the p-code.</p>
+<pre class="pcode">
+&lt;Get input file's name&gt;
+&lt;Get output base name&gt;
+&lt;Get size of each piece&gt;
+IF &lt;The size makes no sense&gt; THEN
+  &lt;Print an error message&gt;
+  &lt;Terminate&gt;
+END
+
+IF &lt;I can't open the input file&gt; THEN
+ &lt;Print an error message&gt;
+ &lt;Terminate&gt;
+END
+
+&lt;Set byte counter to zero&gt;
+&lt;Set piece counter to one&gt;
+&lt;Set open flag to NO&gt;
+
+WHILE &lt;The next character from the input file is not EOF&gt; LOOP
+  IF &lt;open flag is NO&gt; THEN
+    &lt;Compute name of next piece&gt;
+    &lt;Advance piece counter&gt;
+    IF &lt;I can't open the output file&gt; THEN
+      &lt;Print an error message&gt;
+      &lt;Close the input file&gt;
+      &lt;Terminate&gt;
+    END
+    &lt;Set open flag to YES&gt;
+  END
+  &lt;Write byte to output file&gt;
+  IF &lt;The write failed&gt; THEN
+    &lt;Print an error message&gt;
+    &lt;Close the input file&gt;
+    &lt;Close the output file&gt;
+    &lt;Terminate&gt;
+  END
+  &lt;Advance byte counter&gt;
+  IF &lt;Byte counter equals maximum&gt; THEN
+    &lt;Close output file&gt;
+    IF &lt;The close failed&gt; THEN
+      &lt;Print an error message&gt;
+      &lt;Close the input file&gt;
+      &lt;Terminate&gt;
+    END
+    &lt;Set byte counter to zero&gt;
+    &lt;Set open flag to NO&gt;
+  END
+END
+
+IF &lt;Open flag is YES&gt; THEN
+  &lt;Close the output file&gt;
+  IF &lt;The close failed&gt; THEN
+    &lt;Print an error message&gt;
+    &lt;Close the input file&gt;
+    &lt;Terminate&gt;
+  END
+END
+
+&lt;Close the input file&gt;
+</pre>
+<p>In looking this p-code over, I find myself uncomfortable with its length. This is too much for
+  one function to comfortably hold. I also see a few places where there is repetition. I think it
+  would be wise to factor out the common elements into functions. In particular, we should make a
+  function that closes the output file, a wrapper around <span
+      class="code">fclose</span>, that also deals with the check to see if the file closed
+  correctly and the problem of printing and error message if it did not. That is done in two
+  places and so is a prime candidate for making into a function.</p>
+<p>Similarly I think we should create a function that deals with writing a byte of output.
+  Although that is only done in one place, it is nevertheless cluttered by the need for error
+  handling (doing error handling is often an annoyance).</p>
+<p>With those two functions, I think the size of main will be cut down enough to be more
+  acceptable. I am ready to make the jump to C.</p>
+<p>See the file <a href="samples/filesplit.c">filesplit.c</a> for the implementation.</p>
+<address>&copy; Copyright 2003 by Peter C. Chapin.<br/> Last Revised: <b>June 18, 2003</b>
+</address>
+</body>
+</html>

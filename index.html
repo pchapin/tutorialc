@@ -1,177 +1,182 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-    
-<!-- FILE         : index.html
-     LAST REVISED : 2016-01-11
-     AUTHOR       : (C) Copyright 2016 by Peter Chapin
-     SUBJECT      : Main index file of my C tutorial. -->
+<!DOCTYPE html>
 
-<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
-  <head>
-    <meta name="Author" content="Peter C. Chapin" />
-    <meta name="ROBOTS" content="NOARCHIVE" />
-    <link rel="stylesheet" href="default.css" type="text/css" />
-    <title>C Tutorial</title>
-  </head>
-  <body>
-    <div class="primary-title-header">
-      <h1>C Tutorial</h1>
-      
-      <p>&copy; Copyright 2016 by Peter C. Chapin<br /> Last Revised: <b>January
-      2016</b><br/></p>
-    </div>
+<html lang="en-US">
+<head>
+  <meta name="Author" content="Peter Chapin"/>
+  <meta name="ROBOTS" content="NOARCHIVE"/>
+  <link rel="stylesheet" href="default.css" type="text/css"/>
+  <title>C Tutorial</title>
+</head>
+<body>
+<div class="primary-title-header">
+  <h1>C Tutorial</h1>
 
-    <h2>Introduction</h2>
+  <p>&copy; Copyright 2016 by Peter C. Chapin<br/> Last Revised: <b>January 2016</b><br/></p>
+</div>
 
-    <p>The documents linked to this page constitute the "lectures" of a one-semester,
-    introductory course in the C programming language. I created these documents myself and have
-    used them in programming classes at <a href="http://www.vtc.edu/">Vermont Technical
-    College</a>, where I am an instructor. I am posting these documents on the web for public
-    access under the terms of the <a href="GFDL.txt">GNU Free Documentation License</a>
-    (GFDL).</p>
+<h2>Introduction</h2>
 
-    <p><i>Permission is granted to copy, distribute and/or modify this document (and the related
-    subordinate documents as described above) under the terms of the GNU Free Documentation
-    License, Version 1.1 or any later version published by the Free Software Foundation; with no
-    invariant sections, no front-cover texts, and no back-cover texts.</i></p>
+<p>The documents linked to this page constitute the "lectures" of a one-semester, introductory
+  course in the C programming language. I created these documents myself and have used them in
+  programming classes at <a href="http://www.vtc.edu/">Vermont Technical College</a>, where I am
+  an instructor. I am posting these documents on the web for public access under the terms of the
+  <a href="GFDL.txt">GNU Free Documentation License</a> (GFDL).</p>
 
-    <p>If you make corrections or enhancements to any of these documents, I encourage you to
-    contact me so that I can consider incorporating your enhancements into my copy as well. If
-    your contribution is non-trivial I will, of course, give you credit for your work. It is my
-    hope that in this way on-line educational resources, such as these documents, can benefit
-    from the same process that has made open source programming projects such a success.</p>
+<p><i>Permission is granted to copy, distribute and/or modify this document (and the related
+  subordinate documents as described above) under the terms of the GNU Free Documentation License,
+  Version 1.1 or any later version published by the Free Software Foundation; with no invariant
+  sections, no front-cover texts, and no back-cover texts.</i></p>
 
-    <hr />
-    <h2>Lessons</h2>
+<p>If you make corrections or enhancements to any of these documents, I encourage you to contact
+  me so that I can consider incorporating your enhancements into my copy as well. If your
+  contribution is non-trivial, I will, of course, give you credit for your work. It is my hope that
+  in this way on-line educational resources, such as these documents, can benefit from the same
+  process that has made open source programming projects such a success.</p>
 
-    <p>This course covers all the major features of the C language: variables, types,
-    expressions, control flow, functions, arrays, pointers, strings, and structures. In addition
-    I cover a number of other, minor topics. I have broken all of this material into 30 lessons
-    along with some supporting files. Each lesson builds on the previous lessons. I recommend
-    that you read the lessons in order. However, if you have some previous C experience you may
-    find it useful to skip around. The first three lessons are designed to get you on board
-    using a Unix system where I assume you will be writing your programs. If you plan to work on
-    a different operating system or if you are familiar with Unix, you may be able to skip those
-    lessons. The C related content starts with Lesson #4.</p>
+<hr/>
+<h2>Lessons</h2>
 
-    <p>When I last taught this course the text associated with it was Stephen G. Kochan's
-    "Programming in ANSI C" (Revised edition, Sams Publishing, (C) 1994, ISBN=0-672-30339-6).
-    You could use any reasonable book on C to supplement this material. However, I have prepared
-    <a href="text-reading.txt">specific reading assignments</a> from Kochan's text to support
-    each of the lessons.</p>
+<p>This course covers all the major features of the C language: variables, types, expressions,
+  control flow, functions, arrays, pointers, strings, and structures. In addition, I cover a number
+  of other, minor topics. I have broken all of this material into 30 lessons along with some
+  supporting files. Each lesson builds on the previous lessons. I recommend that you read the
+  lessons in order. However, if you have some previous C experience, you may find it useful to skip
+  around. The first three lessons are designed to get you on board using a Unix system where I
+  assume you will be writing your programs. If you plan to work on a different operating system or
+  if you are familiar with Unix, you may be able to skip those lessons. The C related content
+  starts with Lesson #4.</p>
 
-    <p>In addition to the lessons themselves I have also prepared some sample programs to help
-    illustrate some points and to show the features of C in a larger context than is possible in
-    the lessons. In the list below I show links to these samples as well as to the lesson text.
-    Each sample is associated with a particular lesson. You should review each sample after
-    you've read the corresponding lesson text.</p>
+<p>When I last taught this course the text associated with it was Stephen G. Kochan's "Programming
+  in ANSI C" (Revised edition, Sams Publishing, (C) 1994, ISBN=0-672-30339-6). You could use any
+  reasonable book on C to supplement this material. However, I have prepared <a
+      href="text-reading.txt">specific reading assignments</a> from Kochan's text to support each
+  of the lessons.</p>
 
-    <ul>
-      <li><a href="LESSON-01.xht">Lesson 1</a>: Unix: Logging on/off. Mail, editing files, file
-      transfer.</li>
-      <li><a href="LESSON-02.xht">Lesson 2</a>: Unix: Various useful Unix commands.</li>
-      <li><a href="LESSON-03.xht">Lesson 3</a>: Unix: File system structure; file
-      permissions.</li>
-      <li><a href="LESSON-04.xht">Lesson 4</a>: The "Hello, World!" program.</li>
-      <li><a href="LESSON-05.xht">Lesson 5</a>: The built-in arithmetic types. (<a
+<p>In addition to the lessons themselves I have also prepared some sample programs to help
+  illustrate some points and to show the features of C in a larger context than is possible in the
+  lessons. In the list below, I show links to these samples as well as to the lesson text. Each
+  sample is associated with a particular lesson. You should review each sample after you've read
+  the corresponding lesson text.</p>
+
+<ul>
+  <li><a href="LESSON-01.html">Lesson 1</a>: Unix: Logging on/off. Mail, editing files, file
+    transfer.
+  </li>
+  <li><a href="LESSON-02.html">Lesson 2</a>: Unix: Various useful Unix commands.</li>
+  <li><a href="LESSON-03.html">Lesson 3</a>: Unix: File system structure; file permissions.</li>
+  <li><a href="LESSON-04.html">Lesson 4</a>: The "Hello, World!" program.</li>
+  <li><a href="LESSON-05.html">Lesson 5</a>: The built-in arithmetic types. (<a
       href="samples/printf_demo.c"><span class="filename">printf_demo.c</span></a>, <a
-      href="samples/types_demo.c"><span class="filename">types_demo.c</span> </a>)</li>
-      <li><a href="LESSON-06.xht">Lesson 6</a>: Expressions and precedence. (<a
-      href="samples/prec.c"><span class="filename">prec.c</span></a>)</li>
-      <li><a href="LESSON-07.xht">Lesson 7</a>: Conditional expressions and if, if... else
-      statements.</li>
-      <li><a href="LESSON-08.xht">Lesson 8</a>: Compound conditions and for loops. (<a
-      href="EXAMPLE-01.xht">Example 1</a>: Prime numbers. <a href="samples/prime.c"><span
-      class="filename">prime.c</span></a>)</li>
-      <li><a href="LESSON-09.xht">Lesson 9</a>: while loops, do/while loops, and filter
-      programs.</li>
-      <li><a href="LESSON-10.xht">Lesson 10</a>: switch statements and if... else if... chains.
-      (<a href="samples/textstats.c"><span class="filename">textstats.c</span></a>), (<a
-      href="EXAMPLE-02.xht">Example 2</a>: A filter program that detects white space. <a
-      href="samples/white.c"><span class="filename">white.c</span></a>)</li>
-      <li><a href="LESSON-11.xht">Lesson 11</a>: Pseudo-code. (<a href="print_format.pcd"><span
-      class="filename">print_format.pcd</span></a>)</li>
-      <li><a href="LESSON-12.xht">Lesson 12</a>: Basic testing and debugging techniques.</li>
-      <li><a href="LESSON-13.xht">Lesson 13</a>: Debugging using a debugger.</li>
-      <li><a href="LESSON-14.xht">Lesson 14</a>: Functions: Terminology and basic
-      structure.</li>
-      <li><a href="LESSON-15.xht">Lesson 15</a>: Scope. Local (block) vs Global. (<a
-      href="EXAMPLE-03.xht">Example 3</a>: A program to compute prime factors. <a
-      href="samples/prime_factors.c"><span class="filename">prime_factors.c</span></a>)</li>
-      <li><a href="LESSON-16.xht">Lesson 16</a>: Duration. Static vs automatic. Rules for
-      initialization.</li>
-      <li><a href="LESSON-17.xht">Lesson 17</a>: Spreading a program across multiple files. (<a
-      href="EXAMPLE-04.xht">Example 4</a>: A library for integer math operations. <a
+      href="samples/types_demo.c"><span class="filename">types_demo.c</span> </a>)
+  </li>
+  <li><a href="LESSON-06.html">Lesson 6</a>: Expressions and precedence. (<a
+      href="samples/prec.c"><span class="filename">prec.c</span></a>)
+  </li>
+  <li><a href="LESSON-07.html">Lesson 7</a>: Conditional expressions and if, if... else statements.
+  </li>
+  <li><a href="LESSON-08.html">Lesson 8</a>: Compound conditions and for loops. (<a
+      href="EXAMPLE-01.html">Example 1</a>: Prime numbers. <a href="samples/prime.c"><span
+      class="filename">prime.c</span></a>)
+  </li>
+  <li><a href="LESSON-09.html">Lesson 9</a>: while loops, do/while loops, and filter programs.</li>
+  <li><a href="LESSON-10.html">Lesson 10</a>: switch statements and if... else if... chains. (<a
+      href="samples/textstats.c"><span class="filename">textstats.c</span></a>), (<a
+      href="EXAMPLE-02.html">Example 2</a>: A filter program that detects white space. <a
+      href="samples/white.c"><span class="filename">white.c</span></a>)
+  </li>
+  <li><a href="LESSON-11.html">Lesson 11</a>: Pseudo-code. (<a href="print_format.pcd"><span
+      class="filename">print_format.pcd</span></a>)
+  </li>
+  <li><a href="LESSON-12.html">Lesson 12</a>: Basic testing and debugging techniques.</li>
+  <li><a href="LESSON-13.html">Lesson 13</a>: Debugging using a debugger.</li>
+  <li><a href="LESSON-14.html">Lesson 14</a>: Functions: Terminology and basic structure.</li>
+  <li><a href="LESSON-15.html">Lesson 15</a>: Scope. Local (block) vs Global. (<a
+      href="EXAMPLE-03.html">Example 3</a>: A program to compute prime factors. <a
+      href="samples/prime_factors.c"><span class="filename">prime_factors.c</span></a>)
+  </li>
+  <li><a href="LESSON-16.html">Lesson 16</a>: Duration. Static vs automatic. Rules for
+    initialization.
+  </li>
+  <li><a href="LESSON-17.html">Lesson 17</a>: Spreading a program across multiple files. (<a
+      href="EXAMPLE-04.html">Example 4</a>: A library for integer math operations. <a
       href="samples/imath.h"><span class="filename">imath.h</span></a>, <a
       href="samples/imath.c"><span class="filename">imath.c</span></a>, <a
-      href="samples/imath_test.c"><span class="filename">imath_test.c</span></a>)</li>
-      <li><a href="LESSON-18.xht">Lesson 18</a>: Arrays: declaring, accesssing, initializing.
-      (<a href="EXAMPLE-05.xht">Example 5</a>: Counting characters in a file. <a
-      href="samples/char_count.c"><span class="filename">char_count.c</span></a>)</li>
-      <li><a href="LESSON-19.xht">Lesson 19</a>: Pointers: declaring, initializing,
-      dereferencing.</li>
-      <li><a href="LESSON-20.xht">Lesson 20</a>: How pointers and arrays interact. (<a
-      href="EXAMPLE-06.xht">Example 6</a>: Sorting numbers. <a href="samples/sort_int.c"><span
-      class="filename">sort_int.c</span></a>)</li>
-      <li><a href="LESSON-21.xht">Lesson 21</a>: Passing pointers and arrays into
-      functions.</li>
-      <li><a href="LESSON-22.xht">Lesson 22</a>: Strings.</li>
-      <li><a href="LESSON-23.xht">Lesson 23</a>: Standard library string handling functions. (<a
-      href="EXAMPLE-07.xht">Example 7</a>: Library string functions. This example requires
-      curses. <a href="samples/string_test.c"><span
-      class="filename">string_test.c</span></a>)</li>
-      <li><a href="LESSON-24.xht">Lesson 24</a>: File I/O. (<a href="EXAMPLE-08.xht">Example
-      8</a>: Splitting files. <a href="samples/filesplit.c"><span
-      class="filename">filesplit.c</span></a>)</li>
-      <li><a href="LESSON-25.xht">Lesson 25</a>: Pointers to pointers and command line
-      processing.</li>
-      <li><a href="LESSON-26.xht">Lesson 26</a>: Structures: defining, accessing,
-      initializing.</li>
-      <li><a href="LESSON-27.xht">Lesson 27</a>: Interaction between structures, arrays,
-      pointers, and functions.</li>
-      <li><a href="LESSON-28.xht">Lesson 28</a>: Preprocessor.</li>
-      <li><a href="LESSON-29.xht">Lesson 29</a>: Bit manipulation operators.</li>
-      <li><a href="LESSON-30.xht">Lesson 30</a>: typedef, const, and type conversion.</li>
-    </ul>
+      href="samples/imath_test.c"><span class="filename">imath_test.c</span></a>)
+  </li>
+  <li><a href="LESSON-18.html">Lesson 18</a>: Arrays: declaring, accesssing, initializing. (<a
+      href="EXAMPLE-05.html">Example 5</a>: Counting characters in a file. <a
+      href="samples/char_count.c"><span class="filename">char_count.c</span></a>)
+  </li>
+  <li><a href="LESSON-19.html">Lesson 19</a>: Pointers: declaring, initializing, dereferencing.
+  </li>
+  <li><a href="LESSON-20.html">Lesson 20</a>: How pointers and arrays interact. (<a
+      href="EXAMPLE-06.html">Example 6</a>: Sorting numbers. <a href="samples/sort_int.c"><span
+      class="filename">sort_int.c</span></a>)
+  </li>
+  <li><a href="LESSON-21.html">Lesson 21</a>: Passing pointers and arrays into functions.</li>
+  <li><a href="LESSON-22.html">Lesson 22</a>: Strings.</li>
+  <li><a href="LESSON-23.html">Lesson 23</a>: Standard library string handling functions. (<a
+      href="EXAMPLE-07.html">Example 7</a>: Library string functions. This example requires curses.
+    <a href="samples/string_test.c"><span
+        class="filename">string_test.c</span></a>)
+  </li>
+  <li><a href="LESSON-24.html">Lesson 24</a>: File I/O. (<a href="EXAMPLE-08.html">Example 8</a>:
+    Splitting files. <a href="samples/filesplit.c"><span
+        class="filename">filesplit.c</span></a>)
+  </li>
+  <li><a href="LESSON-25.html">Lesson 25</a>: Pointers to pointers and command line processing.
+  </li>
+  <li><a href="LESSON-26.html">Lesson 26</a>: Structures: defining, accessing, initializing.</li>
+  <li><a href="LESSON-27.html">Lesson 27</a>: Interaction between structures, arrays, pointers, and
+    functions.
+  </li>
+  <li><a href="LESSON-28.html">Lesson 28</a>: Preprocessor.</li>
+  <li><a href="LESSON-29.html">Lesson 29</a>: Bit manipulation operators.</li>
+  <li><a href="LESSON-30.html">Lesson 30</a>: typedef, const, and type conversion.</li>
+</ul>
 
-    <p>Other C features that I may write about at a later time include: enums, unions, bit
-    fields, internationalization (i18n), and changes introduced in C99 (relative to C89/90). In
-    addition I would like to create a few more examples or perhaps elaborate a bit on some of
-    the existing examples.</p>
+<p>Other C features that I may write about at a later time include: enums, unions, bit fields,
+  internationalization (i18n), and changes introduced in C99 (relative to C89/90). In addition, I
+  would like to create a few more examples or perhaps elaborate a bit on some of the existing
+  examples.</p>
 
-    <hr />
-    <h2>Links</h2>
+<hr/>
+<h2>Links</h2>
 
-    <p>The links below are of general interest.</p>
+<p>The links below are of general interest.</p>
 
-    <ul>
-      <li>I have a page of links to other <a href="c.xht">C related materials on the web</a>
-      (sketchy at this time).</li>
+<ul>
+  <li>I have a page of links to other <a href="c.html">C related materials on the web</a> (sketchy
+    at this time).
+  </li>
 
-      <li>Although I run this course on a Unix system, you might prefer to do your program
-      development on a Windows system instead. There are several <a
-      href="free-compilers.xht">free compilers</a> that you can download and install to make
-      that possible.</li>
+  <li>Although I run this course on a Unix system, you might prefer to do your program development
+    on a Windows system instead. There are several <a
+        href="free-compilers.html">free compilers</a> that you can download and install to make
+    that possible.
+  </li>
 
-      <li>At various places in my lessons I refer to the <a href="../c-style.html">VTC Style
-      Guide for C/C++ Programming</a>.</li>
+  <li>At various places in my lessons I refer to the <a href="../c-style.html">VTC Style Guide for
+    C/C++ Programming</a>.
+  </li>
 
-      <li>Although most of the material above is non-operating system specific, I do
-      encourage my students to explore the curses terminal handling library&mdash;something that
-      is usually seen as particular to Unix. I believe that curses is an interesting example of
-      a third party library as well as just plain fun to explore. Accordingly I have written a
-      <a href="curses.txt">short document to help students get up to speed with
-      curses</a>.</li>
+  <li>Although most of the material above is non-operating system specific, I do encourage my
+    students to explore the curses terminal handling library&mdash;something that is usually seen
+    as particular to Unix. I believe that curses is an interesting example of a third party
+    library as well as just plain fun to explore. Accordingly, I have written a <a
+        href="curses.txt">short document to help students get up to speed with curses</a>.
+  </li>
 
-      <li>I have also posted materials for a one semester course in C++ and object oriented
-      programming. The prerequisite for that course is the successful completion of this course
-      in C. When you are finished reading over the lessons in this course, I invite you to
-      continue your study with my <a href="../TutorialCpp">C++ tutorial</a>.</li>
-    </ul>
+  <li>I have also posted materials for a one semester course in C++ and object-oriented
+    programming. The prerequisite for that course is the successful completion of this course in
+    C. When you are finished reading over the lessons in this course, I invite you to continue
+    your study with my <a href="../TutorialCpp">C++ tutorial</a>.
+  </li>
+</ul>
 
-    <hr />
-    <address>
-      &copy; Copyright 2016 by Peter C. Chapin.<br />
-      Last Revised: <b>January 11, 2016</b>
-    </address>
-  </body>
+<hr/>
+<address>
+  &copy; Copyright 2016 by Peter Chapin.<br/> Last Revised: <b>January 11, 2016</b>
+</address>
+</body>
 </html>

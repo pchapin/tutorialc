@@ -32,7 +32,11 @@ p.note { font-style: italic; }
 }
 
 /* The handling of code segments. */
-.code { color: #A67; font-weight: bold; font-family: monospace; }
+.code {
+  color: #A67;
+  font-weight: bold;
+  font-family: monospace;
+}
 pre.code {
   /* background: #D8D8D8; */
   /* border: 2px solid black; */
@@ -44,7 +48,11 @@ pre.code {
 }
 
 /* The handling of pseudo-code segments. */
-.pcode { color: #A2D; font-weight: bold; font-family: monospace; }
+.pcode {
+  color: #A2D;
+  font-weight: bold;
+  font-family: monospace;
+}
 pre.pcode {
   /* background: #D8D8D8; */
   /* border: 2px solid black; */
@@ -56,7 +64,9 @@ pre.pcode {
 }
 
 /* The handling of terminal session segments. */
-.terminal { color: black; }
+.terminal {
+  color: black;
+}
 pre.terminal {
   /* background: #D8D8D8; */
   /* border: 2px solid black; */
@@ -78,6 +88,6 @@ pre.figure {
 }
 
 /* The few formula that I need are handled like this. */
-pre.math-display { 
+pre.math-display {
   text-align: center;
 }

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta name="Author" content="Peter Chapin"/>
+  <meta name="ROBOTS" content="NOARCHIVE"/>
+  <link rel="stylesheet" href="default.css" type="text/css"/>
+  <title>Free Windows C Compilers</title>
+</head>
+<body>
+<div class="secondary-title-header">
+  <h1>Free Windows C Compilers</h1>
+  <p>&copy; Copyright 2003 by Peter C. Chapin<br/> Last Revised: <b>July 2003</b><br/></p>
+</div>
+<hr/>
+<h2>Introduction</h2>
+<p>Many students in VTC's C and C++ programming classes ask about how they can get a compiler to
+  use on their own system. Although the compilers used by VTC can't (normally) be installed on
+  student machines, there are a number of free options available to students. It is the purpose of
+  this document to describe those options. Note that this document assumes you are using a Windows
+  system. If you have a personal Linux system, you certainly have access to the GCC compiler. This
+  document does not discuss options for Apple systems</p>
+<p>The compilers are listed below in order of increasing "heaviness". The first compiler on the
+  list is relatively small and simple. The later compilers are larger and, typically more
+  complicated to install and use. All of these compilers can be downloaded and installed for no
+  charge.</p>
+<ol>
+  <li>
+    <a href="#lccwin32">LCC-Win32</a>
+  </li>
+  <li>
+    <a href="#openwatcom">OpenWatcom</a>
+  </li>
+  <li>
+    <a href="#cygwin">Cygwin/GCC</a>
+  </li>
+</ol>
+<hr/>
+<h2>
+  <a name="lccwin32" id="lccwin32">LCC-Win32</a>
+</h2>
+<p>Section Last Revised: 2003-07-23</p>
+<h3>Legal Status</h3>
+<p>LCC-Win32 is free for <em>personal, non-commercial</em> use. If you sell the software you
+  produce with LCC-Win32 or use it in a corporation (including a classroom) you must buy a
+  license. However, the author has informed me in email that "personal use" includes students
+  using it on their own machines... even if such usage is to do programming assignments. See the
+  LCC-Win32 web site (URL below) for more information.</p>
+<p>The author of LCC-Win32 suggested to me that students consider buying the CD-ROM distribution
+  of the system. In addition to sparing you the trouble of downloading all the files, the CD-ROM
+  distribution comes with numerous examples that might be of interest. It also helps to support
+  the LCC-Win32 development effort.</p>
+<h3>Downloading and Installing</h3>
+<p>The main LCC-Win32 site is <a href="http://www.cs.virginia.edu/~lcc-win32/"
+>http://www.cs.virginia.edu/~lcc-win32/</a>. Go there to download the latest version of the
+  system. LCC-Win32 is updated frequently.</p>
+<p>There are several files you can download but not all of them are necessary.</p>
+<ol>
+  <li>
+    <p><b>lccwin32.exe</b>. This is the base system. It is required.</p>
+  </li>
+  <li>
+    <p><b>manual.exe</b>. This is the documentation for the compiler product and its tools. You
+      should download this as well.</p>
+  </li>
+  <li>
+    <p><b>tutorial.pdf</b>. This is an extensive C tutorial. It covers the basics of C as well as
+      a number of advanced topics. It also discusses how to use LCC-Win32 to develop graphical
+      Windows applications. You might consider downloading this document to use as a supplement to
+      your text book or class notes.</p>
+  </li>
+  <li>
+    <p><b>win32hlp.exe</b>. This is the Windows API documentation. It is only necessary if you
+      plan on developing graphical Windows applications and don't have access to API documentation
+      from any other source. You do <em>not</em> need this file for writing standard, ANSI C
+      programs.</p>
+  </li>
+  <li>
+    <p><b>lccdoc.exe</b>. This is technical documentation on the internal design of the LCC-Win32
+      compiler and tools. It is <em>not</em> necessary for writing programs. The documents in this
+      file are all in Microsoft Word format. This file also contains the documentation in
+      manual.exe (in Word format).</p>
+  </li>
+</ol>
+<p>Each of the files I mentioned above (except for the PDF file) are InstallShield executables.
+  Just double click on the file to install it. You will be asked where to install the product. The
+  usual location is <span class="filename">c:\lcc</span>. Whatever location you choose you should
+  probably be consistent and use the same location for each component. If you want to use the
+  command line tools, you will need to manually add the LCC bin directory to the path. Exactly how
+  to do that depends on your operating environment.</p>
+<dl>
+  <dt>WinNT (Win2k/WinXP ??)</dt>
+  <dd>
+    <p>Open the control panel and double click on the "System" icon. Click on the environment tab
+      and then select "Path" in the "User Variable" section that appears. If you are logged in as
+      Administrator and want the change to occur for ever user, you can modify the path in the
+      "System Variable" section. Add <span class="filename"
+      >c:\lcc\bin</span> to the end of the list of folders presented there (use a semicolon
+      between folder names), click "Set", and then close the system property sheet. Open a fresh
+      command prompt to get an environment containing the change. It should not be necessary to
+      reboot the system.</p>
+  </dd>
+</dl>
+<p>To access the documentation you may want to manually create a shortcut to the <span
+    class="filename">lcc.chm</span> file (probably in the <span class="filename">c:\lcc\doc
+        folder</span>). You may also want to manually create shortcuts to the <span
+    class="filename">c-library.chm</span> file (probably in <span class="filename"
+>c:\lcc\bin</span>) and the <span class="filename">strlib.chm</span> file (also probably in <span
+    class="filename">c:\lcc\bin</span>). Note that most of this documentation is accessible from
+  the help menu of the IDE should you choose to do your development using the IDE (see below).</p>
+<h3>Compiling Programs</h3>
+<p>To compile short, simple programs you will probably find the command line tools to be the
+  easiest to use. Use any text editor (PFE, XEmacs, etc) to create your program. Open a command
+  prompt and use the cd command to change to the folder containing your program. The commands
+  below assume that the program is named hello.c</p>
+<pre>
+C:\home\peter&gt; lcc hello.c
+C:\home\peter&gt; lcclnk hello.obj
+</pre>
+<p>Notice that you must use two commands to create your executable file. To run the program just
+  type its name</p>
+<pre>
+C:\home\peter&gt; hello
+</pre>
+<p>I suggest that you write a program that uses printf to print "Hello, World" on the console and
+  then use the commands above to compile and run it. That will give you confidence that you have
+  installed LCC-Win32 properly.</p>
+<h3>Using the Integrated Development Environment</h3>
+<p>If you are building a large program (especially one consisting of many source files) you might
+  want to use the IDE instead of the command line tools. You might also find the IDE more
+  interesting and more fun to use. However, the IDE is also a lot more complicated. If you find
+  the IDE confusing and difficult, stay away from it. The command line tools are sufficient to get
+  the job done.</p>
+<p>If you do want to use the IDE, you need to be aware of several points.</p>
+<ol>
+  <li>
+    <p>The IDE organizes your programs in terms of projects. Each project can consist of many
+      source files along with various compiler options that are set uniquely for that project.
+      Each project generates a single executable file.</p>
+  </li>
+  <li>
+    <p>In addition to your source files, the IDE will create some control files pertaining to your
+      project. This is normal so don't be alarmed to discover several "strange" files along with
+      your program files.</p>
+  </li>
+  <li>
+    <p>Each project must reside in its own folder. You can't put two projects in the same folder
+      due to name conflicts on certain control files.</p>
+  </li>
+</ol>
+<p>Suppose you want to use the IDE to build the "Hello, World" program. Follow these steps.</p>
+<ol>
+  <li>
+    <p>Start the IDE. It is called Wedit. A shortcut to it should have been added to your start
+      menu when you installed LCC-Win32.</p>
+  </li>
+  <li>
+    <p>Pull down the project menu and select "Create...". In the dialog box that appears, enter a
+      name for your project. For example, you might enter "hello". Be sure to enter the project's
+      working directory (folder). Wedit will create it if it doesn't exist. Most likely you'll
+      want to use a folder that doesn't exist when you create a new project. The output directory
+      (folder)is where the output files will go, such as the executable file. I suggest making
+      that the same as the project's working directory. Verify the other settings in this dialog
+      box... particularly the "Type of project" setting. For simple programs you want "Console
+      Application".</p>
+  </li>
+  <li>
+    <p>When you press "Create" you will be asked if you want to use a wizard to generate the
+      application's skeleton. Say "no".</p>
+  </li>
+  <li>
+    <p>Next you will be asked to select source files for the project. You can type the name of a
+      file that does not exist (yet) at this point.</p>
+  </li>
+  <li>
+    <p>After you have added all the source files you care about (for a simple program there will
+      be only one), press the "OK" button. You will then be presented with several dialog boxes of
+      compiler settings. For simple programs, all the defaults are acceptable. You might review
+      the settings anyway just as a matter of interest. You can change them later if you wish. You
+      might want to select "Warning level: All" if you are just learning C. Compiler warnings can
+      often help you find bugs.</p>
+  </li>
+  <li>
+    <p>When you press "Finished" the IDE creates a special control file in your project's working
+      directory named "Makefile". This file defines how the various files composing your project
+      are compiled and linked. Do not delete it!</p>
+  </li>
+  <li>
+    <p>You are now ready to edit your source file(s) using the integrated editor. When you want to
+      create the executable, press the F9 key or select "Make" from the "Compiler" menu.</p>
+  </li>
+</ol>
+<p>Note that when you exit Wedit, it remembers which project was open and it will automatically
+  reopen that project when you next start Wedit. That is sometimes useful, sometimes annoying.
+  When you are done working with a project, you should probably explicitly close it by selecting
+  "Close..." from the "Project" menu.</p>
+<p>It may sound like using the IDE is a big hassle, but actually once you get used to it the
+  process is pretty straightforward. You may find that you soon like the IDE and want to use it
+  all the time.</p>
+<hr/>
+<h2>
+  <a name="openwatcom" id="openwatcom">Open Watcom</a>
+</h2>
+<p>
+  <i>Section not yet written</i>
+</p>
+<hr/>
+<h2>
+  <a name="cygwin" id="cygwin">Cygwin/GCC</a>
+</h2>
+<p>
+  <i>Section not yet written</i>
+</p>
+<hr/>
+<address>&copy; Copyright 2003 by Peter C. Chapin.<br/> Last Revised: <b>July 26, 2003</b>
+</address>
+</body>
+</html>

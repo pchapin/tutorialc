@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <title>Lesson #20</title>
+  <meta name="Author" content="Peter Chapin"/>
+  <!-- <meta name="keywords" lang="en-US" content="..."> -->
+  <meta name="ROBOTS" content="NOARCHIVE"/>
+  <link rel="stylesheet" href="c-course.css" type="text/css"/>
+</head>
+<body>
+<h1>Lesson #20</h1>
+<p class="subtitle">How pointers and arrays interact</p>
+<h2>Overview</h2>
+<p>In this lesson I will cover the following topics</p>
+<ol id="overview-list">
+  <li>
+    <p>Using pointers to access array elements.</p>
+  </li>
+  <li>
+    <p>Pointer arithmetic.</p>
+  </li>
+  <li>
+    <p>Comparing pointers vs comparing the things they point at.</p>
+  </li>
+  <li>
+    <p>Bare array names and applying indicies against pointers.</p>
+  </li>
+</ol>
+<h2>Body</h2>
+<h3>Another look at arrays</h3>
+<p>C is unusual among programming languages in the way it handles arrays. In C arrays and pointers
+  are closely bound together. You can't really understand one without understanding the other. In
+  this lesson I will describe how arrays and pointers interact.</p>
+<p>Let me start by talking about an array of integers. Here's an example</p>
+<pre class="code">
+int my_array[4] = { 10, 12, 14, 16 };
+</pre>
+<p>This declares an array of four integers and initializes the elements. After the initialization
+  the memory layout of the array looks like this</p>
+<pre class="figure">
+        +----+--- my_array[0]
+        | 10 |
+        +----+
+        | 0  |
+        +----+
+        | 0  |
+        +----+
+        | 0  |
+        +----+--- my_array[1]
+        | 12 |
+        +----+
+        | 0  |
+        +----+
+        | 0  |
+        +----+
+        | 0  |
+        +----+--- my_array[2]
+        | 14 |
+        +----+
+        | 0  |
+        +----+
+        | 0  |
+        +----+
+        | 0  |
+        +----+--- my_array[3]
+        | 16 |
+        +----+
+        | 0  |
+        +----+
+        | 0  |
+        +----+
+        | 0  |
+        +----+---
+</pre>
+<p>Here I'm assuming that each array element requires four bytes (32 bits) of memory. Thus the
+  entire array requires (4 elements * 4 bytes/element) 16 bytes of memory. The first four bytes
+  are used for <span class="code">my_array[0]</span>, the next four bytes are used for <span
+      class="code">my_array[1]</span>, and so forth. Remember: each byte can only hold values from
+  0 to 255. Large numbers require more than one byte to store their value. In this example, the
+  numbers being stored in <span class="code">my_array</span> are all small and they fit into a
+  single byte. The other bytes are just zero. On many machines the "least significant byte" is the
+  first byte in a group of four. However there are other machines that use a different ordering.
+  This is not normally much of a concern one way or another.</p>
+<p>Each array element has an address in memory. We could talk about those addresses using the
+  "address of" operator. It looks like this</p>
+<pre class="code">
+int main(void)
+{
+  int  my_array[4] = { 10, 12, 14, 16 };
+  int *p;
+
+  p = &amp;my_array[0];
+    // Stores the address of the zeroth element of my_array into p.
+
+  *p = 8;
+    // This has the same effect as my_array[0] = 8
+
+  // etc...
+  return 0;
+}
+</pre>
+<p>Once I make <span class="code">p</span> point at the zeroth element of <span class="code"
+>my_array</span> I can modify that element by using <span class="code">*p</span>. This is no
+  different than the way pointers work with individual integers. I could point <span
+      class="code">p</span> at any array element I wanted. For example</p>
+<pre class="code">
+p = &amp;my_array[3];
+</pre>
+<p>points <span class="code">p</span> at the last array element. Then</p>
+<pre class="code">
+*p = 8;
+</pre>
+<p>would have the same effect as <span class="code">my_array[3] = 8</span>.</p>
+<p>Now things start getting good. The C language assures us that arrays will be laid out in
+  contiguous memory. In other words: <span class="code">my_array[1]</span> will follow right after
+  <span class="code">my_array[0]</span>, <span class="code">my_array[2]</span> will follow right
+  after <span class="code">my_array[1]</span>, and so forth. There won't be any gaps or holes in
+  the memory layout of an array.</p>
+<p>In addition, when you increment a pointer the value stored in that pointer increases by an
+  amount equal to the size of the thing the pointer is pointing at. Whew! You had better read that
+  sentence twice! Here is what I mean</p>
+<pre class="code">
+p = &amp;my_array[0];
+</pre>
+<p>I'm assigning to <span class="code">p</span> the address of the zeroth element of <span
+    class="code">my_array</span>. The pointer <span class="code">p</span> now points at <span
+    class="code">my_array[0]</span>.</p>
+<pre class="code">
+p++;
+</pre>
+<p>Here I'm incrementing the pointer. I'm <em>not</em> incrementing what it points at (I'm not
+  using the indirection operator). Instead I'm modifying the address stored in <span
+      class="code">p</span>. However, since <span class="code">p</span> is a pointer to <span
+      class="code">int</span> and since integers are four bytes (in this example), "incrementing"
+  <span class="code">p</span> actually causes the address stored in <span
+      class="code">p</span> to advance by four. The pointer is then left pointing at <span
+      class="code">my_array[1]</span> since that is what follows immediately after <span
+      class="code">my_array[0]</span>. In the following picture each box is an entire array
+  element. The boxes in this picture are actually four bytes together.</p>
+<pre class="figure">
+        +----+
+   p -&gt; | 10 |  my_array[0]
+        +----+
+        | 12 |  my_array[1]
+        +----+
+        | 14 |  my_array[2]
+        +----+
+        | 16 |  my_array[3]
+        +----+
+</pre>
+<p>The "<span class="code">p -&gt;</span>" notation is how I will show <span class="code"
+>p</span> pointing at something. Now after I increment <span class="code">p</span> I get this
+  picture.</p>
+<pre class="figure">
+        +----+
+        | 10 |  my_array[0]
+        +----+
+   p -&gt; | 12 |  my_array[1]
+        +----+
+        | 14 |  my_array[2]
+        +----+
+        | 16 |  my_array[3]
+        +----+
+</pre>
+<p>If I increment <span class="code">p</span> again I get</p>
+<pre class="figure">
+        +----+
+        | 10 |  my_array[0]
+        +----+
+        | 12 |  my_array[1]
+        +----+
+   p -&gt; | 14 |  my_array[2]
+        +----+
+        | 16 |  my_array[3]
+        +----+
+</pre>
+<p>Do you get the idea? I can increment p and by doing so I can step down the array. Take a look
+  at these two loops. They have the same effect.</p>
+<pre class="code">
+int  i;
+int *p;
+
+// Using array indicies.
+for (i = 0; i &lt; 4; i++) {
+  printf("my_array[i] is %d\n", my_array[i]);
+}
+
+// Using pointers.
+for (p = &amp;my_array[0]; p &lt; &amp;my_array[4]; p++) {
+  printf("*p is %d\n", *p);
+}
+</pre>
+<p>The first loop uses techniques you've seen before. It sweeps an integer index over all the
+  legal values for <span class="code">my_array</span> and prints out the value of each element of
+  <span class="code">my_array</span>.</p>
+<p>The second loop does basically the same thing using pointers. It first assigns the address of
+  <span class="code">my_array[0]</span> to <span class="code">p</span>. Then, as long as <span
+      class="code">p</span> points into the array it prints the value of <span
+      class="code">*p</span> (one of the array elements). After each loop pass it increments <span
+      class="code">p</span> so that it will point at the next element in the array.</p>
+<p>Notice that in the second loop I talk about <span class="code">my_array[4]</span>. Yet there is
+  no <span class="code">my_array[4]</span>. Isn't that an error? In fact, my usage is perfectly
+  fine. I'm not actually trying to touch <span class="code">my_array[4]</span>. Instead I'm just
+  asking about its address. The expression <span class="code"
+  >&amp;my_array[4]</span> is the address of the first memory location just past the end of the
+  array. If <span class="code">p</span> is less than that address it must still be pointing into
+  the array normally. Once <span class="code">p</span> becomes equal to or greater than that
+  address it will be pointing off the end of the array and the loop must end. I can't try to
+  access <span class="code">*p</span> if <span class="code">p</span> is pointing off into space!
+</p>
+<p>This technique of using a pointer to step down an array instead of array indicies is very
+  common. In some cases it will give you a faster program. Many C programmers use pointers to
+  access their arrays all the time. You need to get used to seeing it.</p>
+<h3>Pointer arithmetic</h3>
+<p>Actually you can do more than just increment (and decrement) pointers. You can add (or
+  subtract) an integer to (from) a pointer. You can also subtract one pointer from another. Let me
+  explain what happens using some examples. Suppose we had our friend <span
+      class="code">my_array</span> again:</p>
+<pre class="code">
+int  my_array[4] = { 10, 12, 14, 16 };
+int *p;
+</pre>
+<p>Let me give <span class="code">p</span> a meaningful value.</p>
+<pre class="code">
+p = &amp;my_array[0];
+</pre>
+<p>Now the address stored in p is the address of the zeroth element of <span class="code"
+>my_array</span>. I can compute the address of element number one by doing <span
+    class="code">p + 1</span>. This expression takes a pointer and adds an integer. The result is
+  a new pointer. In this case it is the address of the next integer in memory after the one <span
+      class="code">p</span> is pointing at. In this example <span
+      class="code">p + 1</span> would be the same as <span class="code"
+  >&amp;my_array[1]</span>.</p>
+<p>The expression <span class="code">p + 2</span> points at the integer two places in memory after
+  the one <span class="code">p</span> is pointing at. In this example <span
+      class="code">p + 2</span> would be the same as <span class="code"
+  >&amp;my_array[2]</span>.</p>
+<p>Things are more interesting if I start off pointing <span class="code">p</span> at the middle
+  of the array. Suppose I did <span class="code">p = &amp;my_array[2]</span>. In that case <span
+      class="code">p + 1</span> would be the same as <span class="code"
+  >&amp;my_array[3]</span> and <span class="code">p - 1</span> would be the same as <span
+      class="code">&amp;my_array[1]</span>. Here is a picture. Like before each box in this
+  picture represents an entire integer.</p>
+<pre class="figure">
+        +----+
+p - 2 -&gt;| 10 |  my_array[0]
+        +----+
+p - 1 -&gt;| 12 |  my_array[1]
+        +----+
+p     -&gt;| 14 |  my_array[2]
+        +----+
+p + 1 -&gt;| 16 |  my_array[3]
+        +----+
+</pre>
+<p>So an expression like <span class="code">*(p - 1) = 8</span> is perfectly legal and reasonable.
+  It stores the value of 8 into the memory location pointed at by <span
+      class="code">p - 1</span>. The expression <span class="code">p - 1</span> happens to be the
+  address of element number one in <span class="code">my_array</span> (in my current example). In
+  other words, <span class="code">*(p - 1) = 8</span> is the same, in this case, as <span
+      class="code">my_array[1] = 8</span>.</p>
+<p>When you do things like this, you have to be certain you are not going off the end of the
+  array. For example if you set <span class="code">p</span> to point at <span class="code"
+  >my_array[2]</span> using <span class="code">p = &amp;my_array[2]</span> then you can't do <span
+      class="code">*(p + 2) = 8</span>. The expression <span class="code">p + 2</span> would be
+  the address of <span class="code">my_array[4]</span>. But there is no <span
+      class="code">my_array[4]</span>. While it might be fine to talk about the address of <span
+      class="code">my_array[4]</span>, you certainly can't put an 8 into that memory location! It
+  would be exactly like doing <span class="code">my_array[4] = 8</span> and I've already talked
+  about why that's bad!</p>
+<p>On the other hand, if you set p to point at <span class="code">my_array[0]</span> using <span
+    class="code">p = &amp;my_array[0]</span> then there is absolutely no problem doing <span
+    class="code">*(p + 2) = 8</span>. In that case you would be storing the 8 into <span
+    class="code">my_array[2]</span> and that exists just fine. The bottom line: when you use
+  pointers you need to consider what they are pointing at. How far you can "index off a pointer"
+  in each direction will depending on how the pointer has been initialized.</p>
+<p>Another thing you can do with pointers is compute the difference between two of them. This
+  really only makes sense if the two pointers are pointing into the same array. If they are not,
+  computing their difference might cause unpredictable things to happen. Take a look at this
+  picture.</p>
+<pre class="figure">
+        +----+
+  p1 -&gt; | 10 |  my_array[0]
+        +----+
+        | 12 |  my_array[1]
+        +----+
+  p2 -&gt; | 14 |  my_array[2]
+        +----+
+        | 16 |  my_array[3]
+        +----+
+</pre>
+<p>I got this by doing something like</p>
+<pre class="code">
+p1 = &amp;my_array[0];
+p2 = &amp;my_array[2];
+</pre>
+<p>Now I can compute the difference between p2 and p1 like this</p>
+<pre class="code">
+p2 - p1
+</pre>
+<p>The result of this expression is the number of "slots" in the array between the two pointers.
+  In this case the answer would be 2. I would have to increment <span class="code"
+  >p1</span> two times in order to make it equal to <span class="code">p2</span>. If I did</p>
+<pre class="code">
+p1 - p2
+</pre>
+<p>I would get -2. The negative result just says that <span class="code">p1</span> is not beyond
+  <span class="code">p2</span> as would have been necessary to get a positive answer.</p>
+<p>You might not be surprised to learn at this point that you can also compare two pointers.</p>
+<pre class="code">
+if (p1 == p2) {
+  // I do this if p1 and p2 point at the same thing.
+}
+
+if (p1 &lt; p2) {
+  // I do this if p1 is "before" p2 in the array.
+}
+
+if (p1 &gt; p2) {
+  // I do this if p1 is "after" p2 in the array.
+}
+</pre>
+<p>There are also <span class="code">!=</span>, <span class="code">&gt;=</span>, and <span
+    class="code">&lt;=</span> operators that you can apply to two pointers as well.</p>
+<h3>Be careful!</h3>
+<p>A POINTER IS AN ADDRESS!!</p>
+<p>Don't forget that.</p>
+<pre class="code">
+if (*p1 == *p2) ...
+</pre>
+<p>This compares the things the pointers are pointing at. It does <em>not</em> compare the
+  pointers. The pointers might contain totally different addresses and yet point at (different)
+  things with the same value.</p>
+<pre class="code">
+if (p1 == p2) ...
+</pre>
+<p>This compares the pointers. It does <em>not</em> compare the things they are pointing at. The
+  pointers might be pointing at things with the same value and yet have totally different
+  addresses.</p>
+<p>So which do you want to use? It depends on what you are trying to say. Sometimes you want to
+  talk about the pointers and sometimes you want to talk about the things they are pointing at.
+  There is no rule you can follow in general. You need to consider each case by itself.</p>
+<h3>Arrays don't exist</h3>
+<p>Actually, arrays don't exist in C. It's true. C only has pointers. Here's why I say that...</p>
+<p>When you say the name of an array without specifying an index, the compiler understands that to
+  mean the address of the zeroth element of the array. Check out this loop</p>
+<pre class="code">
+for (p = my_array; p &lt; my_array + 4; p++) {
+  printf("*p is %d\n", *p);
+}
+</pre>
+<p>This is the way a loop like this might actually be written using pointers. The first thing it
+  does is assign <span class="code">my_array</span> to <span class="code">p</span>. Despite how it
+  looks this does not assign the entire array to the pointer. It wouldn't fit anyway! Instead the
+  compiler treats the "naked" <span class="code">my_array</span> as the address of the zeroth
+  element of the array. Thus I'm initializing <span class="code"
+  >p</span> with a pointer to the start of the array.</p>
+<p>Next I have to run the loop "as long as" the address in <span class="code">p</span> is in
+  bounds. In particular, if <span class="code">p</span> is less than the address <span
+      class="code">my_array + 4</span> I'm okay. Notice that I'm adding the integer 4 to the
+  address of the beginning of the array to compute the address just past the end of the array.
+  There are no array indicies mentioned here and we don't need them. Welcome to C!</p>
+<p>But... if you like indicies, don't dispair. You can apply them to pointers as well! Check this
+  out.</p>
+<pre class="code">
+int  my_array[4] = { 10, 12, 14, 16 };
+int *p;
+
+p = &amp;my_array[2];
+
+p[1] = 8;
+</pre>
+<p>Here I point <span class="code">p</span> at <span class="code">my_array[2]</span>. Now, as
+  explained earlier, I could do</p>
+<pre class="code">
+*(p + 1) = 8;
+</pre>
+<p>to assign 8 to the next slot in the array after the spot where the pointer is pointing. Yet the
+  notation <span class="code">*(p + 1)</span> is a pain. C allows you to abbreviate this with the
+  square brackets as <span class="code">p[1]</span>. Cool, eh? Since I've got <span
+      class="code">p</span> pointing into the middle of <span class="code"
+  >my_array</span>, I could also do</p>
+<pre class="code">
+p[-1] = 8;
+</pre>
+<p>This would assign 8 to <span class="code">my_array[1]</span>. (Do you see that?)</p>
+<p>Now let's take a look at a normal, down to earth expression like</p>
+<pre class="code">
+my_array[1] = 8;
+</pre>
+<p>The compiler thinks of this in the following way: the name <span class="code"
+>my_array</span> is the address of the beginning of the array. The <span class="code"
+>[1]</span> notation means compute the address of the element 1 position(s) downstream from the
+  address <span class="code">my_array</span> and then use that address to access the element. In
+  other words the compiler thinks you wrote</p>
+<pre class="code">
+*(my_array + 1) = 8;
+</pre>
+<p>You can, in fact, write this and it will work exactly the same way.</p>
+<p>When you declare an array, all you are really doing is telling the compiler to allocate a block
+  of memory and to arrange things so that the name of the array is taken as a pointer to the first
+  element in that block. Everything else is done with pointers from then on. The square bracket
+  notation is just a convenience and nothing more. If you fully understand this, then you have a
+  good grasp of pointers in C.</p>
+<h2>Summary</h2>
+<ol id="summary-list">
+  <li>
+    <p>You can take the address of an array element just the way you take the address of any
+      variable. For example, <span class="code">&amp;my_array[2]</span> is the address of the
+      third element of <span class="code">my_array</span>. You can use pointers to scan down an
+      array just as effectively as you can use integer indicies. For example,</p>
+    <pre class="code">
+int  my_array[4];
+int *p;
+
+for (p = &amp;my_array[0]; p &lt; &amp;my_array[4]; p++) {
+  *p = ...
+}
+</pre>
+    <p>This works because incrementing (or decrementing) a pointer "steps" the pointer by an
+      appropriate amount depending on the type of thing it is pointing at. For example, if
+      integers are four bytes on your machine, doing a <span class="code">p++</span> on a pointer
+      to integer will cause the address stored in <span class="code">p</span> to advance by 4.</p>
+  </li>
+  <li>
+    <p>In addition to incrementing and decrementing pointers, you can also add an integer to a
+      pointer to compute an address a certain number of "slots" downstream (or upstream if the
+      integer is negative) from the pointer. For example, if <span class="code">p</span> points at
+      <span class="code">my_array[2]</span>, <span class="code">p + 2</span> would point at <span
+          class="code">my_array[4]</span>, and <span class="code">p - 2</span> would point at
+      <span class="code">my_array[0]</span>.</p>
+  </li>
+  <li>
+    <p>You can compare two pointers for equality to see if they point at the same thing or not.
+      However, this is different than comparing the things they point at.</p>
+    <pre class="code">
+if (p1 == p2) { ...
+</pre>
+    <p>This is "true" if <span class="code">p1</span> and <span class="code">p2</span> contain the
+      same address.</p>
+    <pre class="code">
+if (*p1 == *p2) { ...
+</pre>
+    <p>This is "true" if the variables pointed at by <span class="code">p1</span> and <span
+        class="code">p2</span> contain the same value. In this case <span class="code"
+    >p1</span> and <span class="code">p2</span> might be pointing at two different variables.</p>
+  </li>
+  <li>
+    <p>When you use the name of an array without an index, the compiler takes that to be a pointer
+      to the first element of the array. Thus</p>
+    <pre class="code">
+int  my_array[4];
+int *p;
+
+p = my_array;
+  // Stores &amp;my_array[0] into p.
+</pre>
+    <p>When you apply square brackets to a pointer, the compiler accesses an appropriate array
+      element using the pointer to find the starting address of the "array".</p>
+    <pre class="code">
+p    = &amp;my_array[2];
+p[1] = 10;
+  // Same as *(p + 1) = 10. This stores 10 into my_array[3].
+</pre>
+  </li>
+</ol>
+<address>&copy; Copyright 2003 by Peter C. Chapin.<br/> Last Revised: <b>June 17, 2003</b>
+</address>
+</body>
+</html>

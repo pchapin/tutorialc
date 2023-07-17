@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <title>Lesson #23</title>
+  <meta name="Author" content="Peter Chapin"/>
+  <!-- <meta name="keywords" lang="en-US" content="..."> -->
+  <meta name="ROBOTS" content="NOARCHIVE"/>
+  <link rel="stylesheet" href="c-course.css" type="text/css"/>
+</head>
+<body>
+<h1>Lesson #23</h1>
+<p class="subtitle">Standard library string handling functions</p>
+<h2>Overview</h2>
+<p>In this lesson I will cover the following topics</p>
+<ol id="overview-list">
+  <li>
+    <p>Limitations on C strings.</p>
+  </li>
+  <li>
+    <p>The essential standard library string handling functions.</p>
+  </li>
+  <li>
+    <p>The null pointer.</p>
+  </li>
+</ol>
+<h2>Body</h2>
+<h3>Limitations on C strings</h3>
+<p>In C strings are primitive. The language treats them exactly like arrays of characters and
+  gives them almost no special support. This is different than in many other languages where
+  strings are built in types and often have their own special operators. C does not think that way
+  and many novice C programmers encounter errors because they assume too much. For example,
+  suppose you wanted to compare two strings to see if they were the same. You might be tempted to
+  do something like this</p>
+<pre class="code">
+char string1[128+1];
+char string2[128+1];
+
+...
+
+if (string1 == string2) { ... }
+</pre>
+<p>It doesn't work. The compiler sees you using the name of an array without an index. It thus
+  takes that to be the address of the first element of the array. What you are really asking here
+  is if the starting address of <span class="code">string1</span> and the starting address of
+  <span class="code">string2</span> are the same. Naturally they are not: the two strings are
+  stored in different arrays! What is actually in the strings is not considered. Instead to
+  compare strings you have to write a function to compare the two arrays (up to their respective
+  null bytes) one element at a time. The standard library has such a function. It is called <span
+      class="code">strcmp</span>.</p>
+<p>Some people also want to copy one string into another using just a plain assignment
+  operator</p>
+<pre class="code">
+string1 = string2;
+</pre>
+<p>This also doesn't work. To the compiler it looks like you are trying to assign one address to
+  another. Normally you can copy pointers, but in this case <span class="code"
+  >string1</span> is the address of an array. Since the compiler has already decided where that
+  array is going to be located in memory, it won't let you assign a new address to it. You will
+  get an "lvalue required" error message. In any case, the actual contents of the string are never
+  at issue. If you want to copy a string you need to write a function that will copy the array
+  elements one at a time. The standard library has such a function. It is called <span
+      class="code">strcpy</span>.</p>
+<h3>But strings are a little special</h3>
+<p>Actually the C language does give strings a few special perks. Let me talk about those now.</p>
+<p>When you use a string literal in your program, the compiler creates an anonymous array of
+  characters, initializes it with the characters of your literal&mdash;complete with a null
+  character at the end&mdash;and then replaces the literal with the address of the first element
+  of that anonymous array. Here's an example:</p>
+<pre class="code">
+char workspace[128+1];
+
+strcpy(workspace, "Hello, World!");
+</pre>
+<p>This works as you would expect. The first parameter to <span class="code">strcpy</span> is a
+  pointer to the workspace array; it has the type pointer to character. That is where you want the
+  string to go. The second parameter also has type pointer to character because string literals
+  are actually pointers! The compiler creates a static duration anonymous array of characters,
+  fills that array with the characters from "Hello, World!", puts a null byte on the end, and
+  passes the address of the first character in that array to strcpy. The end result: it does what
+  you want.</p>
+<p>One consequence of this is that you can do some very strange things in C that are just errors
+  in other languages. Check this out:</p>
+<pre class="code">
+char hex_digit = "0123456789ABCDEF"[number];
+</pre>
+<p>Here I'm applying a index (square brackets) to a string literal. Since the compiler regards the
+  literal as a pointer and since you can apply square brackets to pointers this is perfectly
+  acceptable. In fact, my example is even useful. It looks up an appropriate digit character from
+  an array using the numeric value as an index. I don't suggest you do things like this. It will
+  baffle people.</p>
+<p>When you initialize an array of characters you can use a special syntax to make your life
+  easier.</p>
+<pre class="code">
+char workspace[] = "Hello, World!";
+</pre>
+<p>Normally you would expect this to be an error (if you don't expect that, think about it for a
+  minute). The proper way to initailize an array of characters should be</p>
+<pre class="code">
+char workspace[] = {
+  'H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!', '\0'
+};
+</pre>
+<p>Notice how I explicitly put a null character at the end? Notice also how big a pain this is to
+  type? Try typing it. To make creating such arrays easier the compiler understands the special
+  syntax I showed above.</p>
+<p>Now consider the differences between the following two initialized declarations</p>
+<pre class="code">
+char p1[] = "Hello!";
+char *p2  = "Hello!";
+</pre>
+<p>There is really very little difference. The variable <span class="code">p1</span> is an array
+  and the variable <span class="code">p2</span> is a pointer, but in practice it makes little
+  difference to how you can use those variables. In the first case when you say just <span
+      class="code">p1</span> in your program the compiler takes that to mean the address of the
+  first character of an array. However since <span class="code">p2</span> also points at the first
+  character of an array you can use <span class="code">p1</span> and <span
+      class="code">p2</span> in very similar ways. You can even put an index on <span
+      class="code">p2</span> and write things like</p>
+<pre class="code">
+if (p2[1] == 'e') { ... }
+</pre>
+<p>The major difference is that you can't change the value of the address <span class="code"
+>p1</span> represents. You can change <span class="code">p2</span>.</p>
+<pre class="code">
+p1 = "World!";   // Error. Can't change the address of an array.
+p2 = "World!";   // Sure. Just giving a pointer a new value.
+</pre>
+<p>Note that if you cause <span class="code">p2</span> to point at something else, you might loose
+  the ability to access whatever <span class="code">p2</span> was pointing at before. For example
+</p>
+<pre class="code">
+char *p2 = "Hello!";
+
+p2 = "World!";
+  /* Legal, but now there is no way to access the characters of
+     "Hello!" since I don't have a variable around that contains
+     the address of those characters! */
+</pre>
+<p>This is sometimes a concern and sometimes it isn't.</p>
+<h3>The standard library</h3>
+<p>Of course nearly every program ever constructed needs to copy and compare strings. To address
+  this, the ANSI C standard library provides a number of useful string handling functions. You
+  don't actually have to write them; they are part of the standard. To get at these functions you
+  should <span class="code">#include &lt;string.h&gt;</span>. Here are a few of the important
+  ones.</p>
+<pre class="code">
+int strlen(char *);
+  /* Returns the length of the string. The null byte is not counted. */
+
+char *strcpy(char *dest, char *source);
+  /* Copies the source string to the address specified by dest. The null
+     byte is also copied. Returns dest. No overflow checking is done.
+     You must insure that dest has sufficient space. */
+
+char *strcat(char *dest, char *source);
+  /* Concatenates (appends) the source string onto the end of dest. The
+     null byte on dest is overwritten with the first character of
+     source. The null byte on source is copied. Returns dest. No
+     overflow checking is done. You must insure that dest has sufficient
+     space for the combined string. */
+
+int strcmp(char *s1, char *s2);
+  /* Compares the elements of s1 and s2. If they all agree (up to their
+     respective null bytes), this function returns zero. Otherwise it
+     returns a negative value if s1 comes "before" s2 and a positive
+     value of s1 comes "after" s2. */
+
+char *strchr(char *search, int c);
+  /* Searches the search string looking for a character that matches c.
+     If one is found a pointer to that character inside the string is
+     returned. Otherwise the special NULL pointer is returned. */
+
+int sprintf(char *dest, char *format, ...);
+  /* This function is actually declared in &lt;stdio.h&gt;. It works just like
+     printf except that it "prints" its output into an array of
+     characters given as the first argument. This is a handy way of
+     formatting a string containing variable values without actually
+     outputing it right away. It's very useful. No overflow checking is
+     done. You must insure that dest has sufficient space. (NOTE: C99
+     provides snprintf which takes an integer count that is used to
+     limit the number of characters put into the destination array). */
+
+int sscanf(char *source, char *format, ...);
+  /* This function is also declared in &lt;stdio.h&gt;. It works just like
+     scanf except that it reads characters out of a string rather than
+     from the standard input device. It treats the null character at the
+     end of the string as the "end-of-file". */
+</pre>
+<p>There are several other useful string functions in the standard library, but I consider the
+  ones I mention here to be essential. You can't live without these functions. Remember them. It's
+  also useful to know that there is a <span class="code">strncpy</span> and <span
+      class="code">strncat</span> that take an integer parameter defining the size of the
+  destination area. Those functions won't overflow the destination array. However, using them
+  properly can be tricky. The <span class="code">strncpy</span> function, for example, won't null
+  terminate the destination if it runs out of space. You need to do so explicitly if you care
+  about that---and you most likely do. I invite you to read about these other functions when you
+  need to use them. They are described in the text, but you can also read about them on-line using
+  the Unix manual.</p>
+<pre class="terminal">
+$ <span class="user-input">man strncpy</span>
+</pre>
+<p>The on-line manual contains information about the C standard library as well as the Unix
+  commands.</p>
+<h3>What is that NULL thing?</h3>
+<p>There is a special pointer, called the "null" pointer, that doesn't point at anything. Null
+  pointers are not uninitialiized, but you can't use them to access a value. What good are they?
+  Null pointers are often used by functions to indicate that some sort of error occured. For
+  example, the <span class="code">strchr</span> function I mentioned above returns a pointer to
+  the character it found. But if it doesn't find the character it returns the null pointer to
+  indicate that. This is very typical.</p>
+<p>You can write the null pointer in several different ways. The most basic is to just use "0" in
+  your program. It would look like this:</p>
+<pre class="code">
+char *p = 0;   // Declare p and initialize it to the null pointer.
+</pre>
+<p>You can check to see if a pointer is null like this</p>
+<pre class="code">
+if (p == 0) { ... }
+</pre>
+<p>Normally you aren't supposed to put integers into pointers or compare integers and pointers.
+  However, the null pointer is special. When you use "0" in the context where a pointer is
+  expected the compiler understands that you mean the null pointer.</p>
+<p>Many programmers find it odd to use zero to indicate the null pointer. As a result there is a
+  special symbol available that you can use instead. To get at that symbol you have to include an
+  appropriate header. The <span class="code">&lt;stdio.h&gt;</span> header works as do a few
+  others (but not all). Then you can say things like</p>
+<pre class="code">
+char *p = NULL;
+
+if (p == NULL) { ... }
+</pre>
+<p>Notice that I have to spell NULL with all uppercase letters.</p>
+<p>As far as I'm concerned you can use either method of representing a null pointer in your
+  program. In C++, the use of just "0" is prefered. In C "NULL" is more common.</p>
+<p>Notice how the null pointer doesn't have a type. The following is legal</p>
+<pre class="code">
+int    *p1 = NULL;
+char   *p2 = NULL;
+double *p3 = NULL;
+</pre>
+<p>It is also important to realize that the null pointer and the null character are two very
+  different things. The null character is the character with an ASCII code of zero. It is usually
+  written as <span class="code">'\0'</span> in a program. It is used to mark the end of a string.
+  The null pointer is a pointer that doesn't point at anything. It is usually written as <span
+      class="code">NULL</span> or 0 in a program. Since pointers are not characters the two ideas
+  should never meet. If you try to use a null character where the null pointer is necessary, or
+  visa-versa, you are likely to have compiler errors or worse.</p>
+<h2>Summary</h2>
+<ol id="summary-list">
+  <li>
+    <p>In C strings are just stored in ordinary arrays of characters. The language does not give
+      strings (hardly) any special consideration. You can't compare two strings with <span
+          class="code">==</span> and you can't assign one string to another with <span
+          class="code">=</span>. The language treats string literals as pointers to null
+      terminated anonymous arrays and does allow you to initialize an array of characters easily
+      with a string literal.</p>
+  </li>
+  <li>
+    <p>The essential library functions for handling strings are declared in <span
+        class="code">&lt;string.h&gt;</span>. They include functions such as <span
+        class="code">strlen</span>, <span class="code">strcpy</span>, <span class="code"
+    >strcat</span>, <span class="code">strchr</span>, and some others. Consult the appendix of the
+      text for more information.</p>
+  </li>
+  <li>
+    <p>The null pointer is a special pointer that doesn't point at anything. In C programs it is
+      typically shown as <span class="code">NULL</span>, but using <span class="code"
+      >0</span> will also work. The null pointer is used in many cases to indicate an error.
+      Functions that normally return a pointer often return the null pointer when they don't work.
+    </p>
+  </li>
+</ol>
+<address>&copy; Copyright 2003 by Peter C. Chapin.<br/> Last Revised: <b>July 3, 2003</b>
+</address>
+</body>
+</html>

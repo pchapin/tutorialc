@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <title>Lesson #21</title>
+  <meta name="Author" content="Peter Chapin"/>
+  <!-- <meta name="keywords" lang="en-US" content="..."> -->
+  <meta name="ROBOTS" content="NOARCHIVE"/>
+  <link rel="stylesheet" href="c-course.css" type="text/css"/>
+</head>
+<body>
+<h1>Lesson #21</h1>
+<p class="subtitle">Passing pointers and arrays into functions</p>
+<h2>Overview</h2>
+<p>In this lesson I will cover the following topics</p>
+<ol id="overview-list">
+  <li>
+    <p>Passing pointers to functions and using pointer parameters to lift some restrictions
+      normally placed on functions.</p>
+  </li>
+  <li>
+    <p>Passing arrays to functions.</p>
+  </li>
+</ol>
+<h2>Body</h2>
+<h3>Passing pointers into functions</h3>
+<p>Pointers are perfectly ordinary variables. They just happen to hold the address of something
+  else. However, there is nothing unusual about the way you pass pointers into functions. Here is
+  how it might look.</p>
+<pre class="code">
+void some_function(int *p)
+{
+  // I'm giving the address of some integer. I'll call that address p.
+
+  *p = 8;
+    // Here I'm modifying the integer using its address to find it.
+}
+
+int main(void)
+{
+  int age;  // Your typical integer.
+
+  some_function(&amp;age);
+  return 0;
+}
+</pre>
+<p>This example is rather silly since it does nothing useful. However, it shows you how things
+  work. The function <span class="code">some_function</span> has been defined to take a pointer to
+  integer as its one and only parameter. The name of the parameter is just <span
+      class="code">p</span>. In main I created an integer named <span class="code"
+  >age</span> and then called <span class="code">some_function</span> using <span
+      class="code">age</span>'s address as the argument. When <span class="code"
+  >some_function</span> executes it will store an 8 into the memory location pointed at by that
+  address. In other words, it will store an 8 into <span class="code">age</span>.</p>
+<p>So what is the "point" (ha, ha) of this? There are several things to notice:</p>
+<ol>
+  <li>
+    <p>Normally functions can't modify their arguments. C uses only "call by value" to pass
+      arguments to functions. That is still true. However, by sending the address of a variable to
+      a function, the function is able to modify that variable. Thus there is, in effect, a way
+      for functions to modify their arguments. The <span class="code"
+      >scanf</span> function in the standard library uses this technique. It is very common. When
+      you say</p>
+    <pre class="code">
+int age;
+
+printf("What is your age? ");
+scanf("%d", &amp;age);
+</pre>
+    <p>You are providing <span class="code">scanf</span> with the address of the place where it is
+      to deposit the value it scans. You give <span class="code">scanf</span> the address of <span
+          class="code">age</span> and it will use that address to modify <span
+          class="code">age</span> before it returns. If you just did <span class="code"
+      >scanf("%d", age)</span> there would be no way for <span class="code">scanf</span> to modify
+      the <span class="code">age</span> variable since it would only be getting a copy of that
+      variable.</p>
+  </li>
+  <li>
+    <p>Normally functions can only return a single value. This is still true. However, by using
+      pointers you can effectively return several values. Here's how it might look</p>
+    <pre class="code">
+void some_function(int *p1, int *p2, int *p3)
+{
+  // blah
+
+  *p1 = return_1;
+  *p2 = return_2;
+  *p3 = return_3;
+}
+
+int main(void)
+{
+  int result1, result2, result3;
+
+  some_function(&amp;result1, &amp;result2, &amp;result3);
+  return 0;
+}
+</pre>
+    <p>In this example <span class="code">some_function</span> wants to return three different
+      integers. Instead of just returning only one in the usual way, it requires that its caller
+      provide three integer "place holders" to hold the results. The caller then must give <span
+          class="code">some_function</span> the addresses of those place holders so that <span
+          class="code">some_function</span> can fill them in with appropriate values. This
+      technique is very common.</p>
+  </li>
+</ol>
+<p>Other languages do these things differently. Some languages have several different ways of
+  specifing parameters. Pascal has a concept of "VAR" parameters and Ada uses "IN OUT" parameters.
+  Such parameters provide a value to the function and can be modified by the function. C does not
+  have these features. It doesn't need them. C just uses pointers.</p>
+<h3>The classic swapping example</h3>
+<p>I really can't emphasize too much how function parameters work. I would be remiss in my duties
+  as an instructor if I didn't show you the example of a swapping function.</p>
+<p>Suppose you wanted to write a function that could swap two integers. At first you might try
+  this</p>
+<pre class="code">
+void swap(int A, int B)
+{
+  int temp;
+
+  temp = A;
+  A = B;
+  B = temp;
+}
+</pre>
+<p>The temporary integer is necessary. Without it you end up overwriting one of the values before
+  you have used it.</p>
+<p>Now you try to use this handy swap function like this</p>
+<pre class="code">
+int main(void)
+{
+  int top, bottom;
+
+  // Put something interesting in top and bottom.
+
+  swap(top, bottom);
+
+  // etc...
+}
+</pre>
+<p>This does not work. Do you know why? If not think it over a bit...</p>
+<p>Did you think about it?</p>
+<p>Okay... remember that in C parameters are passed by value. That means the arguments are <em>copied</em>.
+  In this case the values stored in <span class="code">top</span> and <span
+      class="code">bottom</span> are copied and the copies are used to initialize <span
+      class="code">A</span> and <span class="code">B</span> in the function. The function happily
+  swaps <span class="code">A</span> and <span class="code">B</span> but the original values in
+  <span class="code">top</span> and <span class="code">bottom</span> are not changed.</p>
+<p>To do this correctly in C you have to use pointers.</p>
+<pre class="code">
+void swap(int *A, int *B)
+{
+  int temp;
+
+  temp = *A;
+  *A = *B;
+  *B = temp;
+}
+
+int main(void)
+{
+  int top, bottom;
+
+  // etc...
+
+  swap(&amp;top, &amp;bottom);
+  // etc...
+}
+</pre>
+<p>This is fine. First <span class="code">swap</span> has been modified so that it takes two
+  pointers to int instead of two integers. The temporary variable needs to still be an integer,
+  however. I'm not trying to swap addresses! Inside <span class="code">swap</span> I have to use
+  the indirection operator a lot to get at the integers <span class="code"
+  >A</span> and <span class="code">B</span> are pointing at. That's annoying, but not a problem.
+</p>
+<p>The calling function is very much like it was except that instead of passing <span
+    class="code">top</span> and <span class="code">bottom</span> into <span class="code"
+>swap</span> it passes the address of <span class="code">top</span> and the address of <span
+    class="code">bottom</span>. It is true that those addresses get copied, but so what? The <span
+    class="code">swap</span> function uses those addresses to reach back into the calling function
+  and modify the variables that are stored there. Pretty cool, huh?</p>
+<h3>Passing arrays to functions</h3>
+<p>C does not allow you to pass an array to a function. This might seem surprising, but consider
+  the implications of doing otherwise. Since C only passes copies of arguments to a function,
+  passing an array would entail coping the entire array. Since arrays tend to be large copying the
+  whole array would be very time consuming. Many functions don't really need the copy so the time
+  spent creating it would be a waste of time.</p>
+<p>However, you do often want to write functions that work on an array. If you can't pass an array
+  to a function, how can you write such a function? The answer is to use pointers. C's handling of
+  arrays is such that the pointer solution is very easy. Here is how it might look</p>
+<pre class="code">
+void sort(int *array)
+{
+  // Sort the elements of array.
+}
+
+int main(void)
+{
+  int some_numbers[100];
+
+  // Load up some_numbers with values.
+
+  sort(some_numbers);
+  return 0;
+}
+</pre>
+<p>Here I've defined a sorting function that accepts the address of a single integer as a
+  parameter. However, the function will assume that address is actually the beginning of an array
+  of integers. In function main I created an array of 100 integers. After loading the array with
+  some (presummably unsorted) data I call <span class="code">sort</span> on that array. When I
+  call <span class="code">sort</span> I just use the name of the array without an index. The
+  compiler takes this to mean the address of the zeroth element of the array---just what the sort
+  function is expecting.</p>
+<p>You might be wondering how <span class="code">sort</span> knows the size of the array. After
+  all, sort is just getting a single address. There is nothing in that address to indicate the
+  array's size. In fact, the sort function that I'm showing above does <em>not</em> know the size
+  of the array! It would just have to assume some size and would thus only be able to sort arrays
+  of exactly that size. That is a problem. A more realistic sort function might look like this</p>
+<pre class="code">
+void sort(int *array, int size)
+{
+  // Do the sorting.
+}
+
+int main(void)
+{
+  int some_numbers[100];
+
+  // Load up some_numbers.
+
+  sort(some_numbers, 100);
+  return 0;
+}
+</pre>
+<p>This sort function takes a second parameter that defines the size of the array. Now when <span
+    class="code">sort</span> is called, the size must be provided. This approach is actually quite
+  flexible. What if I only wanted to sort the second half of the array? No problem:</p>
+<pre class="code">
+sort(&amp;some_numbers[50], 50);
+</pre>
+<p>I could sort the last quarter of the array like this</p>
+<pre class="code">
+sort(&amp;some_numbers[75], 25);
+</pre>
+<p>In these calls, I have to use the "address of" operator and the indexing operator (the square
+  brackets). The cute trick with the array name only works if you want the address of the
+  beginning of the array. It is very important that I provide the right count. Whatever happens, I
+  don't want to tell sort to manipulate array elements that don't exist. For example, the
+  following would be bad</p>
+<pre class="code">
+sort(some_numbers, 101);
+</pre>
+<p>In this case I'm telling <span class="code">sort</span> that there are 101 elements. In fact
+  the array has only 100. Eventually as <span class="code">sort</span> works it will get around to
+  manipulating that non-existant array element and then undefined things will happen (core dump!).
+  Something like this has the same problem</p>
+<pre class="code">
+sort(&amp;some_numbers[75], 26);
+</pre>
+<p>Do you see why?</p>
+<p>Another thing to watch out for are errors like the following</p>
+<pre class="code">
+int main(void)
+{
+  int *array;
+
+  sort(array, 100);
+  return 0;
+}
+</pre>
+<p>The compiler will not object to this. The sort function takes a pointer to integer and an
+  integer as parameters and that is exactly what you are giving it. However, <span
+      class="code">array</span> is an uninitialized pointer. It contains an undefined address.
+  Thus <span class="code">sort</span> will attempt to sort 100 random integers at a random place
+  in memory. Core dump! People write code like this fairly often. They see that <span
+      class="code">sort</span> expects a pointer to integer and they assume that they have to
+  declare a pointer to integer in order to satisfy it. Yet what <span class="code"
+  >sort</span> really wants is a pointer to the first integer in an array of integers. You need to
+  declare an array, not a pointer to make sort happy.</p>
+<p>Read the above paragraph again. The error I'm illustrating here is extremely common and even
+  seasoned C programmers have been known to make it. When you see a function that expects a
+  pointer parameter don't assume that you should declare a pointer for it. Many such functions are
+  really designed to work on arrays.</p>
+<p>Using an integer is one obvious way to specify the size of an array. Another way is to give
+  sort a pointer to both the beginning and the end of the array. It might look like this</p>
+<pre class="code">
+void sort(int *first, int *last)
+{
+  // sort the array between first and last.
+}
+
+int main(void)
+{
+  int array[100];
+
+  sort(array, array + 100);
+  return 0;
+}
+</pre>
+<p>It turns out to be a lot easier for everyone if you define the array by using a pointer to the
+  beginning and a pointer just past the end. The name <span class="code">array</span> represents
+  the address of the zeroth element and <span class="code">array + 100</span> is the address of
+  the first non-existant element (<span class="code">array[100]</span>). The sort function needs
+  to be written with the understanding that <span class="code"
+  >last</span> is just past the end of the array, but that turns out to be easier anyway.</p>
+<p>In any case, no matter how you do it, <span class="code">sort</span> will need to be told how
+  large the array is. The address of the beginning of the array is not enough information for
+  <span class="code">sort</span> to figure that out on its own. This is different than the way
+  some other languages work. In many languages you can pass an array to a function and the size of
+  the array is information that is "attached" to the array in some way. C is not like that.</p>
+<h2>Summary</h2>
+<ol id="summary-list">
+  <li>
+    <p>You can pass a pointer to a function the same way you pass any other type of variable. For
+      example,</p>
+    <pre class="code">
+void some_function(int *p)
+{
+  ...
+}
+</pre>
+    <p>This defines <span class="code">some_function</span> to take a pointer to integer as a
+      parameter. When you call <span class="code">some_function</span> you either have to give it
+      a pointer to integer or you can take the address of some suitable integer variable
+      (depending on your needs). <span class="code">some_function</span> will get a copy of the
+      pointer but it can still access whatever original variable that pointer was pointing at. In
+      this way <span class="code">some_function</span> is able to, in effect, modify the argument
+      you give it.</p>
+    <p>You can pass a pointer to a function as a way of getting around the restriction that
+      functions only get copies of their arguments. You can also pass (several) pointers to a
+      function to allow the function to effectively return several different values. The function
+      would use the pointers to access "place holder" variables defined in the calling
+      program.</p>
+  </li>
+  <li>
+    <p>You can't pass arrays to functions directly, but you can give a function a pointer to the
+      first element of an array. When the function is called, you just pass it the array name
+      without an index. Inside the function you can treat the pointer as a pointer, or you can
+      apply an index to it again and use it as an array.</p>
+    <p>Since a pointer to the first element of an array does not tell you how large the array is,
+      you have to arrange some other way of getting that information to your function. You can
+      either pass the size as a separate parameter, or pass two pointers that define the start and
+      end of the array.</p>
+  </li>
+</ol>
+<address>&copy; Copyright 2003 by Peter C. Chapin.<br/> Last Revised: <b>July 2, 2003</b>
+</address>
+</body>
+</html>

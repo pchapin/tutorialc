@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <title>Lesson #27</title>
+  <meta name="Author" content="Peter Chapin"/>
+  <!-- <meta name="keywords" lang="en-US" content="..."> -->
+  <meta name="ROBOTS" content="NOARCHIVE"/>
+  <link rel="stylesheet" href="c-course.css" type="text/css"/>
+</head>
+<body>
+<h1>Lesson #27</h1>
+<p class="subtitle">Interaction between structures, arrays, pointers, and functions.</p>
+<h2>Overview</h2>
+<p>In this lesson I will cover the following topics</p>
+<ol id="overview-list">
+  <li>
+    <p>How to declare and use an array of structures.</p>
+  </li>
+  <li>
+    <p>How to pass structures to functions and return structures from functions.</p>
+  </li>
+  <li>
+    <p>How to use pointers to structures with functions to avoid copying structures too much.</p>
+  </li>
+</ol>
+<h2>Body</h2>
+<h3>Arrays of structures</h3>
+<p>Structures are very useful, but it turns out that arrays of structures are also very useful. A
+  structure is like a record in a database table. An array of structures is like the database
+  table itself.</p>
+<p>Suppose I wanted to write a program that analyzed the logs of an Internet Service Provider.
+  Suppose each log entry contained information about the person who logged in, the date and time
+  they logged in, the date and time they logged out, and how much network traffic they generated.
+  I can express all of this information with structures very nicely.</p>
+<pre class="code">
+// This structure holds a date and time.
+struct datetime {
+  int seconds, minutes, hours;
+  int day, month, year;
+};
+
+// This structure holds one record of information from the log file.
+struct log_entry {
+  char username[16];       // Holds the username of the user.
+  struct datetime login;   // When the user logged in.
+  struct datetime logout;  // When the user logged out.
+  long TX_bytes;           // Number of bytes sent over the network.
+  long RX_bytes;           // Number of bytes received from the network.
+};
+</pre>
+<p>In this example I'm assuming that user names are no more than 15 characters (I'm leaving one
+  space in the array for the null byte). This is fairly realistic.</p>
+<p>Reading the log file will be somewhat complicated. My program will have to open the file with
+  <span class="code">fopen</span>, read it a line at a time using <span class="code"
+  >fgets</span>, and process each line. You might imagine that each line of the log format is
+  something like (I'm showing a single long line broken into two shorter lines to prevent ugly
+  word wrapping from happening).</p>
+<pre>
+li=23-Jul-1999:15:37:24, u=pchapin, lo=23-Jul-1999:15:45:28,
+  tx=1134587, rx=89721
+</pre>
+<p>Here "li=" shows the log in time, "u=" shows the user name, and so forth. Extracting the
+  necessary values from this string would require some work but hopefully you could imagine doing
+  it. (Actually it is highly unlikely that a log file would show both login and logout times in
+  one entry. More likely those two events would be in different log entries. Thus our program
+  would really have to handle that and that makes it a good deal trickier).</p>
+<p>Right now I'm not interested in how you interpret the text of the log entries. I'm only
+  interested in how you would manage the structures after you got them filled up with data. Since
+  there are many log entries in a typical log file you will probably want an array of
+  structures.</p>
+<pre class="code">
+struct log_entry log[1024];
+</pre>
+<p>This declares an array of 1024 (exactly 2<sup>10</sup>... a nice, round number) <span
+    class="code">struct log_entry</span> variables. The name of the array is <span
+    class="code">log</span>. Now imagine that you have some function that actually reads the log
+  file, interprets each entry and loads the array with data. Maybe someone else wrote it. Here is
+  the declaration of that function.</p>
+<pre class="code">
+int read_log(struct log_entry *buffer, int size);
+</pre>
+<p>This function expects a pointer to a <span class="code">struct log_entry</span> which, as is
+  traditional, is really to be the address of the first element of an array. The second parameter
+  is the size of the array. The function uses the size to insure that it does not overrun the
+  array. The function returns the number of log entries that it actually fills.</p>
+<p>Armed with this function you can do</p>
+<pre class="code">
+int log_count;
+
+log_count = read_log(log, 1024);
+</pre>
+<p>The name <span class="code">log</span> is the name of an array (of structures) without an
+  index. As always, the compiler interprets this to be the address of the first element of the
+  array. This is exactly what <span class="code">read_log</span> expects. The <span
+      class="code">read_log</span> function then works its magic and returns the number of log
+  entries it found. Maybe that's a number like 334.</p>
+<p>So what are you going to do with this information? Suppose you wanted to print out all log
+  entries where the user logged in during the middle of the night. Perhaps you are worried about
+  late night hacking attempts. Here is what you might do.</p>
+<pre class="code">
+int i;
+
+for (i = 0; i &lt; log_count; i++) {
+  if (log[i].login.hours &lt; 5) {
+    printf("User %s logged in during early morning of %d-%d-%d\n",
+      log[i].username,
+      log[i].login.day, log[i].login.month, log[i].login.year
+    );
+  }
+}
+</pre>
+<p>This loop runs over all the legitimate log entries (not necessarily all 1024 of them). For each
+  log entry it examins the <span class="code">hours</span> member of the login date and time. If
+  that member is less than 5 (early morning) the if statement will trigger.</p>
+<p>The expression <span class="code">log[i].login.hours</span> works as desired. The member
+  selection operator and the array access operator have the same precedence but they associate
+  from left to right. Thus the expression is really <span class="code"
+  >((log[i]).login).hours</span>.</p>
+<p>Inside the if statement I print out the relevant information. I print the <span
+    class="code">username</span> array of characters into a %s format specifier so that the string
+  is printed out. I then print out the data part of <span class="code"
+  >log[i].login</span> as three separate integers. The <span class="code">printf</span> statement
+  is quite long because some of the things I'm printing require elaborate expressions to properly
+  specify. That is fine.</p>
+<h3>Pointers to structures</h3>
+<p>My loop above uses array indicies to access the <span class="code">log</span> array. However, I
+  can also use pointers. Just as I can take the address of a simple variable and get a pointer to
+  that variable, I can also take the address of a structure and get a pointer to that structure.
+  Here is how it might look</p>
+<pre class="code">
+struct log_entry *p;
+
+for (p = log; p &lt; log + log_count; p++) {
+  if ((*p).login.hours &lt; 5) {
+    ...
+</pre>
+<p>This loop starts by making <span class="code">p</span> point at the first structure in the
+  array. When it later increments <span class="code">p</span>, the address in <span
+      class="code">p</span> will be advanced by an amount equal to the size of the entire
+  structure (large). Thus after <span class="code">p++</span>, <span class="code">p</span> will be
+  pointing at the next structure in the array. This is exactly how pointers to ordinary variables
+  work. When I add the integer <span class="code">log_count</span> to the pointer <span
+      class="code">log</span>, I get a new pointer <span class="code"
+  >log_count</span> structure sizes downstream. Again this is exactly how pointers to ordinary
+  variables work.</p>
+<p>The expression in the if statement looks complicated</p>
+<pre class="code">
+(*p).login.hours
+</pre>
+<p>Here I start by considering the thing <span class="code">p</span> is pointing at. Since <span
+    class="code">p</span> is a pointer to a structure, <span class="code">*p</span> is a
+  structure. In particular <span class="code">*p</span> is a <span class="code">struct
+        log_entry</span>. Since such structures have a <span class="code">login</span> member, the
+  reference to it is completely legal and correct.</p>
+<p>In this expression the parentheses are necessary. Otherwise I have <span class="code"
+>*p.login.hours</span> and because of the higher precedence of the member selection operator this
+  looks like <span class="code">*((p.login).hours)</span>. However, this is an error. I can't
+  apply the member selection operator to a pointer so <span class="code"
+  >p.login</span> doesn't make sense. Pointers aren't structures and they don't have members
+  (pointers are addresses). It is true that in this case <span class="code">p</span> is a pointer
+  to a structure, but that does not change the fact that <span class="code"
+  >p</span> itself is just a plain old pointer.</p>
+<p>Since having to type the parentheses around <span class="code">*p</span> all the time in
+  expressions like this is very tedious. C has a special operator just for this situation. It is
+  sometimes called the "arrow operator". It looks like this</p>
+<pre class="code">
+p-&gt;login.hours
+</pre>
+<p>When you use the arrow operator, the left operand must be a pointer to a structure. The right
+  operand must be one of the members in the structure pointed at by the left operand. The arrow
+  operator has the same precedence as the member selection operator and associates from left to
+  right. Thus the above is really</p>
+<pre class="code">
+(p-&gt;login).hours
+</pre>
+<p>and that makes perfect sense. The pointer <span class="code">p</span> is a pointer to a
+  structure and <span class="code">login</span> is one of the members of that structure. I then
+  apply the member selection operator to the <span class="code">login</span> member as desired.
+</p>
+<p>Putting this all together I get</p>
+<pre class="code">
+struct log_entry *p;
+
+for (p = log; p &lt; log + log_count; p++) {
+  if (p-&gt;login.hours &lt; 5) {
+    printf("User %s logged in during early morning of %d-%d-%d\n",
+      p-&gt;username, p-&gt;login.day, p-&gt;login.month, p-&gt;login.year
+    );
+  }
+}
+</pre>
+<p>Notice how neat and clean the arrow operator makes this look?</p>
+<h3>Passing structures to functions</h3>
+<p>Since structures are first class variables you can pass them to a function just like any other
+  variable. For example consider the following function that prints out a <span
+      class="code">log_entry</span> is a nice format. It might start like this</p>
+<pre class="code">
+void print_log_entry(struct log_entry entry)
+{
+  printf("Session for %s:\n", entry.username);
+  // etc...
+</pre>
+<p>Here I'm naming the formal parameter <span class="code">entry</span>. It has the type <span
+    class="code">struct log_entry</span>. When I pass a <span class="code">struct
+        log_entry</span> variable to this function, that variable is copied and the function gets
+  its own copy. Inside the function I can do whatever I want with the copy without changing the
+  original in any way. This is exactly how ordinary variables are passed to a function.</p>
+<p>While this works, you should do this carefully. Structures tend to be quite large and copying
+  large variables can take a lot of time. Passing a whole structure into a function can cause the
+  function to be sluggish. Unless the structure is small or unless you really need to give the
+  function a copy, it is usually better to pass a pointer to the structure instead. Here is how
+  that looks</p>
+<pre class="code">
+void print_log_entry(struct log_entry *entry)
+{
+  printf("Session for %s:\n", entry-&gt;username);
+  // etc...
+</pre>
+<p>In this case I'm only giving an address to the function. Since addresses are small passing an
+  address is quick. The function uses that address to access the (possibly huge) structure as it
+  sits back in the caller's list of variables. Since C has that handy-dandy arrow operator,
+  accessing the members of the structure pointed at by the parameter is easy. This is, in fact,
+  the main use of the arrow operator and the main reason for it existing in the language.</p>
+<p>It turns out that you can also return whole structures from functions as well. The following
+  works just fine.</p>
+<pre class="code">
+struct log_entry get_next_entry(void)
+{
+  struct log_entry an_entry;
+
+  strcpy(an_entry.username, ...);
+  // etc...
+
+  return an_entry;
+}
+</pre>
+<p>Here I define <span class="code">get_next_entry</span> to return a variable of type <span
+    class="code">struct log_entry</span>. Inside the function I declare a local variable of type
+  <span class="code">struct log_entry</span> and I name that variable <span
+      class="code">an_entry</span>. Then I do whatever is necessary to fill in the members of
+  <span class="code">an_entry</span> with appropriate data. (Perhaps I read the next line from the
+  log file and interpret that line). Finally when <span class="code"
+  >an_entry</span> is ready, I return the whole structure in one operation.</p>
+<p>In my main program I might do</p>
+<pre class="code">
+struct log_entry next;
+
+next = get_next_entry();
+</pre>
+<p>Here I create a variable of type <span class="code">struct log_entry</span> and I use that
+  variable to "catch" the value returned by <span class="code">get_next_entry</span>. This method
+  works very well. The problem with it is that again it involves copying whole structures. That
+  can be time consuming. Another technique that is often used instead looks like this</p>
+<pre class="code">
+void get_next_entry(struct log_entry *);
+
+struct log_entry next;
+
+get_next_entry(&amp;next);
+</pre>
+<p>Here I'm imagining that <span class="code">get_next_entry</span> takes a pointer to a <span
+    class="code">struct log_entry</span>. It then uses that pointer to "fill in" the members of
+  the structure pointed at. In my main program I create a suitable placeholder variable and then
+  pass the address of that variable to <span class="code"
+  >get_next_entry</span> so that the variable can be filled up with data. This is basically the
+  same idea that <span class="code">scanf</span> uses to fill in integers.</p>
+<p>What doesn't work is this</p>
+<pre class="code">
+struct log_entry *get_next_entry(void);
+
+struct log_entry *next;
+
+next = get_next_entry();
+</pre>
+<p>Here I'm assuming that <span class="code">get_next_entry</span> just returns a small pointer to
+  a <span class="code">struct log_entry</span>. In my main program I declare a pointer variable to
+  receive <span class="code">get_next_entry</span>'s return value and I call <span class="code">get_next_entry</span>
+  to get things ready. This is fine so far. But how should <span
+      class="code">get_next_entry look</span>? Here is one attempt</p>
+<pre class="code">
+struct log_entry *get_next_entry(void)
+{
+  struct log_entry an_entry;
+
+  strcpy(an_entry.username, ...);
+  // etc...
+
+  return &amp;an_entry;
+}
+</pre>
+<p>Here I create a local <span class="code">struct log_entry</span> named <span class="code"
+>an_entry</span> to hold the next values. I then do whatever is necessary to load up the members
+  of <span class="code">an_entry</span> with appropriate data. Finally I return the address of
+  <span class="code">an_entry</span> since I'm only supposed to be returning a pointer.</p>
+<p>This looks good except... after <span class="code">get_next_entry</span> returns all its local
+  data will vanish. Thus the pointer it is returning will point at meaningless memory and the main
+  program will become confused when it tries to access that memory. This is why it is usually
+  better to have the main program allocate the structure and pass an address into the function
+  rather than have the function allocate the structure and try to pass the address out.</p>
+<p>Actually the above example can be fixed quite easily by making appropriate use of the static
+  keyword. Do you see how? While this works, there are other issues with using static data that
+  cause this approach to still be less favored.</p>
+<p>So far I've sent time explaining ways of returning a structure without actually returning it!
+  Because structures tend to be large, it is good to avoid copying them when possible. Thus
+  despite the fact that you can pass structures to functions and return them from functions, it is
+  often not done. Most of the time programmers use pointers as I've described to get the same
+  effect. However, there are times when you do want to return a whole structure from a function.
+  In C functions can only return a single value. Sometimes this is awkward. However, you could
+  define a structure with several members, load up one of those structures in your function, and
+  return the whole structure at once. This, in effect, gives you a way to return more than one
+  value at a time. This technique is sometimes used.</p>
+<h2>Summary</h2>
+<ol id="summary-list">
+  <li>
+    <p>Since a structure is just another type, you can create arrays of structures the same way
+      you create arrays of any type.</p>
+    <pre class="code">
+struct log_entry log[1024];
+</pre>
+    <p>Each element in such an array is a structure and so you can apply the member selection
+      operator to any element.</p>
+    <pre class="code">
+printf("%s", log[i].username);
+</pre>
+  </li>
+  <li>
+    <p>Since a structure is just another type you can pass structure variables to functions the
+      same way you pass other variables to functions.</p>
+    <pre class="code">
+void f(struct log_entry input)
+{
+  // etc...
+}
+</pre>
+    <p>As always, the structure you use for an argument is copied and the function works on the
+      copy. Returning structures from functions is also straightforward.</p>
+    <pre class="code">
+struct log_entry next(void)
+{
+  struct log_entry result;
+
+  // Fill in the members of Result.
+
+  return result;
+}
+</pre>
+    <p>Keep in mind that passing structures to functions and returning structures from functions
+      involves copying the structure. For large structures that might be time consuming.</p>
+  </li>
+  <li>
+    <p>Many C programmers use pointers to structures with functions to avoid copying
+      structures.</p>
+    <pre class="code">
+struct log_entry result;
+
+next(&amp;result);
+  /* Give function next the address of result so that it can access
+     the members of result and/or update those members with the
+     values it wants to return. */
+</pre>
+    <p>When working with a pointer to a structure, you will want to make use of the arrow operator
+      to access the members of the structure pointed at by that pointer. For example</p>
+    <pre class="code">
+void next(struct log_entry *p)
+{
+  strcpy(p-&gt;username, ...);
+  // etc...
+}
+</pre>
+  </li>
+</ol>
+<address>&copy; Copyright 2003 by Peter C. Chapin.<br/> Last Revised: <b>July 8, 2003</b>
+</address>
+</body>
+</html>

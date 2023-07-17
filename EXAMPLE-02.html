@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <title>Example #2</title>
+  <meta name="Author" content="Peter Chapin"/>
+  <meta name="ROBOTS" content="NOARCHIVE"/>
+  <link rel="stylesheet" href="c-course.css" type="text/css"/>
+</head>
+
+<body>
+<h1>Example #2</h1>
+
+<p class="subtitle">Filter for Detecting White Space</p>
+
+<p>In this example I will write a useful filter program. This program, which I will call "white,"
+  will look for white space at the end of the lines in a text file. It will also look for blank
+  lines at the end of the file. For the purposes of this program, I will define white space as
+  space characters and tab characters. Such characters look "white" when they are printed on
+  paper.</p>
+
+<p>It can be quite difficult to notice white space at the end of a line. Since, by definition,
+  white space is invisible it is not obvious when it is there unless there is a "normal" character
+  after it to make it stand out. The point of this program is to help locate such extra white
+  space.</p>
+
+<p>In addition, this program will look for blank lines at the end of the file. For similar
+  reasons, such lines are not always easy to notice. Yet they can cause surprises at times so it
+  is nice to know when they are present.</p>
+
+<p>The first step is to design the program. Since this will be a filter it will be built around a
+  while loop that reads characters from the standard input device one at a time. That loops looks
+  like</p>
+
+<pre class="code">
+  #include &lt;stdio.h&gt;
+
+  int main( void )
+  {
+      int ch;
+
+      // Read the input one character at a time.
+      while( ( ch = getchar( ) ) != EOF ) {
+          // Process Ch.
+      }
+
+      return 0;
+  }
+</pre>
+
+<p>The question is: what goes inside that loop? How can I get the effect I want while looking at
+  just one character at a time?</p>
+
+<p>First, I will take a closer look at the problem to make sure I under- stand exactly what is
+  being asked. Keep in mind that in a text file there is a newline character at the end of each
+  line. Here is an example that shows those '\n' characters explicitly. Assume this file is called
+  test.txt.</p>
+
+<pre>
+  This is the first line of my file.\n
+  This is the second line.\n
+  This line has trailing white space.     \n
+  This is the last line of the file.\n
+  \n
+  \n
+  \n
+      EOF
+</pre>
+
+<p>In this example there are four blank lines at the end. The very last line has a few spaces on
+  it (trailing white space) and no '\n' before the end of the file is reached.</p>
+
+<p>When I run white I want it to look something like this.</p>
+
+<pre class="terminal">
+  $ <span class="user-input">white &lt; test.txt</span>
+  Line 3 contains trailing white space.
+  Line 8 contains trailing white space.
+  There are 4 blank lines at the end of the input.
+</pre>
+
+<p>It might be nice if the program also told me how many lines were in the file and if the last
+  line has a '\n' character at the end of it or not. Perhaps those are things that can be included
+  in version 2.0.</p>
+
+<p>I'm going to create this program using a technique that I call "incremental enhancement". I've
+  never heard anyone else use that phrase so keep that in mind if you start talking with other
+  programmers. However, the method is common and well known. The idea is this: I will start by
+  writing a very minimal program that doesn't even fullfill the most basic requirements. I just
+  want to get something going that will compile and run. Then I will enhance it just a little bit
+  to make it do something useful and interesting. Once I get that enhancement working, I will make
+  another enhancement in order to get just a bit more working. Each step is small and (hopefully)
+  easy. Eventually by taking many small steps I will get a program that is big and
+  complicated.</p>
+
+<p>This method works very well for small to medium sized programs. It does not work well for large
+  programs. The problem with large programs is that if you start down the wrong road you might not
+  realize that for a quite a while. By the time you do realize that you made a fundamental mistake
+  in your design you've already committed a lot of time and resources on the program. Incremental
+  enhancement works best if you can easily "back out" of changes that you later decide were
+  mistakes. That implies the program is not too large. However, for such programs it is often
+  highly effective. It is particularly effective if you aren't quite sure how to do something or
+  what you want done.</p>
+
+<p>Okay... so my first step will be to recognize when a line ends. Hmmm...</p>
+
+<pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  int ch;    // A character from the input device.
+
+  // Read the input one character at a time.
+  while ((ch = getchar()) != EOF) {
+
+    // Is this the end of a line?
+    if (ch == '\n') {
+      printf("I've come to the end of a line!\n");
+    }
+  }
+
+  return 0;
+}
+</pre>
+<p>This looks good <em>except</em> if the last line in the file does not have a '\n' at the end,
+  this program won't notice it. (You encounter such programs more often than you might think).
+  This issue is this: when the loop ends was the last character a '\n' or not? If the character
+  just before the EOF was not a '\n' then there is an unterminated line at the end of the file.
+  However, if the character just before the EOF was a '\n' then everything is nice and normal. To
+  deal with this I'll need a flag variable to keep track of when I've seen a '\n'. How about:</p>
+<pre class="code">
+#include &lt;stdio.h&gt;
+
+#define NO  0
+#define YES 1
+
+int main(void)
+{
+  int ch;               // A character from the input device.
+  int line_start = YES; // =NO after I see a non '\n' character.
+
+  // Read the input one character at a time.
+  while ((ch = getchar()) != EOF) {
+
+    // Is this the end of a line?
+    if (ch == '\n') {
+      printf("I've come to the end of a line!\n");
+      line_start = YES;
+    }
+    else {
+      line_start = NO;
+    }
+  }
+
+  // Was there an unterminated line?
+  if (line_start == NO) {
+    printf("The last line of input does not have a newline at the end.\n");
+  }
+
+  return 0;
+}
+</pre>
+<p>In this version I've introduced a flag variable named <span class="code"
+>line_start</span> to keep track of where I am on a line. It will be set to 1 (true) if the next
+  character I get is going to be the first character on a line. This occurs if the last character
+  I got was the last character on the previous line (the '\n' character).</p>
+<p>Instead of using the values 1 and 0 to mean true and false, I introduced two symbols instead.
+  This is a common technique and it can make your programs a lot more readible. The lines</p>
+<pre class="code">
+#define NO  0
+#define YES 1
+</pre>
+<p>tell the compiler (really the preprocessor) that everywhere I use the symbol <span
+    class="code">NO</span> it should replace it with 0 and everywhere I use the symbol <span
+    class="code">YES</span> it should replace it with 1. So a statement like</p>
+<pre class="code">
+line_start = NO;
+</pre>
+<p>is really just</p>
+<pre class="code">
+line_start = 0;
+</pre>
+<p>However, it looks a lot nicer to say <span class="code">YES</span> and <span class="code"
+>NO</span> when you mean yes and no. Traditionally such preprocessor symbols are given names in
+  all uppercase letters. You should do that too. The VTC style guide requires it.</p>
+<p>When I declared <span class="code">line_start</span> I initialized it to <span
+    class="code">YES</span> since the very first character from the file would be the start of the
+  first line. If I come to a '\n' in the file I print my message and set <span
+      class="code">line_start</span> to <span class="code">YES</span> again since my next
+  character would be the first character on the next line. For any other character in the file I
+  set <span class="code">line_start</span> to <span class="code">NO</span> since after reading
+  such a character I would definitely not be at the start of a line anymore. Finally when the loop
+  ends I check <span class="code">line_start</span>. If it's <span
+      class="code">NO</span> then there must have been some "normal" characters in there without a
+  '\n.'</p>
+<p>Remember how I said earlier that it would be nice if the program told the user if the last line
+  was not terminated with a '\n?' Remember how I said that would be something for version 2.0? It
+  turns out that we have to notice such lines anyway so we might as well tell the user about them.
+  Version 2.0 is coming out sooner than expected! This is the sort of thing that happens when you
+  use incremental enhancement. You are never quite sure how it is going to work out when you
+  start.</p>
+<p>Okay, now I'm going to tackle the problem of detecting blank lines at the end of the file. I'll
+  worry about the problem of white space at the end of the lines later. I don't want to do too
+  much at once! That would be difficult and I'm trying to avoid difficulty.</p>
+<p>What happens if <span class="code">line_start</span> is <span class="code">YES</span> when I
+  see a '\n' character? Hmmm. That means I must have gotten (at least) two '\n' characters in a
+  row. It might also mean that the first character in the file is a '\n' character. In any case it
+  means that there was a blank line above me. In particular, each time I see a '\n' character with
+  <span class="code">line_start</span> at <span
+      class="code">YES</span> implies another blank line above me. I want to count those blank
+  lines (so I'll need an integer to hold the count). Then when the loop ends I'll check the count.
+  If it's not zero there were blank lines at the end. So I get:</p>
+<pre class="code">
+#include &lt;stdio.h&gt;
+
+#define NO  0
+#define YES 1
+
+int main(void)
+{
+  int ch;                // A character from the input device.
+  int line_start  = YES; // =NO after I see a non '\n' character.
+  int blank_count = 0;   // The number of blank lines before current point.
+
+  // Read the input one character at a time.
+  while ((ch = getchar()) != EOF) {
+
+    // Is this the end of a line?
+    if (ch == '\n') {
+      printf("I've come to the end of a line!\n");
+
+      // If this '\n' was at the start of a line, I have a blank line.
+      if (line_start == YES) {
+        blank_count++;
+      }
+      line_start = YES;
+    }
+
+    // If I see an ordinary character (not '\n') then I can't be at the
+    // start of a line any more. Further, this line is not blank (empty)
+    // so I'll reset Blank_Count.
+    else {
+      line_start = NO;
+      blank_count = 0;
+    }
+  }
+
+  // Was there an unterminated line?
+  if (line_start == NO) {
+    printf("The last line of input does not have a newline at the end.\n");
+  }
+
+  // Are there blank lines at the end?
+  if (blank_count != 0) {
+    printf("There are %d blank lines at the end of the input.\n", blank_count);
+  }
+
+  return 0;
+}
+</pre>
+<p>Notice how I reset <span class="code">blank_count</span> whenever I find a "normal" character.
+  The reason for this is explained in the comments (notice how I enhance the comments while I
+  enhance the program!). If I didn't do this, <span class="code"
+  >blank_count</span> would count the total number of blank lines in the entire file. That's not
+  what I want. I just want the total number of blank lines immediately above the current point.
+</p>
+<p>Of course this version assumes that lines containing nothing but spaces are not blank. That
+  isn't right. But hey... I haven't gotten there yet! This version is far enough along, though, so
+  that testing would be a good idea. I could create a file in pico with some blank lines at the
+  end and see how it goes. In fact, it would probably make sense to test one of the earlier
+  versions of this program as well. The whole point of incremental enhancement is to get something
+  that will compile and run as quickly as possible. That makes you feel good and puts you in the
+  mood to work on the next stage. It also makes it easier to find problems.</p>
+<p>Hold on one moment while I test the version I have so far...</p>
+<p>Okay, it seems to work. I tried four test cases.</p>
+<ol>
+  <li>
+    <p>The normal case: no blank lines anywhere.</p>
+  </li>
+  <li>
+    <p>Some blank lines at the end. It gave the correct number of blank lines and was not off by
+      one.</p>
+  </li>
+  <li>
+    <p>A file with nothing but blank lines. It gave the correct number of blank lines and was not
+      off by one.</p>
+  </li>
+  <li>
+    <p>A file with a blank line, some normal lines, and a few blank lines at the end. It gave the
+      correct number of blank lines at the end. It did not count the blank lines in the
+      middle.</p>
+  </li>
+</ol>
+<p>Cool. I did notice, however, that when there is only one blank line at the end, it says</p>
+<pre class="terminal">
+There are 1 blank lines at the end of the input.
+</pre>
+<p>That isn't too grammatical. I'm going to enhance the section that prints that message like
+  this</p>
+<pre class="code">
+if (blank_count != 0) {
+  if (blank_count == 1) {
+    printf("There is 1 blank line at the end of the input.\n");
+  }
+  else {
+    printf("There are %d blank lines at the end of the input.\n", blank_count);
+  }
+}
+</pre>
+<p>This might seem like a waste of time, but attention to such details makes for a much classier
+  program.</p>
+<p>Now I'm ready to deal with the question of trailing white space. To handle that I think I'll
+  need another flag variable. I'll call it <span class="code">seen_white</span>. I'll set it to
+  <span class="code">YES</span> when the last character I looked at was white space. Then I can
+  test that variable when I see a '\n' to see if there was white space before the '\n.'</p>
+<p>A trickier issue is with lines that are nothing but spaces. Such lines contain characters but
+  they look blank to the user. A file that has several lines of 800 spaces each at the end should
+  be told that the file has blank lines at the end. When I look over what I've got so far, I see
+  that the <span class="code">line_start</span> flag variable could be used to keep track of blank
+  lines. After all, when I created it was assuming that a line became non-blank as soon as any
+  other character showed up on it. But that isn't really true. In this version I will rename that
+  variable to <span class="code">line_blank</span> so that it is easier to understand. I should
+  have done that in the first place, but I didn't appreciate then how this was going to come
+  together. Such is the nature of incremental enhancement.</p>
+<p>I believe this version works as desired:</p>
+<pre class="code">
+#include &lt;stdio.h&gt;
+
+#define NO  0
+#define YES 1
+
+int main(void)
+{
+  int ch;                // A character from the input device.
+  int seen_white  = NO;  // =YES after I see some white space.
+  int line_blank  = YES; // =NO after I see a normal character on a line.
+  int blank_count = 0;   // The number of blank lines before current point.
+  int line_count  = 1;   // The line number of the current line.
+
+  // Read the input one character at a time.
+  while ((ch = getchar()) != EOF) {
+
+    // Is this the end of a line?
+    if (ch == '\n') {
+      if (seen_white == YES) {
+        printf("Line %d has trailing white space.\n", line_count);
+      }
+
+      // If the previous line was blank, increment the blank line count.
+      if (line_blank == YES) {
+        blank_count++;
+      }
+
+      line_blank = YES;
+      seen_white = NO;
+      line_count++;
+    }
+
+    // If I see white space, remember that.
+    else if (ch == ' ' || ch == '\t') {
+      seen_white = YES;
+    }
+
+    // If I see a normal character (not '\n' and not white space) then this
+    // is not a blank line.
+    else {
+      line_blank = NO;
+      seen_white = NO;
+      blank_count = 0;
+    }
+  }
+
+  // Was there an unterminated line?
+  if (line_blank == NO) {
+    printf("The last line of input does not have a newline at the end.\n");
+  }
+
+  // Is the last line unterminated with just white space?
+  if (line_blank == YES &amp;&amp; seen_white == YES) {
+    printf(
+      "Line %d (last line) is unterminated and has trailing white space.\n",
+      line_count
+    );
+  }
+
+  // Are there blank lines at the end?
+  if (blank_count != 0) {
+    if (blank_count == 1) {
+      printf("There is 1 blank line at the end of the input.\n");
+    }
+    else {
+      printf("There are %d blank lines at the end of the input.\n",
+        blank_count
+      );
+    }
+  }
+
+  return 0;
+}
+</pre>
+<p>In this version I modified the comments so that they would be more accurate and clearer. I also
+  introduced a variable named <span class="code">line_count</span> to keep track of the line
+  numbers. This was necessary because I want to print out the line numbers of lines with trailing
+  white space.</p>
+<p>The heart of the program is an if... else if... chain inside the main while loop. It basically
+  says</p>
+<pre class="pcode">
+IF &lt;I'm at the end of a line&gt; THEN
+  &lt;Print message if necessary and update records appropriately&gt;
+ELSE IF &lt;I've got a white space character&gt; THEN
+  &lt;Update records appropriately&gt;
+ELSE
+  &lt;I have a normal character. Update records appropriately&gt;
+END
+</pre>
+
+<p>Then when the while loop ends at the end of the input I look at the flag variables to check for
+  various conditions and print appropriate messages.</p>
+
+<p>Now when it comes to testing, I first try out all the same tests as before involving blank
+  (empty) lines. There there are a few other tests to try.</p>
+
+<ol>
+  <li><p>One line with trailing white space.</p></li>
+  <li><p>One line that contains only spaces.</p></li>
+  <li><p>Blank lines at the end of the file, one of which contains only spaces.</p></li>
+  <li><p>The last normal line of the file is not terminated with a '\n.'</p></li>
+  <li><p>The last line of the file contains only spaces and is not terminated with a '\n.'</p>
+  </li>
+</ol>
+
+<p>All tests pass. The program appears to work as desired. My final version is in <a
+    href="samples/white.c">white.c</a>.</p>
+
+<address>&copy; Copyright 2016 by Peter C. Chapin.<br/> Last Revised: <b>February 9, 2016</b>
+</address>
+</body>
+</html>

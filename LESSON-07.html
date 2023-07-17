@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <title>Lesson #7</title>
+  <meta name="Author" content="Peter Chapin"/>
+  <!-- <meta name="keywords" lang="en-US" content="..."> -->
+  <meta name="ROBOTS" content="NOARCHIVE"/>
+  <link rel="stylesheet" href="c-course.css" type="text/css"/>
+</head>
+<body>
+<h1>Lesson #7</h1>
+<p class="subtitle">Conditional Expressions and if Statements</p>
+<h2>Overview</h2>
+<p>In this lesson I will cover the following topics</p>
+<ol id="overview-list">
+  <li>
+    <p>How C represents the values of true and false.</p>
+  </li>
+  <li>
+    <p>Relational operators.</p>
+  </li>
+  <li>
+    <p>The if statement and the if/else statement.</p>
+  </li>
+</ol>
+<h2>Body</h2>
+<h3>Truth and falsehood</h3>
+<p>Often you will want your program to do different things depending on the circumstances.
+  Programs often need to adapt to conditions that can only be checked when the program is running.
+  To support this, every programming language has special "conditional" statements. These
+  statements allow you to test some condition and then execute different instructions depending on
+  the outcome of that test.</p>
+<p>To understand how this works in C you first need to understand C's attitude about truth and
+  falsehood. C is very simple minded (compared to some languages) when it comes to this issue.
+  Often students have trouble understanding it because it is so simple minded.</p>
+<p>REMEMBER: In C the integer zero is "false". Any non-zero integer is "true".</p>
+<p>C differs from many other languages because you can use integers to hold the values of "true"
+  and "false". In other languages there might be a special type for this purpose.</p>
+<h3>The relational operators</h3>
+<p>Now we can talk about the relational operators. These operators perform a test on their
+  operands and give the value 0 (false) if the test fails and 1 (true) if the test succeeds. You
+  can use these operators in any expression you like although the most common use of them is in
+  the "if" statement that I will describe shortly. First let me show you the operators
+  themselves.</p>
+<pre class="code">
+x = (a == b);
+</pre>
+<p>Here the variable <span class="code">x</span> is given the value 1 if <span class="code"
+>a</span> and <span class="code">b</span> are equal. If <span class="code">a</span> and <span
+    class="code">b</span> are not equal, <span class="code">x</span> is given the value 0. The
+  <span class="code">==</span> operator is informally called the "test for equality" operator.
+  Notice that assignment is a single equals sign while test for equality is a double equal sign.
+  Do not get them confused! They are very different. Test for equality yields a value of 0 or 1
+  and changes neither of its operands. Assignment modifies its left operand and yields a value
+  that is the same as its left operand after the assignment is done. Notice also that you can not
+  put a space between the equal signs in <span class="code">==</span>. If you try</p>
+<pre class="code">
+x = (a = = b);
+</pre>
+<p>The compiler will give you an error.</p>
+<p>Here are the other relational operators.</p>
+<pre class="code">
+x = (a != b);  // True if a is *not* equal to b.
+x = (a &gt;  b);  // True if a is greater than b.
+x = (a &lt;  b);  // True if a is less than b.
+x = (a &gt;= b);  // True if a is greater than or equal to b.
+x = (a &lt;= b);  // True if a is less than or equal to b.
+</pre>
+<p>There is an important difference between <span class="code">&gt;</span> and <span
+    class="code">&gt;=</span>. Consider</p>
+<pre class="code">
+5 &gt; 5   // False!
+5 &gt;= 5  // True!
+</pre>
+<p>Many programming errors arise because programmers are off by one in their calculations. Using
+  the wrong relational operator is a big reason for that error occuring. You will see this more
+  later.</p>
+<h3>The conditional statement</h3>
+<p>It is rare to use the relational operators the way I did above. I did it that way only to
+  emphasize that they are perfectly ordinary operators just like <span class="code"
+  >+</span>, <span class="code">-</span>, etc. I also wanted to emphasize that C treats truth and
+  falsehood as integers. Consequently true and false values can be stored in ordinary integer
+  variables.</p>
+<p>However, the usual way to use relational operators is in the context of an if statement. The if
+  statement is very important. You will use it often. Here is an example.</p>
+<pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  int age;
+
+  // Get the user's age.
+  printf("What is your age? ");
+  scanf("%d", &amp;age);
+
+  // Check to be sure it is reasonable.
+  if (age &lt; 0) {
+    printf("That can't be right. Your age is negative!");
+    return 1;
+  }
+
+  // I like the age. Handle it normally.
+  printf("I understand that your age is %d\n", age);
+  return 0;
+}
+</pre>
+<p>In this program I ask the user to enter his/her age as an integer. Integer values can be
+  negative, but negative ages don't make any sense. To check for that possibility I included an if
+  statement. If the condition in the parentheses of the if statement evaluates to true the
+  instructions inside the braces of the if statement are executed. If the condition is false, the
+  instructions inside the braces of the if statement are skipped.</p>
+<p>In this case the body of the if statement executes only if <span class="code">age &lt;
+        0</span> is true. That is an error condition so I respond by printing an error message.
+  Normally when the body of an if statement finishes executing the program continues after the if
+  statement. In this particular example, I execute <span class="code">return 1</span> inside the
+  if statement. Since returning from <span class="code">main</span> ends the program, this has the
+  effect of ending the program right at that point. I return one instead of zero because a return
+  of one from <span class="code">main</span> traditionally means that some sort of error occured.
+</p>
+<p>Here is another way I might have done it:</p>
+<pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  int age;
+
+  // Get the user's age.
+  printf("What is your age? ");
+  scanf("%d", &amp;age);
+
+  // Check to be sure it is reasonable.
+  if (age &lt; 0) {
+    printf("Negative age given... using zero instead.\n");
+    age = 0;
+  }
+
+  // We like the age. Handle it normally.
+  printf("I understand that your age is %d\n", age);
+  return 0;
+}
+</pre>
+<p>In this version, instead of terminating the program if the age is bad, I correct the age by
+  giving it a "reasonable" value. It's debatable just how reasonable zero is, but depending on the
+  program that might be an appropriate response.</p>
+<p>The important thing to understand here is that if the condition in the if is true (bad age
+  given), a new value is assigned to <span class="code">age</span> and the program continues
+  normally after the if statement. If the condition in the if is false (<span
+      class="code">age</span> is acceptable already), the program skips the body of the if and
+  just continues normally.</p>
+<p>A more realistic version of the program might look like this</p>
+<pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  int age;
+
+  // Get the user's age.
+  printf("What is your age? ");
+  scanf("%d", &amp;age);
+
+  // Check a few error conditions.
+  if (age &lt; 0) {
+    printf("Error: Negative age.\n");
+    return 1;
+  }
+
+  if (age &gt; 125) {
+    printf("Error: Excessive age.\n");
+    return 1;
+  }
+
+  // We like the age. Handle it normally.
+  printf("I understand that your age is %d\n", age);
+  return 0;
+}
+</pre>
+<p>This version tries to check for both negative ages and excessive ages. Here I assume that no
+  user of this program will be more than 125 years old. The idea is to catch cases where the user,
+  perhaps not understanding what is being asked, enters a value like 32539 for an age.</p>
+<p>Notice that I'm taking an age of 125 as acceptable. The age must be strictly greater than 125
+  to trigger the error message. If I had used <span class="code">age &gt;= 125</span> then the
+  highest acceptable age would have been only 124. Do you see how "off by one" errors can creep
+  into a program? Switching a <span class="code">&gt;</span> to a <span
+      class="code">&gt;=</span> in an if statement caused this program to change the range of
+  acceptable ages by one. Pay close attention when you are writing your programs so that you can
+  avoid creating such errors.</p>
+<p>This program tries to catch and handle excessive ages in order to prevent the program from
+  working with an age that is obviously an error. However, the value of 125 is arbitrary. Who's to
+  say that's an error? Advances in medical technology might allow many people to live to that age
+  in the near future. Picture this: a few years down the road you start getting bug reports about
+  your program. Here's a typical letter:</p>
+<blockquote>
+  <p>"I'm 128 years old. Yet when I enter my age into your program I am told that my age is
+    excessive. Not only do I find that offensive, but your program then refuses to execute
+    further. I'm afraid that I will be forced to buy your competitor's products from now on."</p>
+</blockquote>
+<p>Your innocent attempt to handle error conditions has caused you to irritate customers who don't
+  fit your assumptions. In general the more user friendly you try to make your program the more
+  assumptions you have to make about your users and the more likely it gets that you will end up
+  irritating someone. Welcome to the world of programming!</p>
+<h3>if... else...</h3>
+<p>I can't end this lesson without talking about the else clause to the if statement. Many times
+  you will want to use an if statement to decide which of two possibilities to follow. You might
+  want to say "if such-and-such is true, then do this; otherwise do that." To express this in C
+  you would use an else clause on your if statement.</p>
+<p>Here is an example</p>
+<pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  int number;
+
+  // Get a value from the user.
+  printf("Pick a number, any number (as long as it's an int): ");
+  scanf("%d", &amp;number);
+
+  // Is it even or odd?
+  if (number % 2 == 0) {
+    printf("The number, %d, is even!\n", number);
+  }
+  else {
+    printf("The number, %d, is odd!\n", number);
+  }
+
+  return 0;
+}
+</pre>
+<p>This program asks the user to enter an integer and it then checks to see if that integer is an
+  even number or an odd number. To do this check, I first divide the number by 2 and look at the
+  remainder. Since even numbers are evenly divisable by 2 there will be no remainder and the
+  calculation <span class="code">number % 2</span> would have a value of zero. For odd numbers
+  there would be a remainder of 1 so the condition <span class="code"
+  >number % 2 == 0</span> would be false.</p>
+<p>But wait a second... does the expression <span class="code">number % 2 == 0</span> really do
+  what we want? Check the operator precedence chart. There you will see that <span
+      class="code">%</span> has higher precedence than <span class="code">==</span>. Thus the
+  expression is evaluated as</p>
+<pre class="code">
+(number % 2) == 0
+</pre>
+<p>which is, in fact, what we want. Don't take these things for granted! Some of the precedence
+  rules are a bit surprising. If in doubt either check the chart or put extra parentheses into
+  your expressions.</p>
+<p>The body of the if is executed if the condition is true (the value of 2 divides evenly into the
+  number). In that case, after the body of the if executes, the program will skip over the else
+  clause and continue with whatever follows. On the other hand, if the condition is false, the
+  program will skip the body of the if and execute the else clause. Once the else clause is
+  finished, the program will continue with whatever follows, just as before.</p>
+<p>My first example in this lesson had a return statement inside of an if statement. Many people
+  would say that this is a bad thing to do. For a very small program, it is fine. But when
+  programs become large returning from several different places is just confusing. If you later
+  decide to do something extra just before you end the program, you have to add that extra stuff
+  in several places. What if you forget one? A better way to write that first example might be</p>
+<pre class="code">
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  int age;
+  int return_value = 0;
+
+  // Get the user's age.
+  printf("What is your age? ");
+  scanf("%d", &amp;age);
+
+  // Check to be sure it is reasonable.
+  if (age &lt; 0) {
+    printf("That can't be right. Your age is negative!");
+    return_value = 1;
+  }
+
+  // If it is... handle it.
+  else {
+    printf("I understand that your age is %d\n", age);
+  }
+
+  return return_value;
+}
+</pre>
+<p>This version of the program returns in only one place---at the bottom where people expect to
+  see it. It returns the value of zero by default, but it will return the value of 1 if an error
+  occured. It uses an if statement to check for errors as before. The normal handling is placed in
+  an else clause so that it will be skipped if an error happened. In either case the program
+  returns at the very end.</p>
+<p>In order to write the program this way, I had to introduce a new variable, <span
+    class="code">return_value</span>, to "transmit" information from the place where the error
+  occured to the place where the return happens. This might seem silly and a waste, but in a large
+  program it is probably the better way to do things. Your program will be better organized and
+  easier to change and fix if you insure that each block of code (stuff with braces around it)
+  gets entered only at the top and exits only at the bottom. When you stick a return statement in
+  the middle of a block you are jumping out of the block abruptly and unexpectedly. You should
+  avoid that.</p>
+<h3>A few words on style</h3>
+<p>When you write if statements you should absolutely be sure to indent the statements in the
+  block created by the if. Those statements are subordinate to the if and, in effect, controlled
+  by it. You want them to have a visual appearance that indicates that. This is very bad
+  style:</p>
+<pre class="code">
+int main(void)
+{
+  int age;
+
+  // etc...
+
+  if (age &lt; 0) {
+  printf("That can't be right! Your age is negative!\n");
+  return 1;
+  }
+
+  // etc...
+}
+</pre>
+<p>To someone glancing over your program it is not clear that the <span class="code"
+>printf</span> and the return are executed conditionally. They seem just as significant as any
+  other statement in the program. This is a bad thing. Programs are normally very complicated.
+  Some steps require many "sub-steps". The only way a person can cope with the complexity is to
+  avoid looking at it all at once. Proper indentation is essential for that. As you will soon see,
+  you can nest if statements (and other statements) as much as you like. You should indent the
+  statements in each nested block past the statements in the enclosing block. If you don't do this
+  you and everyone else looking at your program will become very confused.</p>
+<p>Similarly every statement in the same block should be indented the same amount. You want to
+  make it clear at a glance that the statements go together. A program is a work of art. It needs
+  to look beautiful. Believe it or not, a beautiful looking program works better. They have fewer
+  bugs.</p>
+<p>My experience as an instructor has been that students often don't indent carefully because
+  either a) they don't want to bother or b) they don't really understand how their program fits
+  together. Let me assure you that bothering with indentation is well worth the effort. You will
+  save hours in debugging time. If you are not sure how your program fits together, then fussing
+  with the indentation will help you. Make sure you have a close brace for every open brace and
+  make sure your indentation is consistent. It will help make the meaning of your program
+  clear.</p>
+<p>The VTC style guide requires consistent indentation of blocks. I also recommend inserting blank
+  likes here and there to separate your program into related chunks of statements. It is difficult
+  for humans to deal with more than about 5 things at once. If you break your program into little
+  pieces you will find it easier to understand. I like to put a comment above each chunk of
+  code---you can see that in my examples. I encourage you to do the same. The comments are
+  important too. They are a way for you to explain to yourself what you are doing.</p>
+<h2>Summary</h2>
+<ol id="summary-list">
+  <li>
+    <p>In C any non-zero integer is taken to be "true" and the integer zero is taken to be
+      "false".</p>
+  </li>
+  <li>
+    <p>You can test conditions by using the <span class="code">==</span>, <span class="code"
+    >!=</span>, <span class="code">&gt;</span>, <span class="code">&lt;</span>, <span
+        class="code">&gt;=</span>, and <span class="code">&lt;=</span> operators. For example, an
+      expression like <span class="code">x != y</span> has a value of true (one) if <span
+          class="code">x</span> is not equal to <span class="code">y</span>, otherwise it has a
+      value of false (zero). Notice that while any non-zero integer is taken to be true, the
+      relational operators will always return one to represent true.</p>
+  </li>
+  <li>
+    <p>You can conditionally execute a block of code using an if statement. For example</p>
+    <pre class="code">
+if (x != y) {
+  // Do this if the condition is true.
+}
+else {
+  // Do this if the condition is false.
+}
+</pre>
+    <p>The else clause is optional. If you don't need it, you don't have to include it.</p>
+  </li>
+</ol>
+<address>&copy; Copyright 2003 by Peter C. Chapin.<br/> Last Revised: <b>July 21, 2003</b>
+</address>
+</body>
+</html>

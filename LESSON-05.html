@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <title>Lesson #5</title>
+  <meta name="Author" content="Peter Chapin"/>
+  <!-- <meta name="keywords" lang="en-US" content="..."> -->
+  <meta name="ROBOTS" content="NOARCHIVE"/>
+  <link rel="stylesheet" href="c-course.css" type="text/css"/>
+</head>
+
+<body>
+<h1>Lesson #5</h1>
+<p class="subtitle">Built-in Arithmetic Types</p>
+
+<h2>Overview</h2>
+
+<p>The two programs <a href="samples/printf_demo.c">printf_demo.c</a> and <a
+    href="samples/types_demo.c">types_demo.c</a> are demonstration programs that you should
+  compile and try out as part of this lesson. They are discussed more below.</p>
+
+<p>In this lesson I will cover the following topics</p>
+
+<ol id="overview-list">
+  <li><p>The C language types.</p></li>
+  <li><p>How to print values of each type.</p></li>
+  <li><p>How to declare and initialize variables.</p></li>
+  <li><p>Variable names.</p></li>
+</ol>
+
+<h2>Body</h2>
+
+<h3>The type int</h3>
+
+<p>Programs that just output strings like "Hello, World" are friendly, but not too interesting. To
+  do useful work, you will need to create and use variables. A variable is an entity that holds a
+  value.</p>
+
+<p>In C every variable has some sort of <i>type</i>. The type defines what kind of values can be
+  stored in that variable and the range on those values. Different types have different
+  properties, so choosing the right type for each of your variables is an important activity.</p>
+
+<p>C also requires that you <i>declare</i> every variable before you use it. The compiler will
+  object to any variable that it encounters in your program that is undeclared. The declaration
+  tells the compiler the type of the variable (which the compiler needs to know in order to handle
+  the variable correctly), its name, and its initial value, if any.</p>
+
+<p>The most common type in C programs is the type <span class="code">int</span>. Variables of type
+  <span class="code">int</span> can only hold integers such as 6, 3219, or -21. You can't store a
+  value with a fractional part, such as 3.14, into an integer variable. This might sound limiting,
+  but the good news is that integers don't take up much memory and are quite fast to manipulate.
+  Thus you should use <span class="code">int</span> for all of your variables unless you have a
+  specific reason to use one of the other types. Below is a small program the demonstrates how
+  integers might be used. The line numbers are not part of the program; I have included them to
+  facilitate my discussion below.</p>
+
+<p>(For the sake of brevity I have also left off the required comment block at the top of this
+  program. In these lessons I will bend the rules of the VTC style guide in order to keep my
+  presentation short and to the point. However, my example programs will conform to the guide)</p>
+
+<pre class="code">
+   1:
+   2: #include &lt;stdio.h&gt;
+   3:
+   4: int main( void )
+   5: {
+   6:     int age;
+   7:
+   8:     // Get the user's age.
+   9:     printf( "How old are you? " );
+  10:     scanf( "%d", &amp;age );
+  11:
+  12:     // Let the user know what we got.
+  13:     printf( "I understand that you are %d years old.\n", age );
+  14:     return 0;
+  15: }
+  16:
+</pre>
+
+<p>On line 6 I create a variable named <span class="code">age</span> and I tell the compiler that
+  it is of type <span class="code">int</span>.</p>
+
+<p>On line 9 I print out a message asking the user how old he/she is. Notice that I didn't put a
+  '\n' at the end. What effect does that have? Notice also that I <em>did</em> put a space there.
+  That makes the output look nicer. I appreciate attention to these sorts of details. Your users
+  will too. On line 10 I used function <span class="code">scanf</span> from the standard library
+  to read an integer value from the terminal. Let's take a closer look at that</p>
+
+<pre class="code">
+  scanf( "%d",              &amp;age );
+  //      ^Format string     ^Place to put result.
+</pre>
+
+<p>The first argument to <span class="code">scanf</span> is a character string (inside double
+  quotation marks) that defines what we are looking for. In this case we are looking for a decimal
+  integer (%d). The second argument, separated from the first by a comma, is the place where we
+  want that integer value to go. An '&amp;' is required here for reasons that I won't get into at
+  this time. You need to know that if you leave the '&amp;' off your program won't work---but it
+  will still compile! This is a common error so watch out for it.</p>
+
+<p>The overall effect of the call to <span class="code">scanf</span> (when a function is used we
+  say that it is "called") is to read an integer value from the terminal and put that value into
+  the variable named <span class="code">age</span>.</p>
+
+<p>On line 13 I print that value back out again using <span class="code">printf</span>. The <span
+    class="code">printf</span> function works similarly to <span
+    class="code">scanf</span>. The first argument is a format string that optionally contains
+  format specifiers (%d is a format specifier that says to print an integer). If the format string
+  contains format specifiers, the values to be printed appear as additional arguments to <span
+      class="code">printf</span>.</p>
+
+<pre class="code">
+  printf( "Your age is: %d\n", age );
+  //                    ^      |
+  //                    |      |
+  //                    +------+
+</pre>
+
+<p>Here I'm trying to show that the value of <span class="code">age</span> is used to replace the
+  %d in the format string. The <span class="code">printf</span> function has many features. By
+  inserting special characters between the '%' and the 'd' in the format specifier you can control
+  the size of the output field and many other things.</p>
+
+<p>The sample program <a href="samples/printf_demo.c">printf_demo.c</a> demonstrates many of <span
+    class="code">printf</span>'s features. I suggest that you compile it and try it out. Compare
+  the output you get with the program itself to see how some of <span
+      class="code">printf</span>'s features work. The program printf_demo.c demonstrates features
+  you might never want to use. But some of the features demonstrated are quite handy. If you are
+  interested in reading about all of the details, check out your text or online references.</p>
+
+<p>Now let's do a simple calculation using integers.</p>
+
+<pre class="code">
+   1:
+   2: #include &lt;stdio.h&gt;
+   3:
+   4: int main( void )
+   5: {
+   6:     int age;
+   7:
+   8:     printf( "What is your age? " );
+   9:     scanf( "%d", &amp;age );
+  10:
+  11:     age = age + 1;
+  12:
+  13:     printf( "At your next birthday you will be %d years old.\n", age );
+  14:     return 0;
+  15: }
+  16:
+</pre>
+
+<p>On line 11 I compute a new value for <span class="code">age</span>. In particular, I take the
+  original value (as entered by the user on line 9), add one to it, and store the result back into
+  the variable <span class="code">age</span>. It is important to understand that <span
+      class="code">=</span> is not like '=' in algebra. An expression like <span
+      class="code">age = age + 1</span> doesn't make any sense mathematically. (If you subtract
+  age from both sides it seems to say that 0 = 1). But this is programming, not math. The <span
+      class="code">=</span> is not an assertion, it is an action. It says "take the value of the
+  stuff on the right and put it into the place on the left." Thus <span class="code">age =
+    age + 1</span> merely gives <span class="code">age</span> a new value that happens (in this
+  case) to be based on the old one. The <span class="code">=</span> operator is called the <em>assignment</em>
+  operator because you use it to assign a new value to a variable.</p>
+
+<p>Actually, line 11 is unnecessary. I could have computed the new value of age right when I
+  printed it.</p>
+
+<pre class="code">
+  printf( "Next year you will be %d\n", age + 1 );
+</pre>
+
+<p>This differs from the first program, however, because in this case the value of <span
+    class="code">age</span> is not modified.</p>
+
+<h3>The other built-in types</h3>
+
+<p>The fact that variables of the type <span class="code">int</span> can only hold integers might
+  seem like a major drawback. Surprisingly it usually isn't. For many programs integers are good
+  enough and they have the advantage of being very fast. However, it is true that there are times
+  when other types are necessary. Here is a complete list of C's built-in types, with my comments.
+</p>
+
+<h4>short int</h4>
+
+<p>Variables of type <span class="code">short int</span> may take up less memory than variables of
+  type <span class="code">int</span>. They are useful in cases where you need a very large number
+  of variables and you are running out of memory. The disadvantage to them is that they can't hold
+  as large a range of values. For example, on most modern machines variables of type int range
+  from -2,147,483,648 to +2,147,483,647 (these strange values are actually round numbers in the
+  computer world. In particular they are: -2<sup>31</sup> and 2<sup>31</sup> - 1). However,
+  variables of type <span class="code">short int</span> typically range from only -32,768 to
+  +32,767 (that is: -2<sup>15</sup> to 2<sup>15</sup> - 1).</p>
+
+<h4>long int</h4>
+
+<p>Variables of type <span class="code">long int</span> may have a greater range than variables of
+  type <span class="code">int</span> at the expense of taking up more memory. On some machines,
+  long integers are 64 bits in size and range from -2<sup>63</sup> to 2<sup>63</sup> - 1. This is
+  a very large range!</p>
+
+<p>Typical C compilers that target 32 bit processors use 32 bit integers for both <span
+    class="code">int</span> and <span class="code">long int</span>. This might seem strange but it
+  is done because such processors can not manipulate 64 bit quantities as efficiently as one might
+  like.</p>
+
+<p>This might cause you to wonder: if <span class="code">int</span> and <span
+    class="code">long int</span> are identical on such systems, why do those systems bother having
+  both? It is done so that programs written for one machine will still at least make sense on
+  another. The C standard requires that all compilers support three different "sizes" of integer,
+  but it does not specify exactly what those sizes should be. The standard only requires that the
+  types have a certain minimum size and that their sizes obey a rather loose ordering constraint.
+  This means:</p>
+
+<ol>
+  <li><p>You shouldn't assume any particular size for any of the types except for the standard
+    required minimum. If you do your program might malfunction when you compile it on a different
+    system. On the other hand, if you know that you are never going to compile your program on a
+    different system, you can take full advantage of that system's special features.</p></li>
+
+  <li><p>C compilers can be created for a wide variety of systems without compilers on "weak"
+    systems having to do superhuman things to meet the standard requirements. This means that
+    programs on weak systems can be faster and more efficient than they otherwise would be.</p>
+  </li>
+</ol>
+
+<h4>long long int</h4>
+
+<p>Starting with the C99 standard, C compilers are required to support the type <span
+    class="code">long long int</span>. This type is at least 64 bits in size and can thus hold a
+  potentially very large range of values. Be aware, however, that <span class="code">long long
+    int</span> is not required by the earlier C standard and may not be available on older
+  compilers.</p>
+
+<h4>unsigned int, unsigned short int, unsigned long int</h4>
+
+<p>These types are just like their signed counterparts except that they can't hold negative
+  values. The advantage is that their range in the positive direction is twice as great. In
+  addition, the unsigned types are better behaved in certain advanced operations (bit
+  manipulation) that we will discuss at the very end of this course.</p>
+
+<p>The unsigned types are trickier to use than they look. In particular, an unsigned integer can
+  never be less than zero. This fact causes unpleasant surprises at times. I recommend that you
+  stay away from the unsigned types unless you know exactly what you are doing.</p>
+
+<p>C99 compilers also provide the 64 bit type <span class="code">unsigned long long
+    int</span>.</p>
+
+<p>For all the integral types except for <span class="code">int</span> itself, the word "int" is
+  optional. In fact, it is hardly ever used. For example:</p>
+
+<pre class="code">
+  int main( void )
+  {
+      int            variable_1;
+      short          variable_2;  // Really "short int"
+      long           variable_3;  // Really "long int"
+      unsigned       variable_4;  // Really "unsigned int"
+      unsigned short variable_5;  // Really "unsigned short int"
+      unsigned long  variable_6;  // Really "unsigned long int"
+
+      // etc...
+      return 0;
+  }
+</pre>
+
+<h4>char, signed char, unsigned char</h4>
+
+<p>Many programs make extensive use of characters (letters). To deal with that C has a type <span
+    class="code">char</span> that is used to hold individual characters. The type <span
+    class="code">char</span> is really a small number. On many systems characters are associated
+  with numbers by way of the ASCII encoding. Every letter, both upper and lower case, every digit
+  and punctuation mark, and even the special <em>control characters</em> have associated numbers.
+  These are small numbers in the range from 0 to 127. Variables of type <span
+      class="code">char</span> can hold such numbers.</p>
+
+<pre class="code">
+  int main( void )
+  {
+      char variable_1;
+      char variable_2;
+
+      variable_1 = 'x';
+      variable_2 = 102;
+
+      // etc...
+      return 0;
+  }
+</pre>
+
+<p>When you put single quotes around a letter, the C compiler replaces that letter with its ASCII
+  code. Above I'm assigning the ASCII code for the letter 'x' to <span
+      class="code">variable_1</span>. However, you can treat character variables like normal
+  integers with a very small range. I can safely put the value of 102 into <span
+      class="code">variable_2</span> because it is in the range 0 to 127.</p>
+
+<p>What is the point of char variables? Actually they are very important. Many programs manipulate
+  text, and text is nothing more than a large number of characters. Variables of type character
+  take up very little memory (typically 8 bits) so they are also useful when dealing with a large
+  number of small numbers.</p>
+
+<p>If you do want to use character variables to hold numbers and don't care about text (and that
+  is actually fairly rare) you might want to explicitly specify <span class="code">signed
+    char</span> or <span class="code">unsigned char</span>. The type <span class="code">signed
+    char</span> has a minimum range from -128 to +127. It assures you that you can store negative
+  values. The type <span class="code">unsigned char</span> has a minimum range from 0 to 255. It
+  assures you that you can use every bit in a byte. Actually the type <span
+      class="code">char</span> is exactly the same as either <span class="code">signed char</span>
+  or <span class="code">unsigned char</span>. However, each compiler chooses which of those types
+  are identical for itself. The only numbers you can be sure will fit into an ordinary char
+  variable are 0 to 127.</p>
+
+<h4>float, double, long double</h4>
+
+<p>Some programs need to work with numbers that have a fractional part. Such numbers are called
+  floating point numbers. C has three different floating point types: <span
+      class="code">float</span>, <span class="code">double</span>, and <span class="code">long
+    double</span>. I've named these types in order of increasing precision and range. For example,
+  the type <span class="code">float</span> might support about 6 decimal digits of precision and a
+  range of about +/- 1e38 (that's 1 times 10 raised to the power of 38). The type <span
+      class="code">double</span> might have 15 digits of precision and a range of +/- 1e308. The
+  type <span class="code">long double</span> might have 18 digits of precision and a range of +/-
+  1e4932.</p>
+
+<p>I say "might have" because the exact ranges depend on the compiler. As with integers, the C
+  standard defines only certain minimums. Also the exact ranges are strange looking numbers (not
+  round) that are related to the way the floating point values are stored in memory.</p>
+
+<p>It is actually quite rare for a program to need floating point numbers. Although they are a
+  must for some programs, many programs don't use them at all. You should not use floating point
+  numbers unless you absolutely must. They are sometimes slower and possibly <em>far</em> slower
+  than integers and often take up more memory as well. In addition, floating point math is not
+  exact. Due to the way the machine works, calculations like</p>
+
+<pre class="code">
+  sqrt( 25.00000000 ) - 5.00000000
+</pre>
+
+<p>might actually give you a result of 1.293772494e-28 or some other strange value (the "e-28" at
+  the end means "times 10 to the -28<sup>th</sup> power). When you do integer calculations, 5 - 5
+  is always exactly zero. The lesson to be learned here is: don't mess with floating point numbers
+  unless you absolutely have to. Then, when you do, make sure you know what you are doing!</p>
+
+<p>The sample program, <a href="samples/types_demo.c">types_demo.c</a>, demonstrates all the
+  built-in types that I have discussed so far. It also shows how you can print out each of the
+  various built-in types using different format specifiers with <span
+      class="code">printf</span>. Compile that program and try it out. Compare the output with the
+  program's listing.</p>
+
+<h3>Initializing variables</h3>
+
+<p>When you declare a variable the initial value that variable has is undefined. Using a variable
+  without first giving it a value is a common error. Most compilers will produce a warning message
+  if they see you doing it. Unfortunately it isn't always possible for a compiler to know for sure
+  if you are using an uninitialized variable or not. Warning messages are not technically errors
+  as far as the compiler is concerned, but they often point out strange or illogical things that
+  you did. If you get a warning message from the compiler, you should investigate it!</p>
+
+<p>If you want to give a variable an initial value when you declare it, you can do that like
+  this</p>
+
+<pre class="code">
+  int sum = 0;
+</pre>
+
+<p>This statement declares <span class="code">sum</span> to be an integer and gives it an initial
+  value of zero. You can initialize a variable with any value you like. Here is another example.
+</p>
+
+<pre class="code">
+  double pi = 3.14159;
+</pre>
+
+<h3>Variable names</h3>
+
+<p>This lesson would not be complete without a few comments about variable names. You can make
+  your program much easier to understand if you choose variable names that reflect how the
+  variable will be used. Generic names like "x" and "y" should be avoided (unless your variables
+  are intended to be Cartesian coordinates). Choose names that are descriptive even if they are a
+  bit long. Down the road you will be much happier with your program!</p>
+
+<p>People vary in how to handle the issue of capitalization in variable names. C is case sensitive
+  so if you declare a variable with a capital letter, then you must use it that way throughout
+  your program. Here are a couple of different styles.</p>
+
+<pre class="code">
+  int first_value;  // 1
+  int First_Value;  // 2
+  int FirstValue;   // 3
+  int firstValue;   // 4
+</pre>
+
+<p>I, personally, prefer style #1 for my C programs. However, there are advocates for each of the
+  styles above. The VTC style guide is relatively silent on this matter. This gives you the
+  opportunity to explore the options a bit for yourself. However, the style guide does require
+  that your variable names be spelled correctly or be "well known" abbreviations. Don't use
+  something like "f_value" for the first value.</p>
+
+<p>The language requires that variable names contain only letters, digits, or the underscore
+  character ('_'). Names can't start with a digit and shouldn't start with an underscore. Names
+  can be very long.</p>
+
+<h2>Summary</h2>
+
+<ol id="summary-list">
+  <li><p>The C language allows you to work with several different types of data. This allows you
+    to choose a type that is the most efficient for your needs. In many programs, only integers
+    are needed and integers should be used when possible (over floating point numbers) since they
+    are more efficient and better behaved.</p></li>
+
+  <li><p>To print the value of a variable, you must give <span class="code">printf</span> a format
+    string containing format specifiers. Each type of variable requires a different format
+    specifier (see types_demo.c). For example, to print a float:</p>
+
+    <pre class="code">
+  float answer;
+  ...
+  printf( "The answer is: %f\n", answer );
+</pre>
+  </li>
+
+  <li><p>Every variable needs to be declared before you can use it. Declarations specify the type
+    of the variable followed by the name of the variable. The initial value give to a variable is
+    (normally) random. You can specify an initial value when you declare a variable. For
+    example:</p>
+
+    <pre class="code">
+  int size = 10000;  // Give size an initial value of 10000.
+</pre>
+  </li>
+
+  <li><p>Variable names should be descriptive and clear. Used correctly spelled words or well
+    known abbreviations. The style guide requires this.</p></li>
+</ol>
+
+<address>&copy; Copyright 2016 by Peter C. Chapin.<br/> Last Revised: <b>January 11, 2016</b>
+</address>
+</body>
+</html>

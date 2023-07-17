@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <title>Example #6</title>
+  <meta name="Author" content="Peter Chapin"/>
+  <!-- <meta name="keywords" lang="en-US" content="..."> -->
+  <meta name="ROBOTS" content="NOARCHIVE"/>
+  <link rel="stylesheet" href="c-course.css" type="text/css"/>
+</head>
+<body>
+<h1>Example #6</h1>
+<p class="subtitle">Sorting Numbers</p>
+<p>In this example, I will write a program that accepts a sequence of integers on the standard
+  input and then prints them out in sorted order. Because I will be printing the numbers out in a
+  (potentially) very different order from what they were input I have to store the numbers into an
+  array as I read them, sort the array, and then output the resulting array in order.</p>
+<p>As with <a href="EXAMPLE-05.html">Example #5</a>, I will create several functions to help
+  organize the program. Since I have not yet talked about how arrays can be passed to functions I
+  will make my array a global variable. Here are the functions that I'm visualizing.</p>
+<pre class="code">
+int read_input(void);
+  /* This function reads integers from the standard input device until it
+     comes to EOF. It loads a global array with those values and returns
+     the number of values it read. */
+
+void sort(int size);
+  /* This function sorts the global array. However, it only sorts the first
+     Size elements. Any elements after the first Size are ignored. */
+
+void output_results(int size);
+  /* This function prints out the array elements in order. It only prints
+     the first Size elements. Any other elements are ignored. */
+</pre>
+<p>With these functions my program becomes</p>
+<pre class="code">
+#include &lt;stdio.h&gt;
+
+int array[1000];  // I can handle only 1000 numbers at the most.
+
+int main(void)
+{
+  int size;
+
+  size = read_input();
+  sort(size);
+  output_results(size);
+  return 0;
+}
+</pre>
+<p>So far so good! The two functions <span class="code">read_input</span> and <span
+    class="code">output_results</span> are fairly easy. Let me take care of them first. To make
+  this example more interesting, I will use pointers to access the array instead of indicies. You
+  should be comfortable with both methods (see if you can write a version of these functions that
+  uses indicies).</p>
+<pre class="code">
+int read_input(void)
+{
+  int  number;
+  int *current = array;
+
+  // Keep reading integers from the standard input until I hit EOF.
+  while (scanf("%d", &amp;number) != -1) {
+    *current = number;
+    current++;
+
+    // If I read 1000 of them, abort this loop!
+    if (current - array == 1000) break;
+  }
+
+  return current - array;
+}
+</pre>
+<p>Let's be sure this logic is not off by one. The first time through the loop I store a number
+  into <span class="code">array[0]</span> and then advance <span class="code"
+  >current</span> so that it is one past the start of the array. So with one item in the array I
+  have <span class="code">current - array</span> at 1. That sounds fine. The next time through the
+  loop I put an item into <span class="code">array[1]</span> and then advance <span class="code">current</span>
+  again. Now there are two items in the array and <span class="code">current - array</span> has a
+  value of 2. When the loop breaks <span
+      class="code">current - array</span> will contain a count of the number of items I stored in
+  the array. This is the information I want to return. Fine.</p>
+<p>Now suppose I store something into <span class="code">array[999]</span> (the last element).
+  Afterward I will make <span class="code">current</span> point just off the end of the array.
+  Thus <span class="code">current - array</span> will be 1000 and that will cause the if statement
+  to trigger and the loop will end. I will return 1000 but that is correct because there would be,
+  in fact, 1000 items in the array. Furthermore I will have avoided trying to store anything into
+  <span class="code">array[1000]</span> (which does not exist). Looks good! You should be watchful
+  of these situations. Errors are easy and common.</p>
+<p>The <span class="code">output_results</span> function is easy. I'll output one integer on each
+  line. If I wanted to organize them in a fancier way (say in columns) this function would have to
+  work harder. That's something to do in version 2.0.</p>
+<pre class="code">
+void output_results(int size)
+{
+  int *p;
+
+  for (p = array; p &lt; array + size; p++) {
+    printf("%d\n", *p);
+  }
+}
+</pre>
+<p>That's about it. Here I'm printing array elements from 0 to <span class="code">size -
+        1</span>. That is exactly size elements so that's just right.</p>
+<p>The <span class="code">sort</span> function is a bit harder. I'm going to write a function that
+  implements the Bubble Sort algorithm. This method for sorting an array is fairly easy to
+  understand and not too difficult to write. It is, however, rather slow. The time it takes to
+  sort the array is proportional to the square of the number of elements it is sorting. Much more
+  efficient sorting algorithms exist. However, bubble sorting will be good enough for now.</p>
+<p>The method involves comparing pairs of array elements and swaping them if they are out of
+  order. Consider the array</p>
+<pre class="figure">
+{ 40, 23, 57, 12, 10 }
+</pre>
+<p>I first compare the 40 and 23. Since they are out of order (I'm going to sort in ascending
+  order), I swap them. Thus I get</p>
+<pre class="figure">
+{ 23, 40, 57, 12, 10 }
+</pre>
+<p>Now I move down one position and compare the 40 and 57. Since they are in order I leave them
+  alone. I move down another position and compare the 57 and 12. They are out of order so I swap
+  them. I get</p>
+<pre class="figure">
+{ 23, 40, 12, 57, 10 }
+</pre>
+<p>I move down one more position and compare the 57 and 10. They are also out of order so I swap
+  them too. I get</p>
+<pre class="figure">
+{ 23, 40, 12, 10, 57 }
+</pre>
+<p>I've reached the end of the array. However, since I did at least one swap, I have to start
+  over. I compare the 23 and 40. They are in order so I leave them alone. I compare the 40 and 12.
+  They are out of order so I swap them. I get</p>
+<pre class="figure">
+{ 23, 12, 40, 10, 57 }
+</pre>
+<p>I compare the 40 and 10. They are out of order so I get</p>
+<pre class="figure">
+{ 23, 12, 10, 40, 57 }
+</pre>
+<p>Do you see what's happening? The big values are floating or "bubbling" toward the end and the
+  little values are bubbling toward the beginning. Now I compare the 40 and the 57. They are in
+  order so I leave them alone. I'm done with the array, but since I did at least one swap in that
+  last pass, I have to do it all again.</p>
+<p>I compare the 23 and 12. They are out of order.</p>
+<pre class="figure">
+{ 12, 23, 10, 40, 57 }
+</pre>
+<p>Now I compare the 23 and the 10. They are out of order.</p>
+<pre class="figure">
+{ 12, 10, 23, 40, 57 }
+</pre>
+<p>Everything else is in order so I leave it all alone. However, I still did at least one swap so
+  I have to start over again. I compare the 12 and the 10. They are out of order</p>
+<pre class="figure">
+{ 10, 12, 23, 40, 57 }
+</pre>
+<p>Everything else is in order so I leave it all alone. Since I did at least one swap I have to
+  start over. This time everything is in order. There are no swaps and the algorithm ends. The
+  array is sorted. It's pretty boring work. I think we should get a computer to do it!</p>
+<p>I will now write some p-code for the bubble sort.</p>
+<pre class="pcode">
+DO
+  &lt;Set swap flag to NO&gt;
+  &lt;Point at first two elements&gt;
+  DO
+    IF &lt;The current pair of elements is out of order&gt; THEN
+      &lt;Swap them&gt;
+      &lt;Set swap flag to YES&gt;
+    END
+    &lt;Advance pointers by one&gt;
+  WHILE &lt;We are not pointing off the end of the array&gt;
+
+WHILE &lt;I swapped something&gt;
+</pre>
+<p>In this case do/while loops seem like the best choice because I have to look at the array at
+  least once before I can say anything about it. The p-code above has a problem if the array has
+  less than 2 elements in it. However, in that case it is already sorted. (If there is only one
+  thing in the array it must be in the right order!) So I'll just add a check for that before I
+  get into the algorithm above.</p>
+<pre class="pcode">
+IF &lt;Array has less than 2 elements&gt; THEN
+  RETURN
+END
+</pre>
+<p>Here is my function, following the p-code.</p>
+<pre class="code">
+void sort(int size)
+{
+  int *p1, *p2;
+  int did_swap;
+
+  // If the array is too small to be interesting it is already sorted.
+  if (size &lt; 2) return;
+
+  // Keep looping as long as I have to swap something.
+  do {
+
+    // Initialize for this pass.
+    did_swap = 0;
+    p1 = &amp;array[0];
+    p2 = &amp;array[1];
+
+    // Sweep down the array.
+    do {
+
+      // If the current two elements are out of order, swap them.
+      if (*p1 &gt; *p2) {
+        int Temp = *p1;
+        *p1      = *p2;
+        *p2      = Temp;
+        did_swap = 1;
+      }
+
+      // Get ready for the next pair of elements.
+      p1++;
+      p2++;
+    } while (p2 &lt; array + size);
+  } while (did_swap);
+}
+</pre>
+<p>Actually the speed of this function can be doubled. Notice how after each pass the biggest
+  element finds its way to the end of the array? Since it is always bigger than anything after it,
+  the biggest element will get swapped all the way down to its final position. Thus it is not
+  really necessary to sweep over the entire array every time. The second time through you can
+  ignore the last element. The third time through you can ignore the last two elements. In this
+  way you end up cutting the number of comparisons you have to do (in general) in half. That's
+  great, but it still doesn't change the fact that this method requires a time proportional to the
+  square of the number of elements. No matter how much you tweak this algorithm it is still slow.
+  Nevertheless I invite you to optimize it by making the adjustment I described. Can you do so
+  without introducing a bug?</p>
+<p>The final program is in <a href="samples/sort_int.c">sort_int.c</a>.</p>
+<address>&copy; Copyright 2003 by Peter C. Chapin.<br/> Last Revised: <b>June 17, 2003</b>
+</address>
+</body>
+</html>
