@@ -1,24 +1,24 @@
 
 Quick-Start: Programming with curses
-(C) Copyright 2001 by Peter Chapin
+(C) Copyright 2023 by Peter Chapin
 
 Introduction
 ------------
 
 Even in this day of graphical user interfaces, there is still an important place for programs
 that use plain text interfaces. Such programs can run on a greater variety of systems. Most
-(all?) graphical systems also support a text oriented interface as well, and many systems
-support only a text interface. Also text mode programs are often smaller (and faster) than their
+(all?) graphical systems support a text oriented interface as well, and many systems support
+only a text interface. Also, text mode programs are often smaller (and faster) than their
 graphical counterparts because they tend to consume fewer system resources.
 
 A traditional Unix system communicates with its users by way of "dumb" terminals connected to
 serial ports. These days the dumb terminals have been replaced with personal computers running
-terminal emulation software and the serial connection has been replaced with the Internet. Yet
+terminal emulation software, and the serial connection has been replaced with the Internet. Yet
 despite these changes, the text oriented software still believes the user is just operating a
 simple terminal.
 
 Terminals are normally sequential devices. Each character occupies a single character "cell"
-(text terminals almost always use a fixed width font) and after each character is printed the
+(text terminals almost always use a fixed width font), and after each character is printed, the
 output position advances exactly one cell to the right. When the text reaches the end of the
 line, the next character appears at the start of the next line and the lines on the terminal
 scroll up, if necessary, to make room for it.
@@ -37,8 +37,8 @@ screen by printing the sequence of characters "\033[2J" (the '\033' is the ESC c
 represented by its ASCII code in octal).
 
 Some of these escape sequences have been standardized by the American National Standards
-Institute (ANSI) and are often called "ANSI escape sequences". The problem is that not all
-terminals understand them. Furthermore many terminals support even more advanced features than
+Institute (ANSI) and are often called "ANSI escape sequences." The problem is that not all
+terminals understand them. Furthermore, many terminals support even more advanced features than
 are defined by the ANSI standard escape sequences.
 
 This presents a problem to programmers who are trying to write software that will work properly
@@ -66,10 +66,10 @@ curses.
 Using Curses
 ------------
 
-To uses curses, you need to #include <curses.h> so that the compiler can see the declarations of
-all the curses functions (there are quite a few of them). Also when you compile your program you
-will need to tell cc that it has to scan over the curses library file. It won't do that by
-default and if it doesn't you will get errors about "unresolved" functions. Here's how that
+To use curses, you need to #include <curses.h> so that the compiler can see the declarations of
+all the curses functions (there are quite a few of them). Also, when you compile your program,
+you will need to tell cc that it has to scan over the curses library file. It won't do that by
+default, and if it doesn't, you will get errors about "unresolved" functions. Here's how that
 looks
 
     $ cc -o myprog myprog.c -lcurses
@@ -80,7 +80,7 @@ command line.
 
 Here are the basics of curses:
 
-Before you can do anything with the screen or the keyboard you should execute the following
+Before you can do anything with the screen or the keyboard, you should execute the following
 code:
 
     initscr( );
@@ -124,16 +124,16 @@ will actually be displayed on the screen.
 The curses library holds all output in a special internal area and doesn't output anything until
 you refresh. This allows you to "paint" text all over the screen any way you want and then have
 it all updated at once. This design allows for faster (apparent) updates and less flickering. It
-also allows curses to update the screen in a maximumally efficient way. Back in the days when
-most terminals operated at 2400 baud (or less) that was very important! It's still a good way to
-do things, but forgetting to refresh is a very common curses error. Watch out for it.
+also allows curses to update the screen in a maximally efficient way. Back in the days when most
+terminals operated at 2400 baud (or less) that was very important! It's still a good way to do
+things, but forgetting to refresh is a very common curses error. Watch out for it.
 
-To get a keystroke from the user use the getch function.
+To get a keystroke from the user, use the getch function.
 
     int ch;
     ch = getch( );
 
-If you activated noecho at the start of your program the character the user types will not be
+If you activated noecho at the start of your program, the character the user types will not be
 printed automatically. You can, however, print it yourself (if you want) using mvaddch and
 refresh.
 
@@ -151,13 +151,13 @@ For More Information
 --------------------
 
 This introduction should give you enough information to get you started with curses. If you want
-to do anything fancier you will need to refer to a more complete reference. The on-line manual
+to do anything fancier, you will need to refer to a more complete reference. The on-line manual
 pages might be a good place to start. Do "man curses" at the prompt to read a more detailed
 overview of the curses system. You can also use the manual to look up information on specific
 curses functions. For example
 
     $ man mvaddstr
 
-There are entire books written about using curses. In its full glory it supports, special keys
+There are entire books written about using curses. In its full glory, it supports special keys
 (arrow keys, function keys), attributes such as underline and bold, color, multiple "windows" on
 the screen, and other things. I invite you to explore.
